@@ -9,13 +9,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run shdoc
       run: |
-        ./script.sh
-        ./shdoc prova.sh
         bash -c "./shdoc prova.sh >./REFERENCE.md"
-        cat REFERENCE2.md
     - name: Commit files
       run: |
         echo ${{ github.ref }}
+        git fetch
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
