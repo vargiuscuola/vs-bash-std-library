@@ -13,3 +13,4 @@ jobs:
       run: |
         echo /opt/shdoc/shdoc prova.sh
         ./script.sh
+        /opt/script.sh
