@@ -9,6 +9,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a multi-line script
+    - name: Run shdoc
       run: |
-        ./shdoc prova.sh
+        ./shdoc prova.sh >REFERENCE.md
