@@ -11,6 +11,4 @@ jobs:
     - uses: actions/checkout@v1
     - name: Run a multi-line script
       run: |
-        echo /opt/shdoc/shdoc prova.sh
-        ./script.sh
-        /opt/script.sh
+        ./shdoc prova.sh
