@@ -11,4 +11,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: Run shdoc
       run: |
-        ./shdoc prova.sh >REFERENCE.md
+        ./shdoc prova.sh
+        bash -c "./shdoc prova.sh >REFERENCE.md"
