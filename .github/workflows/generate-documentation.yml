@@ -8,13 +8,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Checkout submodule shdoc
+    - name: Init Submodule shdoc
+      run: |
+          test -d shdoc || git submodule add https://github.com/reconquest/shdoc.git
+    - name: Checkout Submodule shdoc
       uses: "srt32/git-actions@v0.0.3"
       with:
         args: "git submodule update -f --init shdoc"
-    - name: Submodule shdoc
-      run: |
-          ls -la shdoc >./log.txt
     - name: Run shdoc
       run: |
         bash -c "./shdoc/shdoc prova.sh >./REFERENCE.md"
