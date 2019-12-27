@@ -4,7 +4,7 @@
 
 ## show_msg()
 
-Print a message28
+Print a message30
 
 ### Example
 
@@ -18,5 +18,5 @@ show_msg "prova"
 
 ### Output on stdout
 
-* Print the message29
+* Print the message30
 
