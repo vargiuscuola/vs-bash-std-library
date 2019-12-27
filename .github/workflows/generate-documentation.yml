@@ -20,7 +20,7 @@ jobs:
         ./genshdoc
     - name: Remote repo
       id: remote
-      uses: vargiuscuola/genshdoc
+      uses: vargiuscuola/genshdoc@master
     - name: Get the output result
       run: echo "The result was ${{ steps.remote.outputs.result }}"
     - name: Commit files
