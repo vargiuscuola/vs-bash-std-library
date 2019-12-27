@@ -9,9 +9,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Submodule shdoc
       run: |
-#          git fetch
-#          test -d shdoc || git submodule add https://github.com/reconquest/shdoc.git
-#          git submodule update -f --init
           ls -la shdoc >./log.txt
     - name: Run shdoc
       run: |
