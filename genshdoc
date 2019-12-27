@@ -8,7 +8,7 @@ while read file; do
 	echo file=$file item=$item
 	./shdoc/shdoc "$file" >REFERENCE-$item.md
 	list["$item"]="$file"
-done < <( find . -type f | grep -Ev '/\.git|\.md$|\.swp|/'"$(basename $0)$" | xargs -n 1 grep -l '# @' 2>/dev/null )
+done < <( find . -type f | grep -Ev '/\.git|/shdoc/|\.md$|\.swp|/'"$(basename $0)$" | xargs -n 1 grep -l '# @' 2>/dev/null )
 declare -p list
 
 cat >REFERENCE.md <<EOD
