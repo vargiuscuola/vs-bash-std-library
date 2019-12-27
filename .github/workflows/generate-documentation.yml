@@ -6,9 +6,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout
+    - uses: actions/checkout@v2
     - name: Checkout submodule shdoc
       uses: textbook/git-checkout-submodule-action@master
+    - name: Checkout2 submodule shdoc
+      uses: "srt32/git-actions@v0.0.3"
+      args: "git submodule update -f --init --recursive"
     - name: Submodule shdoc
       run: |
           ls -la shdoc >./log.txt
