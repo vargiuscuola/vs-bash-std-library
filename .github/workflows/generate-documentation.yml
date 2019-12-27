@@ -12,7 +12,7 @@ jobs:
           ls -la shdoc >./log.txt
     - name: Run shdoc
       run: |
-        bash -c "./shdoc prova.sh >./REFERENCE.md"
+        bash -c "./shdoc.tmp prova.sh >./REFERENCE.md"
     - name: Commit files
       run: |
         echo ${{ github.ref }}
