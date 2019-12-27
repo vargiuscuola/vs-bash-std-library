@@ -16,7 +16,7 @@ cat >REFERENCE.md <<EOD
 **Library Files**
 $(
 for item in ${!list[@]}; do
-	echo "[${list["$item"]#./}](REFERENCE-$item.md)"
+	echo "* [${list["$item"]#./}](REFERENCE-$item.md)"
 done
 )
 EOD
