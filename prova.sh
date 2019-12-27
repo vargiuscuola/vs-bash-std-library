@@ -7,7 +7,7 @@
 #
 # @arg $1 string Message to print
 #
-# @stdout Print the message20
+# @stdout Print the message21
 show_msg() {
 	echo ok
 }
