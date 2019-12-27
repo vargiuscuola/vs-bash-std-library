@@ -18,6 +18,7 @@ jobs:
     - name: Run shdoc
       run: |
         ./genshdoc
+    - uses: ./
     - name: Remote repo
       id: remote
       uses: vargiuscuola/genshdoc@master
