@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-#    - name: Submodule shdoc
-#      run: |
+    - name: Submodule shdoc
+      run: |
 #          git fetch
 #          test -d shdoc || git submodule add https://github.com/reconquest/shdoc.git
 #          git submodule update -f --init
-#          ls -la shdoc >./log.txt
+          ls -la shdoc >./log.txt
     - name: Run shdoc
       run: |
         bash -c "./shdoc/shdoc prova.sh >./REFERENCE.md"
