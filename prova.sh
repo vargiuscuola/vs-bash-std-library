@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# @description Print a message24
+# @description Print a message25
 #
 # @example
 #   show_msg "prova"
 #
 # @arg $1 string Message to print
 #
-# @stdout Print the message24
+# @stdout Print the message25
 show_msg() {
 	echo ok
 }
