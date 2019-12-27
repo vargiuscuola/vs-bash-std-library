@@ -7,7 +7,7 @@ Libreria prova.sh
 
 ## show_msg()
 
-Print a message50
+Print a message51
 
 ### Example
 
@@ -21,5 +21,5 @@ show_msg "prova"
 
 ### Output on stdout
 
-* Print the message50
+* Print the message51
 
