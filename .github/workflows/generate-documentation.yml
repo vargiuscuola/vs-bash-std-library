@@ -15,9 +15,6 @@ jobs:
       uses: "srt32/git-actions@v0.0.3"
       with:
         args: "git submodule update -f --init shdoc"
-    - name: Run shdoc
-      run: |
-        ./genshdoc
     - name: Remote repo
       id: remote
       uses: vargiuscuola/genshdoc@master
