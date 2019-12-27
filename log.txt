@@ -1,3 +1,13 @@
-total 8
-drwxr-xr-x 2 runner docker 4096 Dec 27 12:01 .
-drwxr-xr-x 5 runner docker 4096 Dec 27 12:01 ..
+total 52
+drwxr-xr-x 5 runner docker 4096 Dec 27 12:05 .
+drwxr-xr-x 5 runner docker 4096 Dec 27 12:05 ..
+-rw-r--r-- 1 root   root     30 Dec 27 12:05 .git
+drwxr-xr-x 3 root   root   4096 Dec 27 12:05 .github
+-rw-r--r-- 1 root   root     22 Dec 27 12:05 .gitignore
+-rw-r--r-- 1 root   root    153 Dec 27 12:05 .gitmodules
+-rw-r--r-- 1 root   root   1076 Dec 27 12:05 LICENSE
+-rw-r--r-- 1 root   root    177 Dec 27 12:05 Makefile
+-rw-r--r-- 1 root   root   2042 Dec 27 12:05 README.md
+-rwxr-xr-x 1 root   root   4443 Dec 27 12:05 shdoc
+drwxr-xr-x 3 root   root   4096 Dec 27 12:05 tests
+drwxr-xr-x 3 root   root   4096 Dec 27 12:05 vendor
