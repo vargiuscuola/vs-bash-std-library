@@ -18,6 +18,11 @@ jobs:
     - name: Run shdoc
       run: |
         ./genshdoc
+    - name: Remote repo
+      id: remote
+      uses: vargiuscuola/genshdoc
+    - name: Get the output result
+      run: echo "The result was ${{ steps.remote.outputs.result }}"
     - name: Commit files
       run: |
         echo ${{ github.ref }}
