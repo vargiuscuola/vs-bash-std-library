@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Submodule shdoc
       run: |
-          git submodule add https://github.com/reconquest/shdoc.git
+          test -d shdoc || git submodule add https://github.com/reconquest/shdoc.git
     - name: Run shdoc
       run: |
         bash -c "./shdoc/shdoc prova.sh >./REFERENCE.md"
@@ -20,7 +20,7 @@ jobs:
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "ci: Automated build push" -a | exit 0
+        git commit -m "CI: Automated build push" -a | exit 0
     - name: Push changes
       if: github.ref == 'refs/heads/master'
       uses: ad-m/github-push-action@master
