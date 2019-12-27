@@ -3,14 +3,14 @@
 # @file prova.sh
 # @brief Libreria prova.sh
 
-# @description Print a message54
+# @description Print a message55
 #
 # @example
 #   show_msg "prova"
 #
 # @arg $1 string Message to print
 #
-# @stdout Print the message54
+# @stdout Print the message55
 show_msg() {
 	echo ok
 }
