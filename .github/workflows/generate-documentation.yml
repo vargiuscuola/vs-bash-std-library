@@ -8,12 +8,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Checkout submodule shdoc
-      uses: textbook/git-checkout-submodule-action@master
-    - name: Checkout2 submodule shdoc
-      uses: "srt32/git-actions@v0.0.3"
-      with:
-        args: "git submodule update -f --init --recursive"
     - name: Submodule shdoc
       run: |
           ls -la shdoc >./log.txt
