@@ -9,6 +9,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Submodule shdoc
       run: |
+          git submodule update -f --init
           ls -la shdoc >./log.txt
     - name: Run shdoc
       run: |
