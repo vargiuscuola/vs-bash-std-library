@@ -1,4 +1,5 @@
 #!/bin/bash
+#github-action genshdoc
 
 # @file prova.sh
 # @brief Libreria prova.sh
