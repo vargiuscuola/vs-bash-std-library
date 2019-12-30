@@ -1,25 +1,25 @@
-# prova.sh# 
+# prova.sh
 
 Libreria prova.sh
 
 * [show_msg()](#showmsg)
 
 
-## show_msg()## 
+## show_msg()
 
-Print a message60
+Print a message61
 
-### Example### 
+### Example
 
-```bash```
+```bash
 show_msg "prova"
 ```
 
-### Arguments### 
+### Arguments
 
-* **$1** (string): Message to print* 
+* **$1** (string): Message to print
 
-### Output on stdout### 
+### Output on stdout
 
-* Print the message60* 
+* Print the message61
 
