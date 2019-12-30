@@ -10,7 +10,7 @@
 #
 # @arg $1 string Message to print
 #
-# @stdout Print the message55
+# @stdout Print the message56
 show_msg() {
 	echo ok
 }
