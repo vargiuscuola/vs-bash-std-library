@@ -8,13 +8,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Init Submodule shdoc
-      run: |
-          test -d shdoc || git submodule add https://github.com/reconquest/shdoc.git
-    - name: Checkout Submodule shdoc
-      uses: "srt32/git-actions@v0.0.3"
-      with:
-        args: "git submodule update -f --init shdoc"
     - name: Remote repo
       id: remote
       uses: vargiuscuola/genshdoc@master
