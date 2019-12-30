@@ -8,13 +8,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Remote repo
+    - name: Github Action genshdoc
       id: remote
       uses: vargiuscuola/genshdoc@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Get the output result
       run: echo "The result was ${{ steps.remote.outputs.result }}"
     - name: Commit files
