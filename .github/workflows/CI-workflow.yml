@@ -11,8 +11,13 @@ jobs:
     - name: Github Action genshdoc
       id: remote
       uses: vargiuscuola/genshdoc@master
-    - name: Get the output result
-      run: echo "The result was ${{ steps.remote.outputs.result }}"
+    - name: genshdoc result
+      run: echo "The result of genshdoc Action was ${{ steps.remote.outputs.result }}"
+    - name: Github Action gen-sh-unittest
+      id: remote
+      uses: vargiuscuola/gen-sh-unittest@master
+    - name: gensh-unittest result
+      run: echo "The result of gensh-unittest Action was ${{ steps.remote.outputs.result }}"
     - name: Commit files
       run: |
         echo ${{ github.ref }}
