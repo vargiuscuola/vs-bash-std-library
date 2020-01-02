@@ -1,0 +1,9 @@
+#!/bin/bash
+
+test1() {
+	assertEquals 1 1
+}
+
+test2() {
+	assertEquals "2+2 non fa quattro" 4 3
+}
