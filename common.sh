@@ -1,7 +1,8 @@
 #!/bin/bash
 #github-action genshdoc
 
-# @file Bash Library vs-bash-std-library
+# @file Library common.sh
+# @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 
 # $_ != $0
 [[ "$1" != "-f" && "$1" != "-x" && "$IS_LOADED_FUNCTIONS_COMMON" = 1 ]] && return
@@ -30,11 +31,10 @@ fi
 #
 # COSTANTI
 
-function get_ext_color() { local color ; [ -n "$1" ] && color="38;5;$1" ; [ -n "$2" ] && str_concat color "48;5;$1" ';' ; echo -ne "\e[${color}m"; }
 # Reset
 Color_Off='\e[0m'
 # Regular Colors
-Black='\e[0;30m' Red='\e[0;31m' Green='\e[0;32m' Yellow='\e[0;33m' Blue='\e[0;34m' Purple='\e[0;35m' Cyan='\e[0;36m' White='\e[0;37m' Orange="$( get_ext_color 208 )"
+Black='\e[0;30m' Red='\e[0;31m' Green='\e[0;32m' Yellow='\e[0;33m' Blue='\e[0;34m' Purple='\e[0;35m' Cyan='\e[0;36m' White='\e[0;37m' Orange=$'\e''[38;5;208m'
 # Bold
 BBlack='\e[1;30m' BRed='\e[1;31m' BGreen='\e[1;32m' BYellow='\e[1;33m' BBlue='\e[1;34m' BPurple='\e[1;35m' BCyan='\e[1;36m' BWhite='\e[1;37m'
 # Underline
@@ -614,6 +614,20 @@ define(){ IFS='\n' read -r -d '' ${1} || true; }
 is_piped() { [ -t 1 ] && return 1 || return 0 ; }
 is_piped && enable_flag IS_PIPED || disable_flag IS_PIPED
 is_word_in_string() { [[ "$2" =~ (^| )$1( |$) ]] ; }
+
+# @description Get extended terminal color codes
+#
+# @arg $1 number Foreground color.
+# @arg $2 number Background color.
+#
+# @example
+#   get_ext_color 208
+#     => \e[38;5;208m
+#
+# @exitcode n.a.
+#
+# @stdout Color code.
+function get_ext_color() { local color ; [ -n "$1" ] && color="38;5;$1" ; [ -n "$2" ] && str_concat color "48;5;$1" ';' ; echo -ne "\e[${color}m"; }
 
 # consente di eseguire lo script mentre lo si edita: utile in caso di aggiornamenti git o simili che possono disturbare l'esecuzione dello script
 # basta eseguire la funzione all'inizio dello script
