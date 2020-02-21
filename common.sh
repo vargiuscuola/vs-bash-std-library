@@ -1,4 +1,6 @@
 #!/bin/bash
+#github-action genshdoc
+
 # @file Bash Library vs-bash-std-library
 
 # $_ != $0
