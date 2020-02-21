@@ -1,4 +1,5 @@
 #!/bin/bash
+# @file Bash Library vs-bash-std-library
 
 # $_ != $0
 [[ "$1" != "-f" && "$1" != "-x" && "$IS_LOADED_FUNCTIONS_COMMON" = 1 ]] && return
