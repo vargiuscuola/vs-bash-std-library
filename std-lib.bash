@@ -4,6 +4,15 @@
 # @file Library common.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 
+# @constant const1 Descvription
+
+[[ "$( uname -a  )" =~ ^MINGW ]] && _std_lib_lib_root_dir=/c/linux-lib/sh || _std_lib_lib_root_dir=/lib/sh
+mkdir -p $_std_lib_lib_root_dir
+_std_lib_import_libdir=$_std_lib_lib_root_dir/github.com/vargiuscuola/import.bash
+[ ! -d $_std_lib_import_libdir ] && git clone --single-branch https://github.com/vargiuscuola/import.bash $_std_lib_import_libdir &>/dev/null
+[ ! -f $_std_lib_import_libdir/import.bash ] && { echo "Cannot find import.bash library in directory $_std_lib_import_libdir" >&2 ; }
+source $_std_lib_import_libdir/import.bash
+
 # $_ != $0
 [[ "$1" != "-f" && "$1" != "-x" && "$IS_LOADED_FUNCTIONS_COMMON" = 1 ]] && return
 IS_LOADED_FUNCTIONS_COMMON=1
