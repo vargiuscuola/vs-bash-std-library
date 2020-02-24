@@ -45,7 +45,7 @@ On_Black='\e[40m' On_Red='\e[41m' On_Green='\e[42m' On_Yellow='\e[43m' On_Blue='
 IBlack='\e[0;90m' IRed='\e[0;91m' IGreen='\e[0;92m' IYellow='\e[0;93m' IBlue='\e[0;94m' IPurple='\e[0;95m' ICyan='\e[0;96m' IWhite='\e[0;97m'
 # Bold High Intensty
 BIBlack='\e[1;90m' BIRed='\e[1;91m' BIGreen='\e[1;92m' BIYellow='\e[1;93m' BIBlue='\e[1;94m' BIPurple='\e[1;95m' BICyan='\e[1;96m' BIWhite='\e[1;97m'
-# High Intensty backgrounds
+# High Intensity backgrounds
 On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0;103m' On_IBlue='\e[0;104m' On_IPurple='\e[10;95m' On_ICyan='\e[0;106m' On_IWhite='\e[0;107m'
 
 
@@ -617,8 +617,8 @@ is_word_in_string() { [[ "$2" =~ (^| )$1( |$) ]] ; }
 
 # @description Get extended terminal color codes
 #
-# @arg $1 number Foreground color.
-# @arg $2 number Background color.
+# @arg $1 number Foreground color
+# @arg $2 number Background color
 #
 # @example
 #   get_ext_color 208
