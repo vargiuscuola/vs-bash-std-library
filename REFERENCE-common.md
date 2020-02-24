@@ -11,8 +11,8 @@ Get extended terminal color codes
 
 ### Arguments
 
-* **$1** (number): Foreground color.
-* **$2** (number): Background color.
+* **$1** (number): Foreground color
+* **$2** (number): Background color
 
 ### Example
 
