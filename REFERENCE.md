@@ -1,3 +1,5 @@
 # Reference
 **Library Files**
-* [std-lib.bash](REFERENCE-std-lib.md)
+* [package.sh](REFERENCE-package.md)
+* [import.sh](REFERENCE-import.md)
+* [main.sh](REFERENCE-main.md)
