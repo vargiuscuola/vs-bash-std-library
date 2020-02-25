@@ -4,8 +4,7 @@
 # @file Library main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 
-
-xxx
+xxx-
 
 # $_ != $0
 [[ "$1" != "-f" && "$1" != "-x" && "$IS_LOADED_FUNCTIONS_COMMON" = 1 ]] && return
