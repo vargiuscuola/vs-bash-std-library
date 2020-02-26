@@ -3,6 +3,7 @@
 
 # @file package.sh
 # @brief load shell libraries packages as git repositories
+# @show-internal
 shopt -s expand_aliases
 
 # @param _PACKAGE__LIB_DIR string[/lib/sh in Linux - /c/linux-lib/sh in Windows] shell libraries base path

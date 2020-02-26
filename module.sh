@@ -3,10 +3,12 @@
 
 # @file module.sh
 # @brief include shell libraries modules
+# @show-internal
 shopt -s expand_aliases
 source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 
 # @description Return normalized absolute path
+# @internal
 # @example
 #   module.abs_path_ "../lib"
 #   => /var/lib
