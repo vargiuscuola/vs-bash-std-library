@@ -1,6 +1,6 @@
 # package.sh
 
-load packages of shell libraries as git repositories
+load shell libraries packages as git repositories
 
 ## Parameters
 
@@ -31,7 +31,7 @@ _Function has no arguments._
 
 ### package_load()
 
-Load required package
+Load required package, cloning the git repository hosting it
 
 #### Example
 
