@@ -8,28 +8,8 @@ include shell libraries modules
 
 
 ## Functions
-* [:module_abs_path_()](#module_abs_path_)
 * [module_import()](#module_import)
 
-
-### :module_abs_path_()
-
-Return normalized absolute path
-
-#### Example
-
-```bash
-module.abs_path_ "../lib"
-=> /var/lib
-```
-
-#### Arguments
-
-* **$1** (string): Path
-
-#### Return with global $__ or $_\<MODULE\>__
-
-* Normalized absolute path
 
 ### module_import()
 
@@ -50,5 +30,30 @@ module.import "githum/vargiuscuola/std-lib.bash/main"
 
 * **0**: On success
 * **1**: On failure
+
+
+
+## Internal Functions
+* [:module_abs_path_()](#module_abs_path_)
+
+
+### :module_abs_path_()
+
+Return normalized absolute path
+
+#### Example
+
+```bash
+module.abs_path_ "../lib"
+=> /var/lib
+```
+
+#### Arguments
+
+* **$1** (string): Path
+
+#### Return with global $__ or $_\<MODULE\>__
+
+* Normalized absolute path
 
 
