@@ -8,18 +8,18 @@ load shell libraries packages as git repositories
 
 
 ## Functions
-* [package_get-lib-dir()](#package_get-lib-dir)
+* [package_get-lib-dir_()](#package_get-lib-dir_)
 * [package_load()](#package_load)
 
 
-### package_get-lib-dir()
+### package_get-lib-dir_()
 
 Print library base path
 
 #### Example
 
 ```bash
-package.get-lib-dir
+package.get-lib-dir_
 => /lib/sh
 ```
 
