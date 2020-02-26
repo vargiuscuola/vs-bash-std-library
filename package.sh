@@ -5,7 +5,7 @@
 # @brief load shell libraries packages as git repositories
 shopt -s expand_aliases
 
-# @param _PACKAGE__LIB_DIR string[/lib/sh in Linux - /c/linux-lib/sh in Windows] Shell Libraries Path
+# @param _PACKAGE__LIB_DIR string[/lib/sh in Linux - /c/linux-lib/sh in Windows] shell libraries base path
 [[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
 
 # @description Print library base path
