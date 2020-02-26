@@ -6,10 +6,11 @@
 # @show-internal
 shopt -s expand_aliases
 
-# @environment _MAIN__FLAGS Hash Store flags values
+# @environment-header Flags
+# @environment _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
 declare -A _MAIN__FLAGS
 
-# @environment _MAIN__RAW_SCRIPTNAME 
+# @environment _MAIN__RAW_SCRIPTNAME string Calling script path (not normalized)
 # test if file is sourced or executed
 if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
 	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
