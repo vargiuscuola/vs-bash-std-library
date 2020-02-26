@@ -9,19 +9,17 @@ shopt -s expand_aliases
 [[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
 
 # @description Print library base path
-#
 # @example
-#   package.get-lib-dir
+#   package.get-lib-dir_
 #   => /lib/sh
 # @noargs
 # @stdout Library path
-package_get-lib-dir() {
-    echo "$_PACKAGE__LIB_DIR"
+package_get-lib-dir_() {
+    declare -g _PACKAGE__="$_PACKAGE__LIB_DIR"
 }
-alias package.get-lib-dir="package_get-lib-dir"
+alias package.get-lib-dir_="package_get-lib-dir_"
 
 # @description Load required package, cloning the git repository hosting it
-#
 # @example
 #   package.load github.com/vargiuscuola/std-lib.bash
 # @arg $1 string Git repository url without scheme (https:// is used)
@@ -30,10 +28,11 @@ alias package.get-lib-dir="package_get-lib-dir"
 # @stdout Informative messages
 # @stderr Error messages
 package_load() {
-    local is_update git_package
+    local is_update is_check git_package
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 			--update) is_update=true ; shift ;;
+			--check) is_check=true ; shift ;;
 			*) [[ -n "$git_package" ]] && { echo "[ERROR] Argument error" >&2 ; return 1 ; } ; git_package="$1" ; shift ;;
 		esac
 	done
@@ -46,9 +45,11 @@ package_load() {
     fi
     
     [[ ! -d "$lib_dir" ]] && { echo "Missing git repository in $lib_dir" >&2 ; return 1 ; }
-    ( cd "$lib_dir" &>/dev/null && git fsck &>/dev/null ) || { echo "[ERROR] The git repository in $lib_dir is broken" >&2 ; return 1 ; }
-    ( cd "$lib_dir" &>/dev/null && git fetch --prune &>/dev/null ) || { echo "[ERROR] Cannot check updates from origin" >&2 ; return 1 ; }
+    if [[ "$is_check" == true ]]; then
+        ( cd "$lib_dir" &>/dev/null && git fsck &>/dev/null ) || { echo "[ERROR] The git repository in $lib_dir is broken" >&2 ; return 1 ; }
+    fi
     if [[ "$is_update" == true ]]; then
+        ( cd "$lib_dir" &>/dev/null && git fetch --prune &>/dev/null ) || { echo "[ERROR] Cannot check updates from origin" >&2 ; return 1 ; }
         local local_commitid="$(cd "$lib_dir" && git rev-parse master)"
         local remote_commitid="$(cd "$lib_dir" && git rev-parse origin/master)"
         if [[ "$local_commitid" != "$remote_commitid" ]]; then

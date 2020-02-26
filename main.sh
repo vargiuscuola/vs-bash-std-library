@@ -10,13 +10,16 @@ shopt -s expand_aliases
 
 declare -A _MAIN__FLAGS
 
+# @environment _MAIN__RAW_SCRIPTNAME 
 # test if file is sourced or executed
 if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
-	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[1]}"
+	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
 	_MAIN__FLAGS[SOURCED]=1
 else
 	_MAIN___MAIN__RAW_SCRIPTNAME="$0"
 fi
+echo _MAIN__RAW_SCRIPTNAME=$_MAIN__RAW_SCRIPTNAME
+echo "${BASH_SOURCE[@]}"
 
 # @constant-header Terminal color codes
 # @constant Color_Off Disable color

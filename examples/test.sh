@@ -1,8 +1,10 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/../package.sh"
-package.load "github.com/vargiuscuola/rebash" --update
-source "$(package.get-lib-dir)/github.com/vargiuscuola/rebash/core.sh"
+CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-package.load "github.com/vargiuscuola/std-lib.bash" --update
-core.import "github.com/vargiuscuola/std-lib.bash/main.sh" false
+source "$(dirname "${BASH_SOURCE[0]}")/../package.sh"
+package.load "github.com/vargiuscuola/std-lib.bash"
+source "$(dirname "${BASH_SOURCE[0]}")/../module.sh"
+
+module.import "$CUR_DIR/../main.sh"
+#module.import "github.com/vargiuscuola/std-lib.bash/main.sh"
