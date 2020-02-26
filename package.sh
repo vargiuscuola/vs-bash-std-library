@@ -24,8 +24,7 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 # @example
 #   package.load github.com/vargiuscuola/std-lib.bash
 # @arg $1 string Git repository url without scheme (https:// is used)
-# @exitcode 0  If successfull
-# @exitcode >0 On failure
+# @exitcodes Standard
 # @stdout Informative messages
 # @stderr Error messages
 package_load() {

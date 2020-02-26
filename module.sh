@@ -35,10 +35,8 @@ alias :module.abs_path_=":module_abs_path_"
 # @description Import module
 # @example
 #   module.import "githum/vargiuscuola/std-lib.bash/main"
-#   => /var/lib
 # @arg $1 string Module path. Shell extension `.sh` can be omitted
-# @exitcode 0 On success
-# @exitcode 1 On failure
+# @exitcodes Standard
 module_import() {
     local module="$1"
     :module.abs_path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$_MODULE__"
