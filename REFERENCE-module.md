@@ -4,7 +4,7 @@ include shell libraries modules
 
 ## Environments Variables
 
-* **_MODULE__IMPORTED_MODULES**: Imported modules
+* **_MODULE__IMPORTED_MODULES** (Array):  Imported modules
 
 
 ## Functions

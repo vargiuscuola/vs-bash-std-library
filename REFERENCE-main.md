@@ -17,7 +17,8 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ## Environments Variables
 
-* **_MAIN__RAW_SCRIPTNAME**: 
+* **_MAIN__FLAGS** (Hash):  Store flags values
+* **_MAIN__RAW_SCRIPTNAME** (): 
 
 
 ## Functions
