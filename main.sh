@@ -4,10 +4,9 @@
 # @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 # @show-internal
-
 shopt -s expand_aliases
 
-
+# @environment _MAIN__FLAGS Hash Store flags values
 declare -A _MAIN__FLAGS
 
 # @environment _MAIN__RAW_SCRIPTNAME 

@@ -28,7 +28,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 }
 alias :module.abs_path_=":module_abs_path_"
 
-# @environment _MODULE__IMPORTED_MODULES Imported modules
+# @environment _MODULE__IMPORTED_MODULES Array Imported modules
 :module.abs_path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$_MODULE__")
 :module.abs_path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$_MODULE__")
 

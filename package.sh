@@ -6,8 +6,10 @@
 # @show-internal
 shopt -s expand_aliases
 
-# @param _PACKAGE__LIB_DIR string[/lib/sh in Linux - /c/linux-lib/sh in Windows] shell libraries base path
-[[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
+# @param _PACKAGE__LIB_DIR string[/lib/sh in Linux or /c/linux-lib/sh in Windows] shell libraries base path
+if [[ -z "$_PACKAGE__LIB_DIR" ]]; then
+    [[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
+fi
 
 # @description Print library base path
 # @example
