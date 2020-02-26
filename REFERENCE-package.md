@@ -1,7 +1,59 @@
-# Library package.sh
+# package.sh
+
+load packages of shell libraries as git repositories
+
+## Parameters
+
+* _PACKAGE__LIB_DIR string[/lib/sh in Linux - /c/linux-lib/sh in Windows] Shell Libraries Path
 
 
 ## Functions
+* [package_get-lib-dir()](#packageget-lib-dir)
+* [package_load()](#packageload)
 
+
+### package_get-lib-dir()
+
+Print library base path
+
+#### Example
+
+```bash
+package.get-lib-dir
+=> /lib/sh
+```
+
+_Function has no arguments._
+
+#### Output on stdout
+
+* Library path
+
+### package_load()
+
+Load required package
+
+#### Example
+
+```bash
+package.load github.com/vargiuscuola/std-lib.bash
+```
+
+#### Arguments
+
+* **$1** (string): Git repository url without scheme (https:// is used)
+
+#### Exit codes
+
+* **0**:  If successfull
+* **>0**: On failure
+
+#### Output on stdout
+
+* Informative messages
+
+#### Output on stderr
+
+* Error messages
 
 

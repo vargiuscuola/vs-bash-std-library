@@ -1,9 +1,34 @@
 #!/bin/bash
 #github-action genshdoc
 
-# @file Library main.sh
+# @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
+# @show-internal
 
+shopt -s expand_aliases
+
+
+declare -A _MAIN__FLAGS
+
+# test if file is sourced or executed
+if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
+	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[1]}"
+	_MAIN__FLAGS[SOURCED]=1
+else
+	_MAIN___MAIN__RAW_SCRIPTNAME="$0"
+fi
+
+# @constant-header Terminal color codes
+# @constant Color_Off Disable color
+# @constant Black,Red,Green,Yellow,Blue,Purple,Cyan,Orange                                   Regular Colors
+# @constant BBlack,BRed,BGreen,BYellow,BBlue,BPurple,BCyan,BWhite                            Bold Colors
+# @constant UBlack,URed,UGreen,UYellow,UBlue,UPurple,UCyan,UWhite                            Underlined Colors
+# @constant IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite                            High Intensty Colors
+# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensty Colors
+# @constant On_Black,On_Red,On_Green,On_Yellow,On_Blue,On_Purple,On_Cyan,On_White            Background Colors
+# @constant On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite    High Intensty Background Colors
+
+main_is_loaded
 xxx-
 
 # $_ != $0
@@ -11,18 +36,17 @@ xxx-
 IS_LOADED_FUNCTIONS_COMMON=1
 RUN_DIR=/var/run/vargiuscuola
 [ ! -d "$RUN_DIR" ] && mkdir -p "$RUN_DIR"
-declare -A __FLAGS
 # verifica se e' una sessione chroot
-[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && __FLAGS[CHROOTED]=1
+[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=1
 # verifica se lo script e' sourced
 if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
-	RAW_SCRIPTNAME="${BASH_SOURCE[1]}"
-	__FLAGS[SOURCED]=1
+	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[1]}"
+	_MAIN__FLAGS[SOURCED]=1
 else
-	RAW_SCRIPTNAME="$0"
+	_MAIN__RAW_SCRIPTNAME="$0"
 fi
 if [ ! ${SCRIPTNAME+x} ]; then
-	SCRIPTPATH="$( test -L "${RAW_SCRIPTNAME}" && readlink "${RAW_SCRIPTNAME}" || echo "${RAW_SCRIPTNAME}" )"
+	SCRIPTPATH="$( test -L "${_MAIN__RAW_SCRIPTNAME}" && readlink "${_MAIN__RAW_SCRIPTNAME}" || echo "${_MAIN__RAW_SCRIPTNAME}" )"
 	SCRIPTPATH="$( realpath "$SCRIPTPATH" )"
 	SCRIPTNAME="$(basename "$SCRIPTPATH")"
 	SCRIPTDIR="$( dirname "$SCRIPTPATH")"
@@ -76,12 +100,12 @@ function parseargs_disable_optarg() { __OPTARGS[$1]=0 ; }
 function parseargs_is_default() { [ "${__DEFAULTS[$1]}" = 1 ] ; }
 
 # funzioni per gestire variabili di tipo flag (si/no)
-function is_flag() { [ "${__FLAGS[$1]}" = 1 ] ; }
-function is_flag_disabled() { [ "${__FLAGS[$1]}" = 0 ] ; }
-function enable_flag() { __FLAGS[$1]=1 ; }
-function disable_flag() { __FLAGS[$1]=0 ; }
-function set_flag() { [[ "$2" = on || "$2" = yes || "$2" = 1 ]] && __FLAGS[$1]=1 || __FLAGS[$1]=0 ; }
-function get_flag_() { declare -g __="${__FLAGS[$1]}" ; }
+function is_flag() { [ "${_MAIN__FLAGS[$1]}" = 1 ] ; }
+function is_flag_disabled() { [ "${_MAIN__FLAGS[$1]}" = 0 ] ; }
+function enable_flag() { _MAIN__FLAGS[$1]=1 ; }
+function disable_flag() { _MAIN__FLAGS[$1]=0 ; }
+function set_flag() { [[ "$2" = on || "$2" = yes || "$2" = 1 ]] && _MAIN__FLAGS[$1]=1 || _MAIN__FLAGS[$1]=0 ; }
+function get_flag_() { declare -g __="${_MAIN__FLAGS[$1]}" ; }
 
 # opzioni multiple di parseargs
 function parseargs_get_multopt() { local ary_string="$(declare -p __OPTS_$1 2>/dev/null)" ; eval "declare -ga $2$( [ -n "$ary_string" ] && echo "=${ary_string#*=}" )" ; }
@@ -101,7 +125,7 @@ prefix_date() {
 }
 
 printf_color() {
-	[[ "${__OPTS[COLOR]}" = 1  || "${__FLAGS[IS_PIPED]}" != 1 ]] && printf "$@" || ( printf "$@" | sed -r "s/\x1B\[([0-9]{1,3};){0,2}[0-9]{0,3}[mGK]//g" )
+	[[ "${__OPTS[COLOR]}" = 1  || "${_MAIN__FLAGS[IS_PIPED]}" != 1 ]] && printf "$@" || ( printf "$@" | sed -r "s/\x1B\[([0-9]{1,3};){0,2}[0-9]{0,3}[mGK]//g" )
 }
 
 show_msg() {
