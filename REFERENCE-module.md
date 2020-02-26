@@ -19,7 +19,6 @@ Import module
 
 ```bash
 module.import "githum/vargiuscuola/std-lib.bash/main"
-=> /var/lib
 ```
 
 #### Arguments
@@ -28,8 +27,7 @@ module.import "githum/vargiuscuola/std-lib.bash/main"
 
 #### Exit codes
 
-* **0**: On success
-* **1**: On failure
+* Standard
 
 
 
