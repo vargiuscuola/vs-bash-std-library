@@ -45,8 +45,7 @@ package.load github.com/vargiuscuola/std-lib.bash
 
 #### Exit codes
 
-* **0**:  If successfull
-* **>0**: On failure
+* Standard
 
 #### Output on stdout
 
