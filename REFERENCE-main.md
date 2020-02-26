@@ -17,8 +17,9 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ## Environments Variables
 
-* **_MAIN__FLAGS** (Hash):  Store flags values
-* **_MAIN__RAW_SCRIPTNAME** (): 
+### Flags
+* **_MAIN__FLAGS[SOURCED]** (Bool):  Is current file sourced?
+* **_MAIN__RAW_SCRIPTNAME** (string):  Calling script path (not normalized)
 
 
 ## Functions
