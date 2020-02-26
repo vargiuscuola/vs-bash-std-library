@@ -16,7 +16,7 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 
 ## Functions
-* [get_ext_color()](#getextcolor)
+* [get_ext_color()](#get_ext_color)
 
 
 ### get_ext_color()
