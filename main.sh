@@ -6,77 +6,67 @@
 # @show-internal
 shopt -s expand_aliases
 
+
+############
+#
+# ENVIRONMENT
+#
+
 # @environment-header Flags
 # @environment _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
-declare -A _MAIN__FLAGS
 
-# @environment _MAIN__RAW_SCRIPTNAME string Calling script path (not normalized)
-# test if file is sourced or executed
-if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
-	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
-	_MAIN__FLAGS[SOURCED]=1
-else
-	_MAIN___MAIN__RAW_SCRIPTNAME="$0"
-fi
-echo _MAIN__RAW_SCRIPTNAME=$_MAIN__RAW_SCRIPTNAME
-echo "${BASH_SOURCE[@]}"
+
+############
+#
+# SETTINGS
+#
 
 # @constant-header Terminal color codes
 # @constant Color_Off Disable color
+Color_Off='\e[0m'
 # @constant Black,Red,Green,Yellow,Blue,Purple,Cyan,Orange                                   Regular Colors
+Black='\e[0;30m' Red='\e[0;31m' Green='\e[0;32m' Yellow='\e[0;33m' Blue='\e[0;34m' Purple='\e[0;35m' Cyan='\e[0;36m' White='\e[0;37m' Orange=$'\e''[38;5;208m'
 # @constant BBlack,BRed,BGreen,BYellow,BBlue,BPurple,BCyan,BWhite                            Bold Colors
+BBlack='\e[1;30m' BRed='\e[1;31m' BGreen='\e[1;32m' BYellow='\e[1;33m' BBlue='\e[1;34m' BPurple='\e[1;35m' BCyan='\e[1;36m' BWhite='\e[1;37m'
 # @constant UBlack,URed,UGreen,UYellow,UBlue,UPurple,UCyan,UWhite                            Underlined Colors
-# @constant IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite                            High Intensty Colors
-# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensty Colors
+UBlack='\e[4;30m' URed='\e[4;31m' UGreen='\e[4;32m' UYellow='\e[4;33m' UBlue='\e[4;34m' UPurple='\e[4;35m' UCyan='\e[4;36m' UWhite='\e[4;37m'
 # @constant On_Black,On_Red,On_Green,On_Yellow,On_Blue,On_Purple,On_Cyan,On_White            Background Colors
+On_Black='\e[40m' On_Red='\e[41m' On_Green='\e[42m' On_Yellow='\e[43m' On_Blue='\e[44m' On_Purple='\e[45m' On_Cyan='\e[46m' On_White='\e[47m'
+# @constant IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite                            High Intensty Colors
+IBlack='\e[0;90m' IRed='\e[0;91m' IGreen='\e[0;92m' IYellow='\e[0;93m' IBlue='\e[0;94m' IPurple='\e[0;95m' ICyan='\e[0;96m' IWhite='\e[0;97m'
+# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensty Colors
+BIBlack='\e[1;90m' BIRed='\e[1;91m' BIGreen='\e[1;92m' BIYellow='\e[1;93m' BIBlue='\e[1;94m' BIPurple='\e[1;95m' BICyan='\e[1;96m' BIWhite='\e[1;97m'
 # @constant On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite    High Intensty Background Colors
+On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0;103m' On_IBlue='\e[0;104m' On_IPurple='\e[10;95m' On_ICyan='\e[0;106m' On_IWhite='\e[0;107m'
 
-return
-main_is_loaded
-xxx-
 
-# $_ != $0
-[[ "$1" != "-f" && "$1" != "-x" && "$IS_LOADED_FUNCTIONS_COMMON" = 1 ]] && return
-IS_LOADED_FUNCTIONS_COMMON=1
-RUN_DIR=/var/run/vargiuscuola
-[ ! -d "$RUN_DIR" ] && mkdir -p "$RUN_DIR"
-# verifica se e' una sessione chroot
-[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=1
-# verifica se lo script e' sourced
-if [[ "${BASH_SOURCE[1]}" != "${0}" ]]; then
-	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[1]}"
+############
+#
+# START
+#
+
+declare -p _MAIN__FLAGS &>/dev/null && return
+declare -gA _MAIN__FLAGS
+
+# @environment _MAIN__RAW_SCRIPTNAME string Calling script path (not normalized)
+# test if file is sourced or executed
+if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
+	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
 	_MAIN__FLAGS[SOURCED]=1
 else
 	_MAIN__RAW_SCRIPTNAME="$0"
 fi
-if [ ! ${SCRIPTNAME+x} ]; then
-	SCRIPTPATH="$( test -L "${_MAIN__RAW_SCRIPTNAME}" && readlink "${_MAIN__RAW_SCRIPTNAME}" || echo "${_MAIN__RAW_SCRIPTNAME}" )"
-	SCRIPTPATH="$( realpath "$SCRIPTPATH" )"
-	SCRIPTNAME="$(basename "$SCRIPTPATH")"
-	SCRIPTDIR="$( dirname "$SCRIPTPATH")"
+
+# verifica se e' una sessione chroot
+[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=1
+
+if [ ! ${_MAIN__SCRIPTNAME+x} ]; then
+	_MAIN__SCRIPTPATH="$( test -L "${_MAIN__RAW_SCRIPTNAME}" && readlink "${_MAIN__RAW_SCRIPTNAME}" || echo "${_MAIN__RAW_SCRIPTNAME}" )"
+	_MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
+	_MAIN__SCRIPTNAME="$(basename "$_MAIN__SCRIPTPATH")"
+	_MAIN__SCRIPTDIR="$( dirname "$_MAIN__SCRIPTPATH")"
 fi
-[ ${__vs_cmds_logfile+x} ] || __vs_cmds_logfile=/var/log/vargiuscuola/${SCRIPTNAME}_cmds.log
-
-############
-#
-# COSTANTI
-
-# Reset
-Color_Off='\e[0m'
-# Regular Colors
-Black='\e[0;30m' Red='\e[0;31m' Green='\e[0;32m' Yellow='\e[0;33m' Blue='\e[0;34m' Purple='\e[0;35m' Cyan='\e[0;36m' White='\e[0;37m' Orange=$'\e''[38;5;208m'
-# Bold
-BBlack='\e[1;30m' BRed='\e[1;31m' BGreen='\e[1;32m' BYellow='\e[1;33m' BBlue='\e[1;34m' BPurple='\e[1;35m' BCyan='\e[1;36m' BWhite='\e[1;37m'
-# Underline
-UBlack='\e[4;30m' URed='\e[4;31m' UGreen='\e[4;32m' UYellow='\e[4;33m' UBlue='\e[4;34m' UPurple='\e[4;35m' UCyan='\e[4;36m' UWhite='\e[4;37m'
-# Background
-On_Black='\e[40m' On_Red='\e[41m' On_Green='\e[42m' On_Yellow='\e[43m' On_Blue='\e[44m' On_Purple='\e[45m' On_Cyan='\e[46m' On_White='\e[47m'
-# High Intensty
-IBlack='\e[0;90m' IRed='\e[0;91m' IGreen='\e[0;92m' IYellow='\e[0;93m' IBlue='\e[0;94m' IPurple='\e[0;95m' ICyan='\e[0;96m' IWhite='\e[0;97m'
-# Bold High Intensty
-BIBlack='\e[1;90m' BIRed='\e[1;91m' BIGreen='\e[1;92m' BIYellow='\e[1;93m' BIBlue='\e[1;94m' BIPurple='\e[1;95m' BICyan='\e[1;96m' BIWhite='\e[1;97m'
-# High Intensity backgrounds
-On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0;103m' On_IBlue='\e[0;104m' On_IPurple='\e[10;95m' On_ICyan='\e[0;106m' On_IWhite='\e[0;107m'
+[ ${__vs_cmds_logfile+x} ] || __vs_cmds_logfile=/var/log/vargiuscuola/${_MAIN__SCRIPTDIR}_cmds.log
 
 
 #############################################
@@ -93,15 +83,15 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 #
 
 # un paio di funzione in prestito da parseargs
-function parseargs_is_opt() { [ "${__OPTS[$1]}" = 1 ] ; }
-function parseargs_is_optarg() { [ "${__OPTARGS[$1]}" = 1 ] ; }
-function parseargs_is_disabled_optarg() { [ "${__OPTARGS[$1]}" = 0 ] ; }
-function parseargs_get_optarg() { echo "${__OPTARGS[$1]}" ; }
-function parseargs_get_optarg_() { declare -g __="${__OPTARGS[$1]}" ; }
-function parseargs_set_optarg() { __OPTARGS[$1]="$2" ; }
-function parseargs_enable_optarg() { __OPTARGS[$1]=1 ; }
-function parseargs_disable_optarg() { __OPTARGS[$1]=0 ; }
-function parseargs_is_default() { [ "${__DEFAULTS[$1]}" = 1 ] ; }
+parseargs_is_opt() { [ "${__OPTS[$1]}" = 1 ] ; }
+parseargs_is_optarg() { [ "${__OPTARGS[$1]}" = 1 ] ; }
+parseargs_is_disabled_optarg() { [ "${__OPTARGS[$1]}" = 0 ] ; }
+parseargs_get_optarg() { echo "${__OPTARGS[$1]}" ; }
+parseargs_get_optarg_() { declare -g __="${__OPTARGS[$1]}" ; }
+parseargs_set_optarg() { __OPTARGS[$1]="$2" ; }
+parseargs_enable_optarg() { __OPTARGS[$1]=1 ; }
+parseargs_disable_optarg() { __OPTARGS[$1]=0 ; }
+parseargs_is_default() { [ "${__DEFAULTS[$1]}" = 1 ] ; }
 
 # funzioni per gestire variabili di tipo flag (si/no)
 function is_flag() { [ "${_MAIN__FLAGS[$1]}" = 1 ] ; }
@@ -321,133 +311,6 @@ trap_handler_helper() {
 		kill -INT $$
 	fi
 	[[ ( -n "$exit_code" && "$exit_code" != "-" ) && "$sig" != "EXIT" ]] && exit $exit_code || return 0
-}
-
-
-####
-#
-# lock
-#
-
-# kill_lock($lock)
-# termina il processo che ha richiesto il lock $lock 
-kill_lock() {
-	local file_pid
-	local pidfile="$RUN_DIR"/${1%.sh}.pid
-	[[ -f "$pidfile" ]] && file_pid=$(<"$pidfile")
-	if [[ -n "$file_pid" ]] && ps --pid "$file_pid" &>/dev/null; then
-		local pgid=$(ps -o pgid= $file_pid | tr -d ' ')
-		kill -TERM -"$pgid" &>/dev/null
-		sleep 1.5
-		if ps --pid "$file_pid" &>/dev/null; then
-			kill -9 -"$pgid" &>/dev/null
-			sleep 2
-			ps --pid "$file_pid" &>/dev/null && return 1
-		fi
-	fi
-}
-
-# info_lock $program
-# ritorna 0 se esiste il lock ed il programma e' in esecuzione
-info_lock() {
-	local pidfile="$RUN_DIR"/${1%.sh}.pid
-	if [ -f "$pidfile" ] && ps --pid "$(<"$pidfile")" &>/dev/null; then
-		 return 0
-	else
-		return 1
-	fi
-}
-
-# get_lock $process_timeout $process_timeout2 $lock_name
-# return codes:
-# 	0  e' stato ottenuto il lock
-#	1  non e' stato ottenuto il lock
-#	-1 errore sugli argomenti
-#
-# return codes nello standard output:
-#	0 ottenuto immediatamente il lock
-#	1 race condition: il processo concorrente non e' andato in timeout: si rinuncia al lock
-#	2 race condition: il processo concorrente e' andato in timeout, quindi viene ucciso e si ottiene il lock
-#	3 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo; si rinuncia al lock in quanto non ancora raggiunto il secondo timeout
-#	4 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo, ma avendo superato il secondo timeout si ottiene comunque il lock
-get_lock() {
-	local LOCKNAME=${3:-$(basename -- ${0%.sh})}
-	local PIDFILE="$RUN_DIR"/$LOCKNAME.pid
-	local PROCESS_TIMEOUT=$1
-	local PROCESS_TIMEOUT2=${2:-0}
-	local LOCK_FAIL=0
-	local PROCESS_PID=$$
-	local RETCODE
-	local INFOCODE
-	
-	add_trap_handler release_lock "" EXIT
-	[[ "$PROCESS_TIMEOUT" =~ .*g ]] && (( PROCESS_TIMEOUT=${PROCESS_TIMEOUT%g}*60*60*24 ))
-	[[ "$PROCESS_TIMEOUT" =~ .*h ]] && (( PROCESS_TIMEOUT=${PROCESS_TIMEOUT%h}*60*60 ))
-	[[ "$PROCESS_TIMEOUT" =~ .*m ]] && (( PROCESS_TIMEOUT=${PROCESS_TIMEOUT%m}*60 ))
-	[[ "$PROCESS_TIMEOUT" =~ .*s ]] && (( PROCESS_TIMEOUT=${PROCESS_TIMEOUT%s} ))
-	
-	[[ "$PROCESS_TIMEOUT2" =~ .*g ]] && (( PROCESS_TIMEOUT2=${PROCESS_TIMEOUT2%g}*60*60*24 ))
-	[[ "$PROCESS_TIMEOUT2" =~ .*h ]] && (( PROCESS_TIMEOUT2=${PROCESS_TIMEOUT2%h}*60*60 ))
-	[[ "$PROCESS_TIMEOUT2" =~ .*m ]] && (( PROCESS_TIMEOUT2=${PROCESS_TIMEOUT2%m}*60 ))
-	[[ "$PROCESS_TIMEOUT2" =~ .*s ]] && (( PROCESS_TIMEOUT2=${PROCESS_TIMEOUT2%s} ))
-	
-	mkdir "$(dirname "$PIDFILE")" &>/dev/null || true
-	[ -f "$PIDFILE" ] && LOCK_FAIL=1
-	if [ $LOCK_FAIL -ne 1 ]; then
-		echo $PROCESS_PID >"$PIDFILE"
-		sleep 0.2
-	fi
-	local FILE_PID=$(<"$PIDFILE")
-	if [ "$PROCESS_PID" != "$FILE_PID" ]; then
-		if ps --pid "$FILE_PID" &>/dev/null; then
-			TIME_LASTPROCESS=$(stat --format=%Y "$PIDFILE")
-			TIME_NOW=$(date +%s)
-			DIFF_TIME=$(( $TIME_NOW-$TIME_LASTPROCESS ))
-			PGID=$(ps -o pgid= $FILE_PID | tr -d ' ')
-			if [[ -n "$PROCESS_TIMEOUT" && "$DIFF_TIME" -ge "$PROCESS_TIMEOUT" ]]; then
-				kill -TERM -"$PGID" &>/dev/null
-				sleep 5
-				if ps --pid "$FILE_PID" &>/dev/null; then
-					if [ "$DIFF_TIME" -ge "$PROCESS_TIMEOUT2" ]; then
-						kill -9 -"$PGID" &>/dev/null
-						INFOCODE=4
-						RETCODE=0
-					else
-						INFOCODE=3
-						RETCODE=1
-					fi
-				else
-					INFOCODE=2
-					RETCODE=0
-				fi
-			else
-				INFOCODE=1
-				RETCODE=1
-			fi
-		else
-			INFOCODE=0
-			RETCODE=0
-		fi
-	else
-		INFOCODE=0
-		RETCODE=0
-	fi
-	# termina la funzione impostando i codici di errore
-	echo $INFOCODE
-	[ "$RETCODE" = 0 -a "$PROCESS_PID" != "$FILE_PID" ] && echo $PROCESS_PID >"$PIDFILE"
-	return $RETCODE
-}
-
-# release_lock
-# rilascia il lock
-release_lock() {
-	local lock_name="$1"
-	[ -z "$lock_name" ] && lock_name=$(basename ${0%.sh})
-	local PIDFILE="$RUN_DIR"/$lock_name.pid
-	local PROCESS_PID=$$
-	local FILE_PID
-	test -f "$PIDFILE" && FILE_PID="$(<"$PIDFILE")" || true
-	[ "$PROCESS_PID" = "$FILE_PID" ] && rm -f "$PIDFILE"
 }
 
 

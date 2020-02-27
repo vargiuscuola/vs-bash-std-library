@@ -16,7 +16,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 # @return Normalized absolute path
 :module_abs_path_() {
     local path="$1"
-    if [ -d "$path" ]; then
+    if [[ -d "$path" ]]; then
         pushd "$path" &>/dev/null
         declare -g _MODULE__="$PWD"
         popd &>/dev/null
@@ -46,7 +46,7 @@ module_import() {
     [[ "$module" =~ \.sh$ ]] || module="${module}.sh"
     
     # try absolute
-    if [[ $module == /* ]] && [[ -e "$module" ]]; then
+    if [[ $module == /* && -e "$module" ]]; then
         module_path="$module"
     # try relative to caller
     elif [[ -f "${caller_path}/${module}" ]]; then
