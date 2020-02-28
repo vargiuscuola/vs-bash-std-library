@@ -14,11 +14,12 @@ Manage shell traps
 ### trap_add-handler()
 
 Add trap handler.
- It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
+  It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
 
 #### Example
 
 ```bash
+trap.add-handler "echo EXIT" TERM
 ```
 
 #### Arguments
@@ -39,11 +40,12 @@ Add trap handler.
 ### :trap_handler-helper()
 
 Trap handler helper.
- It is supposed to be used as action in `trap` built-in bash command
+  It is supposed to be used as action in `trap` built-in bash command.
 
 #### Example
 
 ```bash
+trap ":trap_handler-helper TERM" TERM
 ```
 
 #### Arguments
