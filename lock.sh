@@ -12,7 +12,7 @@ module.import "main"
 _LOCK__RUN_DIR=/var/run/vargiuscuola
 [ ! -d "$_LOCK__RUN_DIR" ] && mkdir -p "$_LOCK__RUN_DIR"
 
-# @description Remove lock and kill associated process is present
+# @description Remove lock and kill associated process if present
 # @example
 #   lock.kill <tag>
 # @arg $1 string[Caller script name] Lock name
@@ -20,8 +20,7 @@ _LOCK__RUN_DIR=/var/run/vargiuscuola
 # @exitcode 1 Cannot kill process associated to lock
 # @exitcode 2 Lock file cannot be deleted, but associated process is already terminated or successfully killed
 lock_kill() {
-	local lock_name="$1"
-	[[ -z "$1" ]] && lock_name="${_MAIN__SCRIPTNAME%.sh}"
+	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
 	local pid
 	[[ -f "$pidfile" ]] && pid=$(<"$pidfile")
@@ -48,8 +47,7 @@ alias lock.kill="lock_kill"
 # @exitcode 1 Current process doesn't own the lock and cannot release it
 # @exitcode 2 Lock file cannot be deleted
 lock_release() {
-	local lock_name="$1"
-	[[ -z "$1" ]] && lock_name="${_MAIN__SCRIPTNAME%.sh}"
+	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
 	local pid
 	[[ -f "$pidfile" ]] && pid="$(<"$pidfile")"
@@ -59,18 +57,29 @@ lock_release() {
 alias lock.release="lock_release"
 
 
-# info_lock $program
-# ritorna 0 se esiste il lock ed il programma e' in esecuzione
-info_lock() {
-	local pidfile="$_LOCK__RUN_DIR"/${1%.sh}.pid
-	if [ -f "$pidfile" ] && ps --pid "$(<"$pidfile")" &>/dev/null; then
-		 return 0
-	else
-		return 1
-	fi
+# @description Check if a lock is currently active, i.e. file lock is present and the associated process still running
+# @example
+#   lock.is-active? <tag>
+# @arg $1 string[Caller script name] Lock name
+# @exitcode 0 Lock is active
+# @exitcode 1 Lock is expired (file lock not present or associated process already terminated)
+lock_is-active?() {
+	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
+	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
+	[[ -f "$pidfile" && -e "/proc/$(<"$pidfile")" ]] && return 0 || return 1
 }
+alias lock.is-active?="lock_is-active?"
 
-# get_lock $process_timeout $process_timeout2 $lock_name
+# @description Try to obtain a lock.
+#  If the lock 
+# @example
+#   lock.new <tag>
+# @arg $1 string[Caller script name] Lock name
+# @arg $2 string[Caller script name] Lock name
+# @exitcode 0 Got the lock
+# @exitcode 1 Lock is expired (file lock not present or associated process already terminated)
+
+# get_lock 
 # return codes:
 # 	0  e' stato ottenuto il lock
 #	1  non e' stato ottenuto il lock
@@ -82,9 +91,11 @@ info_lock() {
 #	2 race condition: il processo concorrente e' andato in timeout, quindi viene ucciso e si ottiene il lock
 #	3 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo; si rinuncia al lock in quanto non ancora raggiunto il secondo timeout
 #	4 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo, ma avendo superato il secondo timeout si ottiene comunque il lock
-get_lock() {
-	local LOCKNAME=${3:-$(basename -- ${0%.sh})}
-	local PIDFILE="$_LOCK__RUN_DIR"/$LOCKNAME.pid
+lock_new() {
+	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
+	
+	local lock_name=${3:-$(basename -- ${0%.sh})}
+	local PIDFILE="$_LOCK__RUN_DIR"/$lock_name.pid
 	local PROCESS_TIMEOUT=$1
 	local PROCESS_TIMEOUT2=${2:-0}
 	local LOCK_FAIL=0

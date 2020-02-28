@@ -2,7 +2,7 @@
 #github-action genshdoc
 
 # @file package.sh
-# @brief load shell libraries packages as git repositories
+# @brief Load shell libraries packages as git repositories
 # @show-internal
 shopt -s expand_aliases
 
@@ -13,10 +13,10 @@ fi
 
 # @description Print library base path
 # @example
-#   package.get-lib-dir_
-#   => /lib/sh
+#  package.get-lib-dir_
+#    => /lib/sh
 # @noargs
-# @stdout Library path
+# @return Library dir path
 package_get-lib-dir_() {
     declare -g _PACKAGE__="$_PACKAGE__LIB_DIR"
 }
@@ -24,7 +24,7 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 
 # @description Load required package, cloning the git repository hosting it
 # @example
-#   package.load github.com/vargiuscuola/std-lib.bash
+#  package.load github.com/vargiuscuola/std-lib.bash
 # @arg $1 string Git repository url without scheme (https:// is used)
 # @exitcodes Standard
 # @stdout Informative messages

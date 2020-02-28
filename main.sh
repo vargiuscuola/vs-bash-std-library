@@ -14,6 +14,13 @@ shopt -s expand_aliases
 
 # @environment-header Flags
 # @environment _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
+# @environment _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
+
+# @environment-header Others
+# @environment _MAIN__RAW_SCRIPTNAME string Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
+# @environment _MAIN__SCRIPTPATH string Calling script path after any possible link resolution
+# @environment _MAIN__SCRIPTNAME string Calling script real name (after any possible link resolution)
+# @environment _MAIN__SCRIPTDIR string Absolute path where reside the calling script, after any possible link resolution
 
 
 ############
@@ -42,13 +49,12 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 
 ############
 #
-# START
+# INITIALITAZION
 #
 
-declare -p _MAIN__FLAGS &>/dev/null && return
+[[ -v _MAIN__FLAGS ]] && return
 declare -gA _MAIN__FLAGS
 
-# @environment _MAIN__RAW_SCRIPTNAME string Calling script path (not normalized)
 # test if file is sourced or executed
 if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
 	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
@@ -57,25 +63,37 @@ else
 	_MAIN__RAW_SCRIPTNAME="$0"
 fi
 
-# verifica se e' una sessione chroot
-[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=1
+test -L "${_MAIN__RAW_SCRIPTNAME}" && _MAIN__SCRIPTPATH="$( readlink "${_MAIN__RAW_SCRIPTNAME}" )" || _MAIN__SCRIPTPATH="${_MAIN__RAW_SCRIPTNAME}"
+_MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 
-if [ ! ${_MAIN__SCRIPTNAME+x} ]; then
-	_MAIN__SCRIPTPATH="$( test -L "${_MAIN__RAW_SCRIPTNAME}" && readlink "${_MAIN__RAW_SCRIPTNAME}" || echo "${_MAIN__RAW_SCRIPTNAME}" )"
+
+
+############
+#
+# FUNCTIONS
+#
+
+main_is-chroot?() {
+	if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
+		[[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=1 || _MAIN__FLAGS[CHROOTED]=0
+	fi
+	return "${_MAIN__FLAGS[CHROOTED]}"
+}
+alias main.is-chroot?="main_is-chroot?"
+
+main_set-script-path-info() {
 	_MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
-	_MAIN__SCRIPTNAME="$(basename "$_MAIN__SCRIPTPATH")"
-	_MAIN__SCRIPTDIR="$( dirname "$_MAIN__SCRIPTPATH")"
-fi
+	_MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
+}
+alias main.set-script-path-info="main_set-script-path-info"
+
+
+===
+===
+[[ "${_MAIN__CMD_LOGFILE+x}" ]] || _MAIN__CMD_LOGFILE=/var/log
 [ ${__vs_cmds_logfile+x} ] || __vs_cmds_logfile=/var/log/vargiuscuola/${_MAIN__SCRIPTDIR}_cmds.log
 
 
-#############################################
-#############################################
-##
-## FUNZIONI
-##
-#############################################
-#############################################
 
 ####
 #
@@ -269,48 +287,6 @@ print_indent() {
 	for ((i=1 ; i<=$__INDENT_N; i++)); do
 		echo -n "$indent_str"
 	done
-}
-
-
-####
-#
-# trap handler
-#
-
-# add_trap_handler($func, $exit_code, $signal, [...])
-# aggiunge come hook ai segnali specificati la funzione $func e con exit code $exit_code
-add_trap_handler() {
-    local func="${1//\"/\\\"}" ; shift
-	local exit_code="$1" ; shift
-    local sig
-	local idx
-	for sig ; do
-		eval "idx=\${#SIGNALS_HOOKS_$sig[@]}"
-		declare -g "SIGNALS_HOOKS_$sig[$idx]"="$func"
-		trap "trap_handler_helper $sig $exit_code" $sig
-    done
-}
-
-# trap_handler_helper($sig, $exit_code)
-# funzione che gestisce i segnali
-trap_handler_helper() {
-	local sig=$1
-    local exit_code=$2
-	local cur_func
-	
-	if declare -p SIGNALS_HOOKS_$sig 2>/dev/null | grep -q 'declare \-a'; then
-		local idx
-		local length=$(eval "echo \${#SIGNALS_HOOKS_$sig[@]}")
-		for (( idx=0; idx<$length; idx++ )); do
-			cur_func="$(eval "echo \"\${SIGNALS_HOOKS_$sig[$idx]}\"")"
-			eval "$cur_func"
-		done
-	fi
-	if [ "$sig" = "INT" ]; then
-		trap - INT
-		kill -INT $$
-	fi
-	[[ ( -n "$exit_code" && "$exit_code" != "-" ) && "$sig" != "EXIT" ]] && exit $exit_code || return 0
 }
 
 

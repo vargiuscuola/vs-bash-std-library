@@ -2,7 +2,7 @@
 #github-action genshdoc
 
 # @file module.sh
-# @brief include shell libraries modules
+# @brief Include shell libraries modules
 # @show-internal
 shopt -s expand_aliases
 source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
@@ -10,11 +10,11 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 # @internal
 # @description Return normalized absolute path
 # @example
-#   module.abs_path_ "../lib"
-#   => /var/lib
+#  module.abs-path_ "../lib"
+#    => /var/lib
 # @arg $1 string Path
 # @return Normalized absolute path
-:module_abs_path_() {
+:module_abs-path_() {
     local path="$1"
     if [[ -d "$path" ]]; then
         pushd "$path" &>/dev/null
@@ -26,21 +26,21 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
         popd &>/dev/null
     fi
 }
-alias :module.abs_path_=":module_abs_path_"
+alias :module.abs-path_=":module_abs-path_"
 
 # @environment _MODULE__IMPORTED_MODULES Array Imported modules
-:module.abs_path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$_MODULE__")
-:module.abs_path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$_MODULE__")
+:module.abs-path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$_MODULE__")
+:module.abs-path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$_MODULE__")
 
 # @description Import module
 # @example
-#   module.import "githum/vargiuscuola/std-lib.bash/main"
+#  module.import "github/vargiuscuola/std-lib.bash/main"
 # @arg $1 string Module path. Shell extension `.sh` can be omitted
 # @exitcodes Standard
 module_import() {
     local module="$1"
-    :module.abs_path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$_MODULE__"
-    :module.abs_path_ "$(dirname "${BASH_SOURCE[1]}")" && local caller_path="$_MODULE__"
+    :module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$_MODULE__"
+    :module.abs-path_ "$(dirname "${BASH_SOURCE[1]}")" && local caller_path="$_MODULE__"
     local module_path
     
     [[ "$module" =~ \.sh$ ]] || module="${module}.sh"
@@ -61,7 +61,7 @@ module_import() {
     fi
     [[ -z "$module_path" ]] && { echo "[ERROR] failed to import \"$module\"" ; return 1 ; }
     # normalize module_path
-    :module.abs_path_  "$module_path" && module_path="$_MODULE__"
+    :module.abs-path_  "$module_path" && module_path="$_MODULE__"
     
     # check if module already loaded
     local loaded_module
