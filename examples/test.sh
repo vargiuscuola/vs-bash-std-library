@@ -10,4 +10,9 @@ module.import "../main"
 module.import "../trap"
 
 trap.add-handler "echo ok" EXIT
+idx1=$_TRAP__
+trap.add-handler "echo ok2" EXIT
+idx2=$_TRAP__
+trap.disable-handler EXIT $idx1
+trap.disable-handler EXIT $idx2
 #module.import "github.com/vargiuscuola/std-lib.bash/main.sh"

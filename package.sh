@@ -14,7 +14,7 @@ fi
 # @description Print library base path
 # @example
 #  package.get-lib-dir_
-#    => /lib/sh
+#    return> /lib/sh
 # @noargs
 # @return Library dir path
 package_get-lib-dir_() {
@@ -25,7 +25,7 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 # @description Load required package, cloning the git repository hosting it
 # @example
 #  package.load github.com/vargiuscuola/std-lib.bash
-# @arg $1 string Git repository url without scheme (https:// is used)
+# @arg $1 String Git repository url without scheme (https:// is used)
 # @exitcodes Standard
 # @stdout Informative messages
 # @stderr Error messages

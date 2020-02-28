@@ -11,8 +11,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 # @description Return normalized absolute path
 # @example
 #  module.abs-path_ "../lib"
-#    => /var/lib
-# @arg $1 string Path
+#    return> /var/lib
+# @arg $1 String Path
 # @return Normalized absolute path
 :module_abs-path_() {
     local path="$1"
@@ -35,7 +35,7 @@ alias :module.abs-path_=":module_abs-path_"
 # @description Import module
 # @example
 #  module.import "github/vargiuscuola/std-lib.bash/main"
-# @arg $1 string Module path. Shell extension `.sh` can be omitted
+# @arg $1 String Module path. Shell extension `.sh` can be omitted
 # @exitcodes Standard
 module_import() {
     local module="$1"
