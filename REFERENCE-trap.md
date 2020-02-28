@@ -14,7 +14,7 @@ Manage shell traps
 ### trap_add-handler()
 
 Add trap handler.
-  It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
+It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
 
 #### Example
 
