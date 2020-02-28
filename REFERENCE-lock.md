@@ -25,7 +25,7 @@ lock.kill <tag>
 
 #### Arguments
 
-* **$1** (string)[default: **Caller script name**]: Lock name
+* **$1** (String)[default: **Caller script name**]: Lock name
 
 #### Exit codes
 
@@ -45,7 +45,7 @@ lock.kill <tag>
 
 #### Arguments
 
-* **$1** (string)[default: **Caller script name**]: Lock name
+* **$1** (String)[default: **Caller script name**]: Lock name
 
 #### Exit codes
 
@@ -66,12 +66,13 @@ lock.new <tag>
 
 #### Arguments
 
-* **$1** (string)[default: **Caller script name**]: Lock name
-* **$2** (string)[default: **Caller script name**]: Lock name
+* **$1** (String)[default: **Caller script name**]: Lock name
+* **$2** (String)[default: **0**]: If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as described here (**needed link**)
+* **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if it is expired, that is if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as described here (**needed link**)
 
 #### Exit codes
 
 * **0**: Got the lock
-* **1**: Lock is expired (file lock not present or associated process already terminated)
+* **1**: Lock is busy Failed to obtain the lock: lock is bu
 
 

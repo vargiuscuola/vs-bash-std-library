@@ -38,7 +38,7 @@ Load required package, cloning the git repository hosting it
 
 #### Arguments
 
-* **$1** (string): Git repository url without scheme (https:// is used)
+* **$1** (String): Git repository url without scheme (https:// is used)
 
 #### Exit codes
 

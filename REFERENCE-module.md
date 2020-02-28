@@ -22,7 +22,7 @@ Import module
 
 #### Arguments
 
-* **$1** (string): Module path. Shell extension `.sh` can be omitted
+* **$1** (String): Module path. Shell extension `.sh` can be omitted
 
 #### Exit codes
 
@@ -45,7 +45,7 @@ Return normalized absolute path
 
 #### Arguments
 
-* **$1** (string): Path
+* **$1** (String): Path
 
 #### Return with global $__ or $_\<MODULE\>__
 
