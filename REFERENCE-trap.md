@@ -4,7 +4,7 @@ Manage shell traps
 
 ## Environments Variables
 
-* **_TRAP__SIGNAL_HOOKS_<signal>** (Array):  List of hooks for signal <signal>
+* **_TRAP__SIGNAL_HOOKS_\<signal\>** (Array):  List of hooks for signal \<signal\>
 
 
 ## Functions
@@ -13,7 +13,8 @@ Manage shell traps
 
 ### trap_add-handler()
 
-Add trap handler
+Add trap handler.
+ It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
 
 #### Example
 
@@ -22,12 +23,12 @@ Add trap handler
 
 #### Arguments
 
-* **$1** (string): Shell code or function to call on signal
+* **$1** (string): Action to call on specified signals: can be shell code or function name
 * **...** (string): Signals to trap
 
 #### Return with global $__ or $_\<MODULE\>__
 
-* Index of 
+* Index of current handler inside the array of handlers for the specified signal
 
 
 
@@ -47,11 +48,6 @@ Trap handler helper.
 
 #### Arguments
 
-* **$1** (string): Function to call
-* **...** (string): Signals to trap
-
-#### Return with global $__ or $_\<MODULE\>__
-
-* 
+* **$1** (string): Signal to handle
 
 
