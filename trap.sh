@@ -11,7 +11,7 @@ shopt -s expand_aliases
 # ENVIRONMENT
 #
 
-# @environment _TRAP__SIGNAL_HOOKS_\<signal\> Array List of hooks for signal \<signal\>
+# @environment _TRAP__SIGNAL_HOOKS_<signal> Array List of hooks for signal \<signal\>
 
 
 ############
@@ -33,7 +33,7 @@ trap_add-handler() {
 	for sig in "$@"; do
 		local aryname="_TRAP__SIGNAL_HOOKS_${sig^^}"
 		declare -n ary_ref="$aryname"
-		[[ -v ary_ref ]] || declare -g "$aryname"='()'
+		[[ -v ary_ref ]] || declare -ga "$aryname"='()'
 		[[ "$#" = 1 ]] && idx="${#ary_ref[@]}"
 		ary_ref+=("$code")
 		trap ":trap_handler-helper $sig" $sig
