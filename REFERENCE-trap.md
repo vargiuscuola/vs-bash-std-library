@@ -4,7 +4,7 @@ Manage shell traps
 
 ## Environments Variables
 
-* **_TRAP__SIGNAL_HOOKS_\<signal\>** (Array):  List of hooks for signal \<signal\>
+* **\_TRAP__SIGNAL_HOOKS_\<signal\>** (Array): List of hooks for signal \<signal\>
 
 
 ## Functions

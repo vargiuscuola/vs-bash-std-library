@@ -4,7 +4,7 @@ Provide locking functionalities
 
 ## Environments Variables
 
-* **_LOCK__RUN_DIR** (String):  Run dir path
+* **\_LOCK__RUN_DIR** (String): Run dir path
 
 
 ## Functions

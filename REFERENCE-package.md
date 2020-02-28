@@ -4,7 +4,7 @@ Load shell libraries packages as git repositories
 
 ## Parameters
 
-* **_PACKAGE__LIB_DIR** (string)[default: **/lib/sh in Linux or /c/linux-lib/sh in Windows**]: shell libraries base path
+* **\_PACKAGE__LIB_DIR** (string)[default: **/lib/sh in Linux or /c/linux-lib/sh in Windows**]: shell libraries base path
 
 
 ## Functions
