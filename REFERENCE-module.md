@@ -1,6 +1,6 @@
 # module.sh
 
-include shell libraries modules
+Include shell libraries modules
 
 ## Environments Variables
 
@@ -18,7 +18,6 @@ Import module
 #### Example
 
 ```bash
-module.import "githum/vargiuscuola/std-lib.bash/main"
 ```
 
 #### Arguments
@@ -32,18 +31,16 @@ module.import "githum/vargiuscuola/std-lib.bash/main"
 
 
 ## Internal Functions
-* [:module_abs_path_()](#module_abs_path_)
+* [:module_abs-path_()](#module_abs-path_)
 
 
-### :module_abs_path_()
+### :module_abs-path_()
 
 Return normalized absolute path
 
 #### Example
 
 ```bash
-module.abs_path_ "../lib"
-=> /var/lib
 ```
 
 #### Arguments

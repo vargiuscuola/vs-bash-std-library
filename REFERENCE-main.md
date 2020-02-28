@@ -19,7 +19,12 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ### Flags
 * **_MAIN__FLAGS[SOURCED]** (Bool):  Is current file sourced?
-* **_MAIN__RAW_SCRIPTNAME** (string):  Calling script path (not normalized)
+* **_MAIN__FLAGS[CHROOTED]** (Bool):  Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
+### Others
+* **_MAIN__RAW_SCRIPTNAME** (string):  Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
+* **_MAIN__SCRIPTPATH** (string):  Calling script path after any possible link resolution
+* **_MAIN__SCRIPTNAME** (string):  Calling script real name (after any possible link resolution)
+* **_MAIN__SCRIPTDIR** (string):  Absolute path where reside the calling script, after any possible link resolution
 
 
 ## Functions

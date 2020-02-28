@@ -1,6 +1,6 @@
 # package.sh
 
-load shell libraries packages as git repositories
+Load shell libraries packages as git repositories
 
 ## Parameters
 
@@ -19,15 +19,13 @@ Print library base path
 #### Example
 
 ```bash
-package.get-lib-dir_
-=> /lib/sh
 ```
 
 _Function has no arguments._
 
-#### Output on stdout
+#### Return with global $__ or $_\<MODULE\>__
 
-* Library path
+* Library dir path
 
 ### package_load()
 
@@ -36,7 +34,6 @@ Load required package, cloning the git repository hosting it
 #### Example
 
 ```bash
-package.load github.com/vargiuscuola/std-lib.bash
 ```
 
 #### Arguments
