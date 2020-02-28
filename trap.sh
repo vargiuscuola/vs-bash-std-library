@@ -11,7 +11,7 @@ shopt -s expand_aliases
 # ENVIRONMENT
 #
 
-# @environment _TRAP__SIGNAL_HOOKS_<signal> Array List of hooks for signal <signal>
+# @environment _TRAP__SIGNAL_HOOKS_\<signal\> Array List of hooks for signal \<signal\>
 
 
 ############
@@ -19,12 +19,13 @@ shopt -s expand_aliases
 # FUNCTIONS
 #
 
-# @description Add trap handler
+# @description Add trap handler.
+#  It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__SIGNAL_HOOKS_<signal>`.
 # @example
 #  trap.add-handler "echo EXIT" TERM
-# @arg $1 string Shell code or function to call on signal
+# @arg $1 string Action to call on specified signals: can be shell code or function name
 # @arg $@ string Signals to trap
-# @return Index of 
+# @return Index of current handler inside the array of handlers for the specified signal
 trap_add-handler() {
 	local code="$1" ; shift
 	local sig idx
@@ -47,10 +48,8 @@ alias trap.add-handler="trap_add-handler"
 # @description Trap handler helper.
 #  It is supposed to be used as action in `trap` built-in bash command
 # @example
-#  trap.handler-helper TERM
-# @arg $1 string Function to call
-# @arg $@ string Signals to trap
-# @return 
+#  trap ":trap_handler-helper TERM" TERM
+# @arg $1 string Signal to handle
 :trap_handler-helper() {
 	local sig="$1"
 	
