@@ -9,18 +9,18 @@ shopt -s expand_aliases
 
 ############
 #
-# ENVIRONMENT
+# GLOBALS
 #
 
-# @environment-header Flags
-# @environment _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
-# @environment _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
+# @global-header Flags
+# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
+# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
 
-# @environment-header Others
-# @environment _MAIN__RAW_SCRIPTNAME string Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
-# @environment _MAIN__SCRIPTPATH string Calling script path after any possible link resolution
-# @environment _MAIN__SCRIPTNAME string Calling script real name (after any possible link resolution)
-# @environment _MAIN__SCRIPTDIR string Absolute path where reside the calling script, after any possible link resolution
+# @global-header Others
+# @global _MAIN__RAW_SCRIPTNAME string Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
+# @global _MAIN__SCRIPTPATH string Calling script path after any possible link resolution
+# @global _MAIN__SCRIPTNAME string Calling script real name (after any possible link resolution)
+# @global _MAIN__SCRIPTDIR string Absolute path where reside the calling script, after any possible link resolution
 
 
 ############
@@ -73,6 +73,12 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 # FUNCTIONS
 #
 
+# @description Return 0 if the current script is chroot'ed, and store the result in flag $_MAIN__FLAGS[CHROOTED]
+# @alias main.is-chroot?
+# @exitcode 0 Script is chroot'ed
+# @exitcode 1 Script is not chroot'ed
+# @example
+#   main.is-chroot?
 main_is-chroot?() {
 	if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
 		[[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=1 || _MAIN__FLAGS[CHROOTED]=0
@@ -81,12 +87,72 @@ main_is-chroot?() {
 }
 alias main.is-chroot?="main_is-chroot?"
 
+# @description Set the 
+# @alias main.set-script-path-info
+# @exitcode 0 Script is chroot'ed
+# @exitcode 1 Script is not chroot'ed
+# @example
+#   main.is-chroot?
 main_set-script-path-info() {
 	_MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
 	_MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
 }
 alias main.set-script-path-info="main_set-script-path-info"
 
+array_find_() {
+	declare -n my_array=$1
+	local i
+	for i in "${!my_array[@]}"; do
+		if [[ "${my_array[$i]}" = "$2" ]]; then
+			declare -g __=$i
+			return 0
+		fi
+	done
+	declare -g __=-1
+	return 1
+}
+alias array.find_="array_find_"
+array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; }
+alias array.find="array_find"
+
+array_remove-at() {
+	local aryname="$1" idx="$2"
+	declare -n ary_ref="$aryname"
+	ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
+}
+alias array.remove-at="array_remove-at"
+
+array_remove() {
+	local aryname="$1" val="$2"
+	declare -n ary_ref="$aryname"
+	array_find_ "$aryname" "$val"
+	ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
+}
+alias array.remove="array_remove"
+
+array_defined?() {
+	local def="$( declare -p "$1" 2>/dev/null )" || return 1
+	[[ "$def" =~ "declare -a" ]] && return 0 || return 1
+}
+alias array.defined?="array_defined?"
+
+array_init() {
+	unset "$1"
+	declare -ga "$1"='()'
+}
+alias array.init="array_init"
+
+hash_defined?() {
+	local def="$( declare -p "$1" 2>/dev/null )" || return 1
+	[[ "$def" =~ "declare -A" ]] && return 0 || return 1
+}
+alias hash.defined?="hash_defined?"
+
+hash_init() {
+	unset "$1"
+	declare -gA "$1"='()'
+}
+alias hash.init="hash_init"
 
 ===
 ===
@@ -325,22 +391,6 @@ join_array() {
 	local IFS="" ; local res="${!aryname/#/$sep}"
 	eval "$varname=\"\${res:\${#sep}}\""
 }
-
-# array_index_of($array_name, $search_val)
-# ritorna l'indice di $search_val nell'array $array_name
-array_index_of_() {
-	local array_name=$1[@] search="$2"
-	local my_array=("${!array_name}") i
-	for (( i = 0; i < ${#my_array[@]}; i++ )); do
-		if [ "${my_array[$i]}" = "$search" ]; then
-			declare -g __=$i
-			return 0
-		fi
-	done
-	declare -g __=
-	return 1
-}
-array_index_of() { array_index_of_ "$@" ; [ "$?" = 0 ] && echo "$__" || return $? ; }
 
 # in_array($find, $el1, ...)
 # restituisce true (0) se $find si trova nella lista degli elementi successivi

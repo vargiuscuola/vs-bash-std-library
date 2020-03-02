@@ -6,29 +6,33 @@
 # @show-internal
 shopt -s expand_aliases
 
-# @param _PACKAGE__LIB_DIR string[/lib/sh in Linux or /c/linux-lib/sh in Windows] shell libraries base path
+# @setting _PACKAGE__LIB_DIR string[/lib/sh in Linux or /c/linux-lib/sh in Windows] shell libraries base path
 if [[ -z "$_PACKAGE__LIB_DIR" ]]; then
     [[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
 fi
 
 # @description Print library base path
+# @alias package.get-lib-dir_
+# @noargs
+# @return Library dir path
 # @example
 #  package.get-lib-dir_
 #    return> /lib/sh
-# @noargs
-# @return Library dir path
 package_get-lib-dir_() {
-    declare -g _PACKAGE__="$_PACKAGE__LIB_DIR"
+    declare -g __="$_PACKAGE__LIB_DIR"
 }
 alias package.get-lib-dir_="package_get-lib-dir_"
 
 # @description Load required package, cloning the git repository hosting it
 # @example
 #  package.load github.com/vargiuscuola/std-lib.bash
+# @alias package.load
 # @arg $1 String Git repository url without scheme (https:// is used)
 # @exitcodes Standard
 # @stdout Informative messages
 # @stderr Error messages
+# @example
+#  package.load github.com/vargiuscuola/std-lib.bash
 package_load() {
     local is_update is_check git_package
 	while [[ $# -gt 0 ]]; do

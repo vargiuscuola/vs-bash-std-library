@@ -9,17 +9,18 @@ shopt -s expand_aliases
 module.import "main"
 module.import "trap"
 
-# @environment _LOCK__RUN_DIR String Run dir path
+# @global _LOCK__RUN_DIR String Run dir path
 _LOCK__RUN_DIR=/var/run/vargiuscuola
 [ ! -d "$_LOCK__RUN_DIR" ] && mkdir -p "$_LOCK__RUN_DIR"
 
 # @description Remove lock and kill associated process if present
-# @example
-#   lock.kill <tag>
+# @alias lock.kill
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock is removed and associated process is already terminated or successfuly killed
 # @exitcode 1 Cannot kill process associated to lock
 # @exitcode 2 Lock file cannot be deleted, but associated process is already terminated or successfully killed
+# @example
+#   lock.kill <tag>
 lock_kill() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
@@ -41,12 +42,13 @@ lock_kill() {
 alias lock.kill="lock_kill"
 
 # @description Release lock if current process own it
-# @example
-#   lock.kill <tag>
+# @alias lock.release
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock successfully released
 # @exitcode 1 Current process doesn't own the lock and cannot release it
 # @exitcode 2 Lock file cannot be deleted
+# @example
+#   lock.release <tag>
 lock_release() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
@@ -59,11 +61,12 @@ alias lock.release="lock_release"
 
 
 # @description Check if a lock is currently active, i.e. file lock is present and the associated process still running
-# @example
-#   lock.is-active? <tag>
+# @alias lock.is-active?
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock is active
 # @exitcode 1 Lock is expired (file lock not present or associated process already terminated)
+# @example
+#   lock.is-active? <tag>
 lock_is-active?() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.pid
@@ -73,13 +76,22 @@ alias lock.is-active?="lock_is-active?"
 
 # @description Try to obtain a lock.
 #  If the lock 
-# @example
-#   lock.new <tag>
+# @alias lock.new
 # @arg $1 String[Caller script name] Lock name
 # @arg $2 String[0] If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as described here (**needed link**)
 # @arg $3 String[-1] If lock is busy, release the lock terminating the process owning it if it is expired, that is if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as described here (**needed link**)
 # @exitcode 0 Got the lock
-# @exitcode 1 Lock is busy Failed to obtain the lock: lock is bu
+# @exitcode 1 Lock is busy and is not expired
+# @exitcode 2 Lock is expired but was not possible to terminate the process owning it
+# @example
+#   lock.new <tag>
+lock_new() {
+	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
+	local wait="$2"
+	local expiration_time="$3"
+	trap.add-handler "lock_release '$lock_name'" EXIT
+	
+}
 
 # get_lock 
 # return codes:
@@ -93,7 +105,7 @@ alias lock.is-active?="lock_is-active?"
 #	2 race condition: il processo concorrente e' andato in timeout, quindi viene ucciso e si ottiene il lock
 #	3 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo; si rinuncia al lock in quanto non ancora raggiunto il secondo timeout
 #	4 race condition: il processo concorrente e' andato in timeout, quindi si tenta di ucciderlo ma senza successo, ma avendo superato il secondo timeout si ottiene comunque il lock
-lock_new() {
+xlock_new() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local timeout="$2"
 	

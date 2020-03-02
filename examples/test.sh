@@ -9,10 +9,23 @@ source "$(dirname "${BASH_SOURCE[0]}")/../module.sh"
 module.import "../main"
 module.import "../trap"
 
-trap.add-handler "echo ok" EXIT
-idx1=$_TRAP__
-trap.add-handler "echo ok2" EXIT
-idx2=$_TRAP__
-trap.disable-handler EXIT $idx1
-trap.disable-handler EXIT $idx2
+trap.add-handler TRAP1 "echo END1" EXIT
+trap.add-handler TRAP2 "echo END2" EXIT
+trap.add-handler TRAPx "echo Ctrl-c" INT
+exit
+trap.set-function-handler "echo RUN \${_TRAP__FUNCTION_NAME}"
+fff() { echo "run func f()"; }
+fff
+fff
+fff
+
+
+exit
+trap.set-function-handler
+
+set -o functrace
+trap_func() {
+	echo "Run ${FUNCNAME[2]}"
+}
+trap.add-handler "echo Run \${FUNCNAME[1]}" RETURN
 #module.import "github.com/vargiuscuola/std-lib.bash/main.sh"

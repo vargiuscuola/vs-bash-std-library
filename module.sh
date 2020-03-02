@@ -9,38 +9,40 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 
 # @internal
 # @description Return normalized absolute path
+# @alias module.abs-path_
+# @arg $1 String Path
+# @return Normalized absolute path
 # @example
 #  module.abs-path_ "../lib"
 #    return> /var/lib
-# @arg $1 String Path
-# @return Normalized absolute path
 :module_abs-path_() {
     local path="$1"
     if [[ -d "$path" ]]; then
         pushd "$path" &>/dev/null
-        declare -g _MODULE__="$PWD"
+        declare -g __="$PWD"
         popd &>/dev/null
     else
         pushd "${path%/*}" &>/dev/null
-        declare -g _MODULE__="$PWD/${path##*/}"
+        declare -g __="$PWD/${path##*/}"
         popd &>/dev/null
     fi
 }
 alias :module.abs-path_=":module_abs-path_"
 
-# @environment _MODULE__IMPORTED_MODULES Array Imported modules
-:module.abs-path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$_MODULE__")
-:module.abs-path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$_MODULE__")
+# @global _MODULE__IMPORTED_MODULES Array Imported modules
+:module.abs-path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$__")
+:module.abs-path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$__")
 
 # @description Import module
-# @example
-#  module.import "github/vargiuscuola/std-lib.bash/main"
+# @alias module.import
 # @arg $1 String Module path. Shell extension `.sh` can be omitted
 # @exitcodes Standard
+# @example
+#  module.import "github/vargiuscuola/std-lib.bash/main"
 module_import() {
     local module="$1"
-    :module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$_MODULE__"
-    :module.abs-path_ "$(dirname "${BASH_SOURCE[1]}")" && local caller_path="$_MODULE__"
+    :module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$__"
+    :module.abs-path_ "$(dirname "${BASH_SOURCE[1]}")" && local caller_path="$__"
     local module_path
     
     [[ "$module" =~ \.sh$ ]] || module="${module}.sh"
@@ -57,11 +59,11 @@ module_import() {
     # try system wide lib dir
     else
         package.get-lib-dir_
-        [[ -f "$_PACKAGE__/${module}" ]] && module_path="$_PACKAGE__/${module}"
+        [[ -f "$_PACKAGE__/${module}" ]] && module_path="$__/${module}"
     fi
     [[ -z "$module_path" ]] && { echo "[ERROR] failed to import \"$module\"" ; return 1 ; }
     # normalize module_path
-    :module.abs-path_  "$module_path" && module_path="$_MODULE__"
+    :module.abs-path_  "$module_path" && module_path="$__"
     
     # check if module already loaded
     local loaded_module
