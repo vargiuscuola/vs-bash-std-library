@@ -2,7 +2,7 @@
 
 Load shell libraries packages as git repositories
 
-## Parameters
+## Settings
 
 * **\_PACKAGE__LIB_DIR** (string)[default: **/lib/sh in Linux or /c/linux-lib/sh in Windows**]: shell libraries base path
 
@@ -16,16 +16,20 @@ Load shell libraries packages as git repositories
 
 Print library base path
 
-#### Example
+#### Aliases
 
-```bash
-```
+* **package.get-lib-dir_**
 
 _Function has no arguments._
 
 #### Return with global $__ or $_\<MODULE\>__
 
 * Library dir path
+
+#### Example
+
+```bash
+```
 
 ### package_load()
 
@@ -35,6 +39,10 @@ Load required package, cloning the git repository hosting it
 
 ```bash
 ```
+
+#### Aliases
+
+* **package.load**
 
 #### Arguments
 
@@ -51,5 +59,10 @@ Load required package, cloning the git repository hosting it
 #### Output on stderr
 
 * Error messages
+
+#### Example
+
+```bash
+```
 
 

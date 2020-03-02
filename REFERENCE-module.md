@@ -2,7 +2,7 @@
 
 Include shell libraries modules
 
-## Environments Variables
+## Global Variables
 
 * **\_MODULE__IMPORTED_MODULES** (Array): Imported modules
 
@@ -15,10 +15,9 @@ Include shell libraries modules
 
 Import module
 
-#### Example
+#### Aliases
 
-```bash
-```
+* **module.import**
 
 #### Arguments
 
@@ -27,6 +26,11 @@ Import module
 #### Exit codes
 
 * Standard
+
+#### Example
+
+```bash
+```
 
 
 
@@ -38,10 +42,9 @@ Import module
 
 Return normalized absolute path
 
-#### Example
+#### Aliases
 
-```bash
-```
+* **module.abs-path_**
 
 #### Arguments
 
@@ -50,5 +53,10 @@ Return normalized absolute path
 #### Return with global $__ or $_\<MODULE\>__
 
 * Normalized absolute path
+
+#### Example
+
+```bash
+```
 
 

@@ -2,7 +2,7 @@
 
 Provide locking functionalities
 
-## Environments Variables
+## Global Variables
 
 * **\_LOCK__RUN_DIR** (String): Run dir path
 
@@ -17,11 +17,9 @@ Provide locking functionalities
 
 Remove lock and kill associated process if present
 
-#### Example
+#### Aliases
 
-```bash
-lock.kill <tag>
-```
+* **lock.kill**
 
 #### Arguments
 
@@ -33,15 +31,19 @@ lock.kill <tag>
 * **1**: Cannot kill process associated to lock
 * **2**: Lock file cannot be deleted, but associated process is already terminated or successfully killed
 
-### lock_release()
-
-Release lock if current process own it
-
 #### Example
 
 ```bash
 lock.kill <tag>
 ```
+
+### lock_release()
+
+Release lock if current process own it
+
+#### Aliases
+
+* **lock.release**
 
 #### Arguments
 
@@ -53,16 +55,20 @@ lock.kill <tag>
 * **1**: Current process doesn't own the lock and cannot release it
 * **2**: Lock file cannot be deleted
 
+#### Example
+
+```bash
+lock.release <tag>
+```
+
 ### lock_new()
 
 Try to obtain a lock.
  If the lock 
 
-#### Example
+#### Aliases
 
-```bash
-lock.new <tag>
-```
+* **lock.new**
 
 #### Arguments
 
@@ -73,6 +79,13 @@ lock.new <tag>
 #### Exit codes
 
 * **0**: Got the lock
-* **1**: Lock is busy Failed to obtain the lock: lock is bu
+* **1**: Lock is busy and is not expired
+* **2**: Lock is expired but was not possible to terminate the process owning it
+
+#### Example
+
+```bash
+lock.new <tag>
+```
 
 

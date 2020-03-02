@@ -15,7 +15,7 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * **On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite**: High Intensty Background Colors
 
 
-## Environments Variables
+## Global Variables
 
 ### Flags
 * **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
@@ -28,8 +28,28 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 
 ## Functions
+* [main_set-script-path-info()](#main_set-script-path-info)
 * [get_ext_color()](#get_ext_color)
 
+
+### main_set-script-path-info()
+
+Set the 
+
+#### Aliases
+
+* **main.set-script-path-info**
+
+#### Exit codes
+
+* **0**: Script is chroot'ed
+* **1**: Script is not chroot'ed
+
+#### Example
+
+```bash
+main.is-chroot?
+```
 
 ### get_ext_color()
 
