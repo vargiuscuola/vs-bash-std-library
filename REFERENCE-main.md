@@ -11,7 +11,7 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * **UBlack,URed,UGreen,UYellow,UBlue,UPurple,UCyan,UWhite**: Underlined Colors
 * **On_Black,On_Red,On_Green,On_Yellow,On_Blue,On_Purple,On_Cyan,On_White**: Background Colors
 * **IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite**: High Intensty Colors
-* **BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite**: Bold High Intensty Colors
+* **BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite**: Bold High Intensity Colors
 * **On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite**: High Intensty Background Colors
 
 
@@ -19,7 +19,11 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ### Flags
 * **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
-* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
+* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set by the call to function main.is-chroot?()
+* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set by the call to function main.is-windows?()
+### Boolean Values
+* True 0
+* False 1
 ### Others
 * **\_MAIN__RAW_SCRIPTNAME** (string): Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
 * **\_MAIN__SCRIPTPATH** (string): Calling script path after any possible link resolution

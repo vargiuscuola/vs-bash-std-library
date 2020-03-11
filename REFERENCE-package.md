@@ -35,11 +35,6 @@ _Function has no arguments._
 
 Load required package, cloning the git repository hosting it
 
-#### Example
-
-```bash
-```
-
 #### Aliases
 
 * **package.load**
