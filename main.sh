@@ -6,7 +6,6 @@
 # @show-internal
 shopt -s expand_aliases
 
-
 ############
 #
 # GLOBALS
@@ -14,7 +13,14 @@ shopt -s expand_aliases
 
 # @global-header Flags
 # @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
-# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set after with the call to function main.is-chroot?()
+# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set by the call to function main.is-chroot?()
+# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set by the call to function main.is-windows?()
+
+# @global-header Boolean Values
+# @global True 0
+True=0
+# @global False 1
+False=1
 
 # @global-header Others
 # @global _MAIN__RAW_SCRIPTNAME string Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
@@ -41,7 +47,7 @@ UBlack='\e[4;30m' URed='\e[4;31m' UGreen='\e[4;32m' UYellow='\e[4;33m' UBlue='\e
 On_Black='\e[40m' On_Red='\e[41m' On_Green='\e[42m' On_Yellow='\e[43m' On_Blue='\e[44m' On_Purple='\e[45m' On_Cyan='\e[46m' On_White='\e[47m'
 # @constant IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite                            High Intensty Colors
 IBlack='\e[0;90m' IRed='\e[0;91m' IGreen='\e[0;92m' IYellow='\e[0;93m' IBlue='\e[0;94m' IPurple='\e[0;95m' ICyan='\e[0;96m' IWhite='\e[0;97m'
-# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensty Colors
+# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensity Colors
 BIBlack='\e[1;90m' BIRed='\e[1;91m' BIGreen='\e[1;92m' BIYellow='\e[1;93m' BIBlue='\e[1;94m' BIPurple='\e[1;95m' BICyan='\e[1;96m' BIWhite='\e[1;97m'
 # @constant On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite    High Intensty Background Colors
 On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0;103m' On_IBlue='\e[0;104m' On_IPurple='\e[10;95m' On_ICyan='\e[0;106m' On_IWhite='\e[0;107m'
@@ -53,7 +59,7 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 #
 
 [[ -v _MAIN__FLAGS ]] && return
-declare -gA _MAIN__FLAGS
+declare -gA _MAIN__FLAGS=([SOURCED]=0)
 
 # test if file is sourced or executed
 if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
@@ -72,6 +78,58 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #
 # FUNCTIONS
 #
+main_dereference-alias_() {
+	# recursively expand alias, dropping arguments
+	# output == input if no alias matches
+	local p
+	local a="$1"
+	if [[ "alias" = $(type -t -- $a) ]] && p=$(alias -- "$a" 2>&-); then
+		main_dereference-alias_ $(sed -re "s/alias "$a"='(\S+).*'$/\1/" <<< "$p")
+	else
+		declare -g __="$a"
+	fi
+}
+alias main.dereference-alias_="main_dereference-alias_"
+
+parse_check-args-number() {
+	: trap.suspend-trace
+	(( "$1" < "$2" )) && error_msg --exit 1 --show-function "Wrong number of arguments: $1 instead of $2" || true
+}
+alias parse.check-args-number="parse_check-args-number"
+
+shopt_backup() {
+	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
+	declare -gA _MAIN__SHOPT_BACKUP
+	local opt
+	for opt ; do
+		shopt -p $opt &>/dev/null && _MAIN__SHOPT_BACKUP["$opt"]=$True || _MAIN__SHOPT_BACKUP["$opt"]=$False
+	done
+}
+alias shopt.backup="shopt_backup"
+
+shopt_restore() {
+	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
+	local opt is_enabled
+	for opt ; do
+		shopt -p $opt &>/dev/null
+		is_enabled=$?
+		[[ "$is_enabled" = ${_MAIN__SHOPT_BACKUP["$opt"]} ]] && continue
+		if [[ "$is_enabled" = $True ]]; then
+			shopt -u "$opt" &>/dev/null
+		else
+			shopt -s "$opt" &>/dev/null
+		fi
+	done
+}
+alias shopt.restore="shopt_restore"
+
+main_is-windows?() {
+	if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
+		[[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
+	fi
+	return "${_MAIN__FLAGS[WINDOWS]}"
+}
+alias main.is-windows?="main_is-windows?"
 
 # @description Return 0 if the current script is chroot'ed, and store the result in flag $_MAIN__FLAGS[CHROOTED]
 # @alias main.is-chroot?
@@ -81,7 +139,7 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #   main.is-chroot?
 main_is-chroot?() {
 	if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
-		[[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=1 || _MAIN__FLAGS[CHROOTED]=0
+		[[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
 	fi
 	return "${_MAIN__FLAGS[CHROOTED]}"
 }
@@ -99,6 +157,25 @@ main_set-script-path-info() {
 }
 alias main.set-script-path-info="main_set-script-path-info"
 
+datetime_interval-to-sec_() {
+	declare -g __=0
+	[[ "$1" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
+	[[ "$1" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
+	[[ "$1" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
+	[[ "$1" =~ ([[:digit:]]*)s ]] && (( __+=${BASH_REMATCH[1]} ))
+}
+alias datetime.interval-to-sec_="datetime_interval-to-sec_"
+
+array_find-indexes_() {
+	declare -n my_array=$1
+	declare -ag __a=()
+	local i
+	for i in "${!my_array[@]}"; do
+		[[ "${my_array[$i]}" = "$2" ]] && __a+=($i) || true
+	done
+}
+alias array.find-indexes_="array_find-indexes_"
+
 array_find_() {
 	declare -n my_array=$1
 	local i
@@ -115,6 +192,40 @@ alias array.find_="array_find_"
 array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; }
 alias array.find="array_find"
 
+array_intersection_() {
+	declare -n ary1_ref=$1
+	declare -n ary2_ref=$2
+	declare -ga __a=()
+	local item ret=1
+	
+	for item in "${ary1_ref[@]}"; do
+		array_find_ ary2_ref "$item" && { __a+=("$item") ; ret=0 ; } || true
+	done
+	return $ret
+}
+alias array.intersection_="array_intersection_"
+
+list_find_() {
+	local what="$1" ; shift
+	declare -a ary=("$@")
+	
+	array.find_ ary "$what"
+}
+alias list.find_="list_find_"
+
+array_include?() {
+	array.find_ "$1" "$2"
+	[[ "$__" -ge 0 ]]
+}
+alias array.include?="array_include?"
+
+list_include?() {
+	local what="$1" ; shift
+	declare -a ary=("$@")
+	array.include? ary "$what"
+}
+alias list.include?="list_include?"
+
 array_remove-at() {
 	local aryname="$1" idx="$2"
 	declare -n ary_ref="$aryname"
@@ -125,14 +236,12 @@ alias array.remove-at="array_remove-at"
 array_remove() {
 	local aryname="$1" val="$2"
 	declare -n ary_ref="$aryname"
-	array_find_ "$aryname" "$val"
-	ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
+	array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" ) || true
 }
 alias array.remove="array_remove"
 
 array_defined?() {
-	local def="$( declare -p "$1" 2>/dev/null )" || return 1
-	[[ "$def" =~ "declare -a" ]] && return 0 || return 1
+	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
 }
 alias array.defined?="array_defined?"
 
@@ -143,8 +252,7 @@ array_init() {
 alias array.init="array_init"
 
 hash_defined?() {
-	local def="$( declare -p "$1" 2>/dev/null )" || return 1
-	[[ "$def" =~ "declare -A" ]] && return 0 || return 1
+	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
 }
 alias hash.defined?="hash_defined?"
 
@@ -153,6 +261,15 @@ hash_init() {
 	declare -gA "$1"='()'
 }
 alias hash.init="hash_init"
+
+collection_has-key?() {
+	declare -n ref="$1"
+	[[ -v ref[$2] ]]
+
+}
+alias collection.has-key?="collection_has-key?"
+alias array.has-key?="collection_has-key?"
+alias hash.has-key?="collection_has-key?"
 
 ===
 ===
@@ -208,10 +325,11 @@ printf_color() {
 
 show_msg() {
 	local type="$1" && shift
-	local add_arg="" color exit_code is_stderr is_tty is_indent
+	local add_arg="" color exit_code is_stderr is_tty is_indent function_info
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 			--) shift ; break ;;
+			--show-function) [[ "${FUNCNAME[1]}" =~ _msg ]] && function_info="${FUNCNAME[2]}()# " || function_info="${FUNCNAME[1]}()# " ; shift ;;
 			--exit) exit_code="$2" ; shift 2 ;;
 			-n) shift ; str_concat add_arg "-n" ;;
 			-e) shift ; str_concat add_arg "-e" ;;
@@ -237,7 +355,7 @@ show_msg() {
 		fi
 	fi
 	[ "$is_indent" = 1 ] && print_indent
-	( parseargs_is_optarg COLOR || [ -t 1 ] ) && { echo -ne "$color"[$type]"$Color_Off " ; echo $add_arg "$@" ; } || echo $add_arg [$type] "$@"
+	( parseargs_is_optarg COLOR || [ -t 1 ] ) && { echo -ne "$color"[$type]"$Color_Off " ; echo $add_arg "${function_info}""$@" ; } || echo $add_arg [$type] "$${function_info}""$@"
 	[[ "$is_stderr" = 1 || "$is_tty" = 1 ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
 	[ -n "$exit_code" ] && exit "$exit_code" || return 0
 }

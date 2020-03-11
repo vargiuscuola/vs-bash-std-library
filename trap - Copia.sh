@@ -23,14 +23,8 @@ module.import "main"
 # @global _TRAP__LINENO Number Line number of current command: available when command trace is enabled through `trap.enable-trace` function
 # @global _TRAP__LAST_LINENO Number Line number of previous command: available when command trace is enabled through `trap.enable-trace` function
 # @global _TRAP__EXITCODE_<signal> Number Exit code received by the trap handler for signal \<signal\>
-# @global _TRAP__SUSPEND_COMMAND_TRACE
-# @global _TRAP__SUSPEND_COMMAND_TRACE_IDX
-# @global _TRAP__FUNCTION_STACK
-declare -ga _TRAP__FUNCTION_STACK=()
-declare -ga _TRAP__LINENO_STACK=()
+declare -g _TRAP__FUNCTION_STACK=()
 declare -g _TRAP__SUSPEND_COMMAND_TRACE=""
-declare -ga _TRAP__STEP_INTO_FUNCTIONS=()
-declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 
 ############
 #
@@ -45,7 +39,8 @@ declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 # @example
 #   trap.has-handler? LABEL TERM
 trap_has-handler?() {
-	hash.has-key? "_TRAP__HOOKS_LABEL_TO_CODE_${2^^}" "$1"
+	local label="$1" sig="$2"
+	hash.has-key? "_TRAP__HOOKS_LABEL_TO_CODE_${sig^^}" "$label"
 }
 alias trap.has-handler?="trap_has-handler?"
 
@@ -104,11 +99,6 @@ trap_enable-trace() {
 }
 alias trap.enable-trace="trap_enable-trace"
 
-trap_is-trace-enabled?() {
-	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True ]]
-}
-alias trap.is-trace-enabled?="trap_is-trace-enabled?"
-
 
 # @description Add an error handler called on EXIT signal.
 #   To force the exit on command fail, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
@@ -123,7 +113,8 @@ trap_add-error-handler() {
 	
 	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" != $True ]] && trap.enable-trace
 	set -e
-	trap_add-handler "$label" '[[ "$_TRAP__EXITCODE_EXIT" != 0 ]] && '"$code || true" EXIT
+##	trap.is-function-handler? || trap.set-function-handler ""
+	trap_add-handler "$label" "[[ \"\$_TRAP__EXITCODE_EXIT\" != 0 ]] && $code" EXIT
 }
 alias trap.add-error-handler="trap_add-error-handler"
 
@@ -136,6 +127,7 @@ alias trap.add-error-handler="trap_add-error-handler"
 #   trap.remove-handler LABEL TERM
 trap_remove-handler() {
 	local label="${1^^}" sig="$2"
+	
 	unset "_TRAP__HOOKS_LABEL_TO_CODE_${sig}[$label]"
 	array.remove "_TRAP__HOOKS_LIST_${sig}" "$label"
 }
@@ -168,19 +160,19 @@ alias trap.show-handlers="trap_show-handlers"
 # @example
 #   trap ":trap_handler-helper TERM" TERM
 :trap_handler-helper() {
-	local current_command="$BASH_COMMAND" exitcode="$?"
-	local __backup="$__"																								# backup of global variable $__
-	local sig="${1^^}" idx label code input
-	while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&				# if it's a DEBUG signal and trace is enabled and
-		( "$_TRAP__LAST_LINENO" != "$_TRAP__TEMP_LINENO" || "$_TRAP__CURRENT_COMMAND" != "$current_command"  ) ]] &&	# if current command or line number is changed and
-		! list.include? :trap_handler-helper "${FUNCNAME[@]:1}"; do														# if the stack trace, apart the current function, doesn't include :trap_handler-helper
-																														# then provice tracing functionality...
+	local current_command="$BASH_COMMAND"
+	local sig="${1^^}" idx label code
+echo STACK TRACE "${FUNCNAME[@]}" COMMAND=$current_command SIG=$sig
+#	[[ ! "${FUNCNAME[1]}" =~ ^:trap ]] && ! list.include? :trap_handler-helper "${FUNCNAME[@]:1}"
+	while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&
+		( "$_TRAP__LAST_LINENO" != "$_TRAP__TEMP_LINENO" || "$_TRAP__CURRENT_COMMAND" != "$current_command"  ) ]]; do
 		array.find-indexes_ FUNCNAME :trap_handler-helper
-		local new_current_funcname="${FUNCNAME[1]}"
+		[[ "${#__a}" -gt 0 ]] && local current_funcname_idx="${__a[-1]}" || local current_funcname_idx=0
+		local new_current_funcname="${FUNCNAME[${current_funcname_idx}]}"
 		# if trap.suspend-trace is called, enable the trace suspension keeping track of the current function name and his index in the stack trace 
-		if [[ -z "$_TRAP__SUSPEND_COMMAND_TRACE" && ( "$current_command" = ": trap_suspend-trace" || "$current_command" = ": trap.suspend-trace" ) ]]; then
+		if [[ "$current_command" = ": trap.suspend-trace" ]]; then
 			_TRAP__SUSPEND_COMMAND_TRACE=$new_current_funcname
-			_TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( 1-${#FUNCNAME[@]} ))"
+			_TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( $current_funcname_idx-${#FUNCNAME[@]} ))"
 			break
 		fi
 		if [[ -n "$_TRAP__SUSPEND_COMMAND_TRACE" ]]; then
@@ -195,49 +187,18 @@ alias trap.show-handlers="trap_show-handlers"
 		_TRAP__LAST_COMMAND="$_TRAP__CURRENT_COMMAND"
 		_TRAP__CURRENT_COMMAND="$current_command"
 		_TRAP__CURRENT_FUNCTION="$new_current_funcname"
-		if (( ${#_TRAP__LINENO_STACK[@]} == 0 )); then
-			_TRAP__LINENO_STACK=( $(printf -- '- %.0s' $( seq 1 $((${#FUNCNAME[@]}-1)) ) ) )
-		elif (( ${#FUNCNAME[@]}-1 < ${#_TRAP__FUNCTION_STACK[@]} )); then
-			_TRAP__LINENO_STACK=( "${_TRAP__LINENO_STACK[@]:$(( ${#_TRAP__LINENO_STACK[@]}-${#FUNCNAME[@]}+1 ))}" )
-		elif (( ${#FUNCNAME[@]}-1 > ${#_TRAP__FUNCTION_STACK[@]} )); then
-			_TRAP__LINENO_STACK=( "" "${_TRAP__LINENO_STACK[@]}" )
-		fi
-		_TRAP__LINENO_STACK[0]=$_TRAP__LINENO
-		_TRAP__FUNCTION_STACK=("${FUNCNAME[@]:1}")
-		if [[ "$_TRAP__IS_TRACE" = $True ]] && (
-				(( "${#_TRAP__STEP_INTO_FUNCTIONS[@]}" == 0 && "${#_TRAP__STEP_OVER_FUNCTIONS[@]}" == 0 )) ||
-				( [[ "${#_TRAP__STEP_INTO_FUNCTIONS[@]}" -gt 0 ]] && array.intersection_ FUNCNAME _TRAP__STEP_INTO_FUNCTIONS ) ||
-				( [[ "${#_TRAP__STEP_OVER_FUNCTIONS[@]}" -gt 0 ]] && array.find_ _TRAP__STEP_OVER_FUNCTIONS "${FUNCNAME[1]}" )
-			); then
-			local opt_step
-			[[ "${_TRAP__CURRENT_COMMAND}" =~ ^[a-zA-Z_:?.\-] ]] &&
-				opt_step=$'\n'\
-"    [i] Step into \"${_TRAP__CURRENT_COMMAND/ */}\""$'\n'\
-"    [o] Step over \"${_TRAP__CURRENT_COMMAND/ */}\""
-			echo -ne "${Yellow}#== Debugger Trace${Color_Off}
-### Line number           $_TRAP__LINENO
-### Previous line number  $_TRAP__LAST_LINENO
-### Current command       $_TRAP__CURRENT_COMMAND
-### Previous command      $_TRAP__LAST_COMMAND
-### Current function      $_TRAP__CURRENT_FUNCTION
-### Function stack        ${_TRAP__FUNCTION_STACK[@]}
-### Line number stack     ${_TRAP__LINENO_STACK[@]}
-$( get_ext_color 141 )#######${Color_Off}
-    [e] End step trace${opt_step}
-    [s] Suspend trace for current function \"${_TRAP__CURRENT_FUNCTION}\"
-    [ENTER] Continue
-$( get_ext_color 141 )### Choose one of the above options:${Color_Off} "
-			read -N1 input </dev/tty
-			case "${input,,}" in
-				e) trap_step-trace-stop ;;
-				i) trap_step-trace-add --step-into "${_TRAP__CURRENT_COMMAND/ */}" ;;
-				o) trap_step-trace-add --step-over "${_TRAP__CURRENT_COMMAND/ */}" ;;
-				s)
-					_TRAP__SUSPEND_COMMAND_TRACE="$_TRAP__CURRENT_FUNCTION"
-					_TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( 1-${#FUNCNAME[@]} ))"
-				;;
-			esac
-			[[ "$input" != $'\n' ]] && echo
+		[[ "${#__a}" -gt 0 ]] && _TRAP__FUNCTION_STACK=("${FUNCNAME[@]:${__a[-1]}}") || _TRAP__FUNCTION_STACK=("${FUNCNAME[@]}")
+		if [[ "$_TRAP__IS_TRACE" = $True ]]; then
+			cat <<EOD
+#== Debugger Trace
+### Line number[\$_TRAP__LINENO]=$_TRAP__LINENO
+### Previous line number[\$_TRAP__LAST_LINENO]=$_TRAP__LAST_LINENO
+### Current command[\$_TRAP__CURRENT_COMMAND]=$_TRAP__CURRENT_COMMAND
+### Previous command[\$_TRAP__LAST_COMMAND]=$_TRAP__LAST_COMMAND
+### Current function[\$_TRAP__CURRENT_FUNCTION]=$_TRAP__CURRENT_FUNCTION
+### Stack trace[\$_TRAP__FUNCTION_STACK[@]]=${_TRAP__FUNCTION_STACK[@]}
+EOD
+			read -p "### Press Enter to continue... " </dev/tty
 		fi
 		break
 	done
@@ -245,60 +206,14 @@ $( get_ext_color 141 )### Choose one of the above options:${Color_Off} "
 	declare -n ary_ref="_TRAP__HOOKS_LIST_${sig}"
 	declare -n hash_ref="_TRAP__HOOKS_LABEL_TO_CODE_${sig}"
 	for label in "${ary_ref[@]}"; do
-		eval "${hash_ref[$label]}" || true
+		eval "${hash_ref[$label]}"
 	done
 	if [[ "$sig" = "INT" ]]; then
 		trap - INT
 		kill -INT $$
 	fi
-	declare -g __="${__backup}"																							# restore of global variable $__
 }
 alias :trap.handler-helper=":trap_handler-helper"
-
-trap_step-trace-reset() {
-	_TRAP__STEP_INTO_FUNCTIONS=()
-	_TRAP__STEP_OVER_FUNCTIONS=()
-}
-
-trap_step-trace-add() {
-	local type_trace=into
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--step-over) type_trace=over ; shift ;;
-			--step-into) type_trace=into ; shift ;;
-			*)
-				main_dereference-alias_ "$1" ; local func_to_add="$__"
-				[[ "$type_trace" = into ]] && declare -n ary_ref=_TRAP__STEP_INTO_FUNCTIONS || declare -n ary_ref=_TRAP__STEP_OVER_FUNCTIONS
-				array.find_ ary_ref "$func_to_add" || ary_ref+=( "$func_to_add" )
-				shift 1
-			;;
-		esac
-	done
-}
-alias trap.step-trace-add="trap_step-trace-add"
-
-trap_step-trace-list() {
-	local type item
-	for type in into over; do
-		declare -n ary_ref=_TRAP__STEP_${type^^}_FUNCTIONS
-		for item in "${ary_ref[@]}"; do
-			echo "step-$type|$item"
-		done
-	done
-}
-alias trap.step-trace-list="trap_step-trace-list"
-
-trap_step-trace-remove() {
-	local type_trace=into
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--step-over) type_trace=over ; shift ;;
-			--step-into) type_trace=into ; shift ;;
-			*) [[ "$type_trace" = into ]] && array.remove _TRAP__STEP_INTO_FUNCTIONS "$1" || array.remove _TRAP__STEP_OVER_FUNCTIONS "$1" ; shift 1 ;;
-		esac
-	done
-}
-alias trap.step-trace-remove="trap_step-trace-remove"
 
 trap_step-trace-start() {
 	declare -g _TRAP__IS_TRACE=$True
@@ -311,40 +226,25 @@ trap_step-trace-stop() {
 alias trap.step-trace-stop="trap_step-trace-stop"
 
 # @description Show error information.
-# @alias trap.show-stack-trace
+# @alias trap.show-trace-error
 # @arg $1 Number[$_TRAP__EXITCODE_EXIT] Exit code: defaults to the exit code of EXIT trap handler
 # @example
-#   trap.add-error-handler CHECKERR trap.show-stack-trace
-trap_show-stack-trace(){
-	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" != $True ]] && { warn_msg --show-function  "Code trace not enabled: cannot show the stack trace" ; return ; }
+#   trap.add-error-handler CHECKERR trap.show-trace-error
+trap_show-trace-error(){
+	[[ "$1" = "--exit" ]] && { local is_exit=$True ; shift ; }
 	local exitcode="${1:-$_TRAP__EXITCODE_EXIT}"
-	local file str alias found_source_file
-	local stack_trace idx
-	# prepare the stack trace description line joining the function name with line number for every level in the stack 
-	for idx in "${!_TRAP__FUNCTION_STACK[@]}"; do
-		stack_trace="$stack_trace ${_TRAP__FUNCTION_STACK[$idx]}[${_TRAP__LINENO_STACK[$idx]}]"
-	done
-	# find which file contain the last executed command (stored in $_TRAP__CURRENT_COMMAND) between the executed script and all the sourced files with module.import command
-	for file in "${_MODULE__IMPORTED_MODULES[@]}"; do
-		str="$( tail -n+$_TRAP__LINENO "$file" | head -n1 | sed -E 's/^[[:space:]]+//' )"
-		[[ "$str" =~ ^[a-zA-Z_:?.\-]+ ]] || true
-		if [[ -n "${BASH_REMATCH[0]}" ]]; then
-			alias="${BASH_REMATCH[0]}"
-			main.dereference-alias_ "${BASH_REMATCH[0]}"
-			[[ "$__" != "$alias" ]] && str="$__${str:${#alias}}"
-		fi
-		[[
-			"${str:0:${#_TRAP__CURRENT_COMMAND}}" = "$_TRAP__CURRENT_COMMAND" ||
-			( "${#str}" -gt 3 && "${_TRAP__CURRENT_COMMAND:0:${#str}}" = "$str" )
-		]] && { found_source_file="$file" ; break ; }
-	done
-	[[ -n "$found_source_file" ]] && local file_name_line=$'\n'"    File name: ${found_source_file##*/}"
-	echo -e "${Yellow}### Stack Trace${Color_Off}
-    Command: $_TRAP__CURRENT_COMMAND${file_name_line}
+	[[ "$#" = 2 ]] && local msg=$'\n'"    Error message: $2"
+	if [[ "${exitcode:-0}" != 0 ]]; then
+		cat <<EOD
+Error occurred:${msg}
+    Command: $_TRAP__CURRENT_COMMAND
     Function: $_TRAP__CURRENT_FUNCTION
+    Stack trace: ${_TRAP__FUNCTION_STACK[@]}
     Line number: $_TRAP__LINENO
-    Stack trace:$stack_trace
-    Exit code: $exitcode"
-	[[ -n "$found_source_file" ]] && awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),$0 }' L=$_TRAP__LINENO "$found_source_file"
+    Exit code: $exitcode
+EOD
+		awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),$0 }' L=$_TRAP__LINENO $0
+		[[ "$is_exit" = $True ]] && exit $exitcode
+	fi
 }
-alias trap.show-stack-trace="trap_show-stack-trace"
+alias trap.show-trace-error="trap_show-trace-error"
