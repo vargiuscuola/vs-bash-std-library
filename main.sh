@@ -84,9 +84,9 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 # @arg $1 String Name of alias to dereference
 # @return String Name of function to which provided alias point to
 # @example
-#  $ alias alias1="func1"
-#  $ alias alias2="alias1"
-#  $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+#   $ alias alias1="func1"
+#   $ alias alias2="alias1"
+#   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 #      return>func1
 main_dereference-alias_() {
 	# recursively expand alias, dropping arguments

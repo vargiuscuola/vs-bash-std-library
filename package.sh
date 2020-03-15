@@ -16,7 +16,7 @@ fi
 # @noargs
 # @return Library dir path
 # @example
-#  $ package.get-lib-dir_
+#   $ package.get-lib-dir_
 #      return> /lib/sh
 package_get-lib-dir_() {
 	declare -g __="$_PACKAGE__LIB_DIR"
@@ -30,7 +30,7 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 # @stdout Informative messages
 # @stderr Error messages
 # @example
-#  $ package.load github.com/vargiuscuola/std-lib.bash
+#   $ package.load github.com/vargiuscuola/std-lib.bash
 package_load() {
 	local is_update is_check git_package
 	while [[ $# -gt 0 ]]; do
