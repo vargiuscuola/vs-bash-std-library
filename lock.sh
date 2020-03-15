@@ -20,12 +20,10 @@ _LOCK__RUN_DIR=/var/run/std-lib.bash
 
 # @description Remove lock and kill associated process if present
 # @alias lock.kill
-# @arg $1 String[Caller script name] Lock name
+# @arg $1 String[Caller script name] An arbitrary lock name
 # @exitcode 0 Lock is removed and associated process is already terminated or successfuly killed
 # @exitcode 1 Cannot kill process associated to lock
 # @exitcode 2 Lock file cannot be deleted, but associated process is already terminated or successfully killed
-# @example
-#   lock.kill <tag>
 lock_kill() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.lock
@@ -57,8 +55,6 @@ alias lock.kill="lock_kill"
 # @exitcode 0 Lock successfully released
 # @exitcode 1 Current process doesn't own the lock and cannot release it
 # @exitcode 2 Lock file cannot be deleted
-# @example
-#   lock.release <tag>
 lock_release() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.lock
@@ -76,8 +72,6 @@ alias lock.release="lock_release"
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock is active
 # @exitcode 1 Lock is expired (file lock not present or associated process already terminated)
-# @example
-#   lock.is-active? <tag>
 lock_is-active?() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.lock
@@ -90,8 +84,6 @@ alias lock.is-active?="lock_is-active?"
 # @alias lock.is-mine?
 # @arg $1 String[Caller script name] Lock name
 # @exitcodes $True (0) if lock is present and owned by the current process
-# @example
-#   lock.is-active? <tag>
 lock_is-mine?() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	local pidfile="$_LOCK__RUN_DIR"/${lock_name}.lock
@@ -104,8 +96,6 @@ alias lock.is-mine?="lock_is-mine?"
 # @alias lock.list_
 # @arg $1 Number[PID of current process $$] Pid of the process for which determine the list of locks owned by it: if empty, all locks are returned, regardless of owner
 # @return Array of lock names owned by the specified process
-# @example
-#   lock.is-active? <tag>
 lock_list_() {
 	declare -ga __a=()
 	declare -a ary=( "$_LOCK__RUN_DIR"/*.lock )
@@ -118,7 +108,6 @@ lock_list_() {
 alias lock.list_="lock_list_"
 
 # @description Try to obtain a lock.
-#  If the lock 
 # @alias lock.new
 # @arg $1 String[Caller script name] Lock name
 # @arg $2 String[0] If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as described here (**needed link**)
@@ -127,8 +116,6 @@ alias lock.list_="lock_list_"
 # @exitcode 1 Lock is busy and is not expired
 # @exitcode 2 Lock is expired but was not possible to terminate the process owning it
 # @exitcode 3 Cannot obtain the lock for other reasons
-# @example
-#   lock.new <tag>
 lock_new() {
 	[[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
 	[[ -z "$2" ]] && local wait=0 || { datetime.interval-to-sec_ "$2" ; local wait="$__" ; }

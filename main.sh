@@ -78,6 +78,16 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #
 # FUNCTIONS
 #
+
+# @description Dereference shell aliases: return the name of the function to which an alias point to, resolving it recursively if needed
+# @alias main.dereference-alias_
+# @arg $1 String Name of alias to dereference
+# @return String Name of function to which provided alias point to
+# @example
+#  $ alias alias1="func1"
+#  $ alias alias2="alias1"
+#  $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+#      return>func1
 main_dereference-alias_() {
 	# recursively expand alias, dropping arguments
 	# output == input if no alias matches
