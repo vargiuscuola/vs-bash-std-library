@@ -2,9 +2,9 @@
 
 Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 
-## Constants
+# Constants
 
-### Terminal color codes
+## Terminal color codes
 * **Color_Off**: Disable color
 * **Black,Red,Green,Yellow,Blue,Purple,Cyan,Orange**: Regular Colors
 * **BBlack,BRed,BGreen,BYellow,BBlue,BPurple,BCyan,BWhite**: Bold Colors
@@ -15,89 +15,89 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * **On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite**: High Intensty Background Colors
 
 
-## Global Variables
+# Global Variables
 
-### Flags
+## Flags
 * **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
 * **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set by the call to function main.is-chroot?()
 * **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set by the call to function main.is-windows?()
-### Boolean Values
+## Boolean Values
 * True 0
 * False 1
-### Others
+## Others
 * **\_MAIN__RAW_SCRIPTNAME** (string): Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
 * **\_MAIN__SCRIPTPATH** (string): Calling script path after any possible link resolution
 * **\_MAIN__SCRIPTNAME** (string): Calling script real name (after any possible link resolution)
 * **\_MAIN__SCRIPTDIR** (string): Absolute path where reside the calling script, after any possible link resolution
 
 
-## Functions
+# Functions
 * [main_dereference-alias_()](#main_dereference-alias_)
 * [main_set-script-path-info()](#main_set-script-path-info)
 * [get_ext_color()](#get_ext_color)
 
 
-### main_dereference-alias_()
+## main_dereference-alias_()
 
 Dereference shell aliases: return the name of the function to which an alias point to, resolving it recursively if needed
 
-#### Aliases
+### Aliases
 
 * **main.dereference-alias_**
 
-#### Arguments
+### Arguments
 
 * **$1** (String): Name of alias to dereference
 
-#### Return with global scalar $__, array $__a or hash $__h
+### Return with global scalar $__, array $__a or hash $__h
 
 * String Name of function to which provided alias point to
 
-#### Example
+### Example
 
 ```bash
 ```
 
-### main_set-script-path-info()
+## main_set-script-path-info()
 
 Set the 
 
-#### Aliases
+### Aliases
 
 * **main.set-script-path-info**
 
-#### Exit codes
+### Exit codes
 
 * **0**: Script is chroot'ed
 * **1**: Script is not chroot'ed
 
-#### Example
+### Example
 
 ```bash
 main.is-chroot?
 ```
 
-### get_ext_color()
+## get_ext_color()
 
 Get extended terminal color codes
 
-#### Arguments
+### Arguments
 
 * **$1** (number): Foreground color
 * **$2** (number): Background color
 
-#### Example
+### Example
 
 ```bash
 get_ext_color 208
   => \e[38;5;208m
 ```
 
-#### Exit codes
+### Exit codes
 
 * n.a.
 
-#### Output on stdout
+### Output on stdout
 
 * Color code.
 

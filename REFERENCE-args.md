@@ -2,7 +2,7 @@
 
 Provide argument parsing functionalities
 
-## Global Variables
+# Global Variables
 
 * **\_ARGS__RED** (String): Red terminal color code
 * **\_ARGS__YELLOW** (String): Yellow terminal color code
@@ -10,11 +10,11 @@ Provide argument parsing functionalities
 * **\_ARGS__COLOR_OFF** (String): Terminal code to turn off color
 
 
-## Functions
+# Functions
 * [args_parse()](#args_parse)
 
 
-### args_parse()
+## args_parse()
 
 Parse the command line options.
   It store the parsed options and remaining arguments to the provided variables.
@@ -23,25 +23,25 @@ Parse the command line options.
   * [reconquest/args](https://github.com/reconquest/args)
   * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
 
-#### Aliases
+### Aliases
 
 * **args.parse**
 
-#### Arguments
+### Arguments
 
 * **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
 * **$2** (Arrayname): (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
 * **...** (String): Options definition and arguments to parse separated by `--`
 
-#### Exit codes
+### Exit codes
 
 * Standard
 
-#### Output on stdout
+### Output on stdout
 
 * Parsed options and arguments, only if `-` is passed as the first argument
 
-#### Example
+### Example
 
 ```bash
 $ declare -A opts ; declare -a args

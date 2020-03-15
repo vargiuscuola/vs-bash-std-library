@@ -2,59 +2,59 @@
 
 Include shell libraries modules
 
-## Global Variables
+# Global Variables
 
 * **\_MODULE__IMPORTED_MODULES** (Array): Imported modules
 
 
-## Functions
+# Functions
 * [module_import()](#module_import)
 
 
-### module_import()
+## module_import()
 
 Import module
 
-#### Aliases
+### Aliases
 
 * **module.import**
 
-#### Arguments
+### Arguments
 
 * **$1** (String): Module path. Shell extension `.sh` can be omitted
 
-#### Exit codes
+### Exit codes
 
 * Standard
 
-#### Example
+### Example
 
 ```bash
 ```
 
 
 
-## Internal Functions
+# Internal Functions
 * [:module_abs-path_()](#module_abs-path_)
 
 
-### :module_abs-path_()
+## :module_abs-path_()
 
 Return normalized absolute path
 
-#### Aliases
+### Aliases
 
 * **module.abs-path_**
 
-#### Arguments
+### Arguments
 
 * **$1** (String): Path
 
-#### Return with global scalar $__, array $__a or hash $__h
+### Return with global scalar $__, array $__a or hash $__h
 
 * Normalized absolute path
 
-#### Example
+### Example
 
 ```bash
 ```
