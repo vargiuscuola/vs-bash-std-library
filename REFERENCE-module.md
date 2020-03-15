@@ -30,6 +30,7 @@ Import module
 ### Example
 
 ```bash
+$ module.import "github/vargiuscuola/std-lib.bash/main"
 ```
 
 
@@ -57,6 +58,8 @@ Return normalized absolute path
 ### Example
 
 ```bash
+$ module.abs-path_ "../lib"
+   return> /var/lib
 ```
 
 

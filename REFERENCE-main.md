@@ -56,6 +56,10 @@ Dereference shell aliases: return the name of the function to which an alias poi
 ### Example
 
 ```bash
+$ alias alias1="func1"
+$ alias alias2="alias1"
+$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+   return>func1
 ```
 
 ## main_set-script-path-info()

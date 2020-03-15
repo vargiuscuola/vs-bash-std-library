@@ -29,6 +29,8 @@ _Function has no arguments._
 ### Example
 
 ```bash
+$ package.get-lib-dir_
+   return> /lib/sh
 ```
 
 ## package_load()
@@ -58,6 +60,7 @@ Load required package, cloning the git repository hosting it
 ### Example
 
 ```bash
+$ package.load github.com/vargiuscuola/std-lib.bash
 ```
 
 
