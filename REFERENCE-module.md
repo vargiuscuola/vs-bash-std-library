@@ -50,7 +50,7 @@ Return normalized absolute path
 
 * **$1** (String): Path
 
-#### Return with global $__ or $_\<MODULE\>__
+#### Return with global scalar $__, array $__a or hash $__h
 
 * Normalized absolute path
 

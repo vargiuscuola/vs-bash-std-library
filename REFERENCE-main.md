@@ -32,9 +32,31 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 
 ## Functions
+* [main_dereference-alias_()](#main_dereference-alias_)
 * [main_set-script-path-info()](#main_set-script-path-info)
 * [get_ext_color()](#get_ext_color)
 
+
+### main_dereference-alias_()
+
+Dereference shell aliases: return the name of the function to which an alias point to, resolving it recursively if needed
+
+#### Aliases
+
+* **main.dereference-alias_**
+
+#### Arguments
+
+* **$1** (String): Name of alias to dereference
+
+#### Return with global scalar $__, array $__a or hash $__h
+
+* String Name of function to which provided alias point to
+
+#### Example
+
+```bash
+```
 
 ### main_set-script-path-info()
 

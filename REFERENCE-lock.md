@@ -30,19 +30,13 @@ Remove lock and kill associated process if present
 
 #### Arguments
 
-* **$1** (String)[default: **Caller script name**]: Lock name
+* **$1** (String)[default: **Caller script name**]: An arbitrary lock name
 
 #### Exit codes
 
 * **0**: Lock is removed and associated process is already terminated or successfuly killed
 * **1**: Cannot kill process associated to lock
 * **2**: Lock file cannot be deleted, but associated process is already terminated or successfully killed
-
-#### Example
-
-```bash
-lock.kill <tag>
-```
 
 ### lock_release()
 
@@ -62,12 +56,6 @@ Release lock if current process own it
 * **1**: Current process doesn't own the lock and cannot release it
 * **2**: Lock file cannot be deleted
 
-#### Example
-
-```bash
-lock.release <tag>
-```
-
 ### lock_list_()
 
 List of locks owned by the current process of by the process with the provided pid
@@ -80,20 +68,13 @@ List of locks owned by the current process of by the process with the provided p
 
 * **$1** (Number)[default: **PID of current process $$**]: Pid of the process for which determine the list of locks owned by it: if empty, all locks are returned, regardless of owner
 
-#### Return with global $__ or $_\<MODULE\>__
+#### Return with global scalar $__, array $__a or hash $__h
 
 * Array of lock names owned by the specified process
-
-#### Example
-
-```bash
-lock.is-active? <tag>
-```
 
 ### lock_new()
 
 Try to obtain a lock.
- If the lock 
 
 #### Aliases
 
@@ -111,11 +92,5 @@ Try to obtain a lock.
 * **1**: Lock is busy and is not expired
 * **2**: Lock is expired but was not possible to terminate the process owning it
 * **3**: Cannot obtain the lock for other reasons
-
-#### Example
-
-```bash
-lock.new <tag>
-```
 
 

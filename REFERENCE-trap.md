@@ -14,9 +14,12 @@ Manage shell traps
 * **\_TRAP__LINENO** (Number): Line number of current command: available when command trace is enabled through `trap.enable-trace` function
 * **\_TRAP__LAST_LINENO** (Number): Line number of previous command: available when command trace is enabled through `trap.enable-trace` function
 * **\_TRAP__EXITCODE_\<signal\>** (Number): Exit code received by the trap handler for signal \<signal\>
-* _TRAP__SUSPEND_COMMAND_TRACE
-* _TRAP__SUSPEND_COMMAND_TRACE_IDX
-* _TRAP__FUNCTION_STACK
+* **\_TRAP__SUSPEND_COMMAND_TRACE** (String): The name of the function for which to suspend the debugger trace functionality (set by the use of the special syntax `: trap_suspend-trace`)
+* **\_TRAP__SUSPEND_COMMAND_TRACE_IDX** (Number): The position inside the stack trace of the suspended function stored in the global variable `_TRAP__SUSPEND_COMMAND_TRACE`
+* **\_TRAP__FUNCTION_STACK** (Array): An array of functions storing the stack trace
+* **\_TRAP__LINENO_STACK** (Array): An array of numbers storing the line numbers inside each function in the stack trace respectively
+* **\_TRAP__STEP_INTO_FUNCTIONS** (String): The name of the function inside which activate a debugging trace with a step into logic (set by the functions `trap.step-trace-add`, `trap.step-trace-remove` and `trap.step-trace-reset`)
+* **\_TRAP__STEP_OVER_FUNCTIONS** (String): The name of the function inside which activate a debugging trace with a step over logic (set by the functions `trap.step-trace-add`, `trap.step-trace-remove` and `trap.step-trace-reset`)
 
 
 ## Functions

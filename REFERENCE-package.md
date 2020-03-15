@@ -22,7 +22,7 @@ Print library base path
 
 _Function has no arguments._
 
-#### Return with global $__ or $_\<MODULE\>__
+#### Return with global scalar $__, array $__a or hash $__h
 
 * Library dir path
 
@@ -41,7 +41,7 @@ Load required package, cloning the git repository hosting it
 
 #### Arguments
 
-* **$1** (String): Git repository url without scheme (https:// is used)
+* **$1** (String): Git repository url without scheme (https is used)
 
 #### Exit codes
 

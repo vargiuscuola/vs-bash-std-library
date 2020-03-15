@@ -18,9 +18,7 @@ Provide argument parsing functionalities
 
 Parse the command line options.
   It store the parsed options and remaining arguments to the provided variables.
-  Additionally to getopt syntax, it allows aliases provided in the following form:
-  * -n:,--name
-  which, in this case, means that the same option can be interchangebly provided in the form `-n <value>` and `--name <value>`.
+  In addition to getopt syntax, the form `-n:,--name` is allowed, which means that the same option can be interchangebly provided in the form `-n <value>` and `--name <value>`.
   The code and functionalities is a mix of the following two github projects:
   * [reconquest/args](https://github.com/reconquest/args)
   * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
@@ -33,7 +31,7 @@ Parse the command line options.
 
 * **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
 * **$2** (Arrayname): (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
-* **...** (Options): definition and options to parse separated by --
+* **...** (String): Options definition and arguments to parse separated by `--`
 
 #### Exit codes
 
