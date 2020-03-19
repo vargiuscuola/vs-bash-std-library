@@ -22,7 +22,7 @@ Provide locking functionalities
 
 ## lock_kill()
 
-Remove lock and kill associated process if present
+Remove lock and kill associated process if present.
 
 ### Aliases
 
@@ -40,7 +40,7 @@ Remove lock and kill associated process if present
 
 ## lock_release()
 
-Release lock if current process own it
+Release lock if current process own it.
 
 ### Aliases
 
@@ -58,7 +58,7 @@ Release lock if current process own it
 
 ## lock_list_()
 
-List of locks owned by the current process of by the process with the provided pid
+List of locks owned by the current process of by the process with the provided pid.
 
 ### Aliases
 

@@ -33,7 +33,10 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 # Functions
 * [main_dereference-alias_()](#main_dereference-alias_)
+* [shopt_backup()](#shopt_backup)
+* [shopt_restore()](#shopt_restore)
 * [main_set-script-path-info()](#main_set-script-path-info)
+* [datetime_interval-to-sec_()](#datetime_interval-to-sec_)
 * [get_ext_color()](#get_ext_color)
 
 
@@ -59,26 +62,97 @@ Dereference shell aliases: return the name of the function to which an alias poi
 $ alias alias1="func1"
 $ alias alias2="alias1"
 $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
-   return>func1
+# return __="func1"
+```
+
+## shopt_backup()
+
+Backup the provided shopt options.
+
+### Aliases
+
+* **shopt.backup**
+
+### Arguments
+
+* **...** (String): Options to be backed up
+
+### Example
+
+```bash
+$ shopt -p expand_aliases
+shopt -s expand_aliases
+$ shopt.backup expand_aliases extdebug
+$ shopt -u expand_aliases
+$ shopt -p expand_aliases
+shopt -u expand_aliases
+$ shopt.restore expand_aliases extdebug
+$ shopt -p expand_aliases
+shopt -s expand_aliases
+```
+
+## shopt_restore()
+
+Restore the provided shopt options backuped up by the previously called `shopt.backup` function.
+
+### Aliases
+
+* **shopt.restore**
+
+### Arguments
+
+* **...** (String): Options to be restored
+
+### Example
+
+```bash
+$ shopt -p expand_aliases
+shopt -s expand_aliases
+$ shopt.backup expand_aliases extdebug
+$ shopt -u expand_aliases
+$ shopt -p expand_aliases
+shopt -u expand_aliases
+$ shopt.restore expand_aliases extdebug
+$ shopt -p expand_aliases
+shopt -s expand_aliases
 ```
 
 ## main_set-script-path-info()
 
-Set the 
+Set the current script path and the current script directory to the global variables `_MAIN__SCRIPTPATH` and `_MAIN__SCRIPTDIR`.
 
 ### Aliases
 
 * **main.set-script-path-info**
 
-### Exit codes
+### Example
 
-* **0**: Script is chroot'ed
-* **1**: Script is not chroot'ed
+```bash
+$ main.set-script-path-info
+$ echo _MAIN__SCRIPTPATH=$_MAIN__SCRIPTPATH
+_MAIN__SCRIPTPATH=/usr/local/src/script.sh
+$ echo _MAIN__SCRIPTDIR=$_MAIN__SCRIPTDIR
+_MAIN__SCRIPTDIR=/usr/local/src
+```
+
+## datetime_interval-to-sec_()
+
+Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
+  [<n>d] [<n>h] [<n>m] [<n>s]
+
+### Aliases
+
+* **datetime.interval-to-sec_**
+
+### Arguments
+
+* **...** (String): Any of the following time intervals: <n>d (<n> days), <n>h (<n> hours), <n>m (<n> minutes) and <n>s (<n> seconds)
 
 ### Example
 
 ```bash
-main.is-chroot?
+$ datetime.interval-to-sec_ 1d 2h 3m 45s
+# return __=93825
 ```
 
 ## get_ext_color()

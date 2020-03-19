@@ -5,4 +5,5 @@
 * [package.sh](REFERENCE-package.md)
 * [main.sh](REFERENCE-main.md)
 * [args.sh](REFERENCE-args.md)
+* [info.sh](REFERENCE-info.md)
 * [trap.sh](REFERENCE-trap.md)

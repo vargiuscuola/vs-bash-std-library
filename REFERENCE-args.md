@@ -11,8 +11,41 @@ Provide argument parsing functionalities
 
 
 # Functions
+* [args_check-number()](#args_check-number)
 * [args_parse()](#args_parse)
 
+
+## args_check-number()
+
+Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+  This is actually an alias defined as `:args_check-number $#`.
+
+### Aliases
+
+* **args.check-number**
+
+### Arguments
+
+* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
+* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+* **$2** (Number): (Optional) Maximum number of arguments: can be `-` for there is no limit on the number of maximum arguments
+
+### Exit codes
+
+* Standard (0 on success, 1 on fail)
+
+### Output on stderr
+
+* Print an error message in case of failed validationvalidation
+
+### Example
+
+```bash
+$ args.check-number 2
+$ alias alias2="alias1"
+$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+# return __="func1"
+```
 
 ## args_parse()
 
@@ -31,6 +64,9 @@ Parse the command line options.
 
 * **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
 * **$2** (Arrayname): (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
+* **$3** (Number): (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
+* **$4** (Number): (Optional) Maximum number of arguments
+* **$5** (String): Literal `--`: used as a separator for the following arguments
 * **...** (String): Options definition and arguments to parse separated by `--`
 
 ### Exit codes
@@ -44,13 +80,15 @@ Parse the command line options.
 ### Example
 
 ```bash
+# Example n. 1
 $ declare -A opts ; declare -a args
-$ args.parse opts args -av -b: -n:,--name -- -aav --name=somename arg1 arg2
+$ args.parse opts args -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
 $ declare -p opts
 declare -A opts=([-v]="1" [-a]="2" [-n]="pippo" [--name]="pippo" )
 $ declare -p args
 declare -a args=([0]="arg1" [1]="arg2")
-$ args.parse - -av -b: -n:,--name -- -aav --name=somename arg1 arg2
+# Example n. 2
+$ args.parse - -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
 ### args_parse
 # Options:
 -v 1
@@ -61,6 +99,20 @@ $ args.parse - -av -b: -n:,--name -- -aav --name=somename arg1 arg2
 arg1
 arg2
 #- args_parse
+# Example n. 3
+$ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
+[ERROR] Wrong number of arguments: 1 instead of 2..3
 ```
+
+
+
+# Internal Functions
+* [:args_check-number()](#args_check-number)
+
+
+## :args_check-number()
+
+Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+  This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
 
 

@@ -28,12 +28,14 @@ Manage shell traps
 * [trap_add-error-handler()](#trap_add-error-handler)
 * [trap_remove-handler()](#trap_remove-handler)
 * [trap_show-handlers()](#trap_show-handlers)
+* [func_not_to_be_trace()](#func_not_to_be_trace)
+* [trap_suspend-trace()](#trap_suspend-trace)
 * [trap_show-stack-trace()](#trap_show-stack-trace)
 
 
 ## trap_add-handler()
 
-Add trap handler.
+Add trap handler.  
   It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__HOOKS_LIST_<signal>`.
 
 ### Aliases
@@ -59,7 +61,7 @@ trap.add-handler LABEL "echo EXIT" TERM
 
 ## trap_enable-trace()
 
-Enable command tracing by setting a trap on signal `DEBUG` that set the global variables $_TRAP__LAST_COMMAND, $_TRAP__CURRENT_COMMAND and $_TRAP__LINENO.
+Enable command tracing by setting a trap on signal `DEBUG` that set the global variables `_TRAP__LAST_COMMAND`, `_TRAP__CURRENT_COMMAND` and `_TRAP__LINENO`.
 
 ### Aliases
 
@@ -67,7 +69,7 @@ Enable command tracing by setting a trap on signal `DEBUG` that set the global v
 
 ## trap_add-error-handler()
 
-Add an error handler called on EXIT signal.
+Add an error handler called on EXIT signal.  
   To force the exit on command fail, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
 
 ### Aliases
@@ -117,6 +119,29 @@ Show all trap handlers.
 
 * List of trap handlers, with the following columns separated by tab: `signal`, `index`, `label`, `action code`
 
+## func_not_to_be_trace()
+
+Suspend debug trace for the calling function and the inner ones.  
+  It must be called with the no-op bash built-in command, as in `: trap_suspend-trace` or `: trap.suspend-trace`: it means the function will not be actually called, but that syntax will be
+  intercepted and treated by the debug trace manager. That allows to suspend the debug trace immediately, while calling a real `trap_suspend-trace` function will fulfill that
+  request too late (for the purpose of not tampering with the stack).
+
+### Aliases
+
+* **trap.suspend-trace**
+
+### Example
+
+```bash
+func_not_to_be_trace() {
+## trap_suspend-trace()
+
+  : trap_suspend-trace
+  # the following commands and functions are not traced 
+  func2
+}
+```
+
 ## trap_show-stack-trace()
 
 Show error information.
@@ -143,7 +168,7 @@ trap.add-error-handler CHECKERR trap.show-stack-trace
 
 ## :trap_handler-helper()
 
-Trap handler helper.
+Trap handler helper.  
   It is supposed to be used as the action in `trap` built-in bash command.
 
 ### Aliases
