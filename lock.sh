@@ -1,6 +1,9 @@
 #!/bin/bash
 #github-action genshdoc
 
+# if already sourced, return
+[[ -v _LOCK__LOADED ]] && return || _LOCK__LOADED=True
+
 # @file lock.sh
 # @brief Provide locking functionalities
 # @show-internal
@@ -18,7 +21,7 @@ _LOCK__RUN_DIR=/var/run/std-lib.bash
 # @setting _LOCK__KILL_PROCESS_WAIT2 Number[0.5] Time to wait for the second check if successfully killed a process 
 [[ -v _LOCK__KILL_PROCESS_WAIT1 ]] || _LOCK__KILL_PROCESS_WAIT1=0.5
 
-# @description Remove lock and kill associated process if present
+# @description Remove lock and kill associated process if present.
 # @alias lock.kill
 # @arg $1 String[Caller script name] An arbitrary lock name
 # @exitcode 0 Lock is removed and associated process is already terminated or successfuly killed
@@ -49,7 +52,7 @@ lock_kill() {
 alias lock.kill="lock_kill"
 
 
-# @description Release lock if current process own it
+# @description Release lock if current process own it.
 # @alias lock.release
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock successfully released
@@ -67,7 +70,7 @@ lock_release() {
 alias lock.release="lock_release"
 
 
-# @description Check if a lock is currently active, i.e. file lock is present and the associated process still running
+# @description Check if a lock is currently active, i.e. file lock is present and the associated process still running.
 # @alias lock.is-active?
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock is active
@@ -80,7 +83,7 @@ lock_is-active?() {
 alias lock.is-active?="lock_is-active?"
 
 
-# @description Check if the current process is owning the provided lock
+# @description Check if the current process is owning the provided lock.
 # @alias lock.is-mine?
 # @arg $1 String[Caller script name] Lock name
 # @exitcodes $True (0) if lock is present and owned by the current process
@@ -92,7 +95,7 @@ lock_is-mine?() {
 alias lock.is-mine?="lock_is-mine?"
 
 
-# @description List of locks owned by the current process of by the process with the provided pid
+# @description List of locks owned by the current process of by the process with the provided pid.
 # @alias lock.list_
 # @arg $1 Number[PID of current process $$] Pid of the process for which determine the list of locks owned by it: if empty, all locks are returned, regardless of owner
 # @return Array of lock names owned by the specified process

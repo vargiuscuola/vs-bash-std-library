@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 #github-action genshdoc
 
+# if already sourced, return
+[[ -v _TRAP__LOADED ]] && return || _TRAP__LOADED=True
+
 # @file trap.sh
 # @brief Manage shell traps
 # @show-internal
 shopt -s expand_aliases
 
 module.import "main"
+module.import "args"
 
 ############
 #
@@ -52,9 +56,7 @@ trap_has-handler?() {
 }
 alias trap.has-handler?="trap_has-handler?"
 
-
-
-# @description Add trap handler.
+# @description Add trap handler.  
 #   It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__HOOKS_LIST_<signal>`.
 # @alias trap.add-handler
 # @arg $1 String Descriptive label to associate to the added trap handler
@@ -65,7 +67,7 @@ alias trap.has-handler?="trap_has-handler?"
 # @example
 #   trap.add-handler LABEL "echo EXIT" TERM
 trap_add-handler() {
-	parse.check-args-number $# 3
+	args_check-number 3
 	local label="$1" code="$2"
 	shift 2
 	local sig idx addcode ret=0
@@ -98,7 +100,7 @@ trap_add-handler() {
 alias trap.add-handler="trap_add-handler"
 
 
-# @description Enable command tracing by setting a trap on signal `DEBUG` that set the global variables $_TRAP__LAST_COMMAND, $_TRAP__CURRENT_COMMAND and $_TRAP__LINENO.
+# @description Enable command tracing by setting a trap on signal `DEBUG` that set the global variables `_TRAP__LAST_COMMAND`, `_TRAP__CURRENT_COMMAND` and `_TRAP__LINENO`.
 # @alias trap.enable-trace
 trap_enable-trace() {
 	_TRAP__IS_COMMAND_TRACE_ENABLED=$True
@@ -113,7 +115,7 @@ trap_is-trace-enabled?() {
 alias trap.is-trace-enabled?="trap_is-trace-enabled?"
 
 
-# @description Add an error handler called on EXIT signal.
+# @description Add an error handler called on EXIT signal.  
 #   To force the exit on command fail, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
 # @alias trap.add-error-handler
 # @arg $1 String Label of the trap handler
@@ -163,8 +165,21 @@ trap_show-handlers() {
 alias trap.show-handlers="trap_show-handlers"
 
 
+# @description Suspend debug trace for the calling function and the inner ones.  
+#   It must be called with the no-op bash built-in command, as in `: trap_suspend-trace` or `: trap.suspend-trace`: it means the function will not be actually called, but that syntax will be
+#   intercepted and treated by the debug trace manager. That allows to suspend the debug trace immediately, while calling a real `trap_suspend-trace` function will fulfill that
+#   request too late (for the purpose of not tampering with the stack).
+# @alias trap.suspend-trace
+# @example
+#   func_not_to_be_trace() {
+#     : trap_suspend-trace
+#     # the following commands and functions are not traced 
+#     func2
+#   }
+trap_suspend-trace() { : trap_suspend-trace ; }
+
 # @internal
-# @description Trap handler helper.
+# @description Trap handler helper.  
 #   It is supposed to be used as the action in `trap` built-in bash command.
 # @alias trap.handler-helper
 # @arg $1 String Signal to handle

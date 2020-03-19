@@ -1,6 +1,9 @@
 #!/bin/bash
 #github-action genshdoc
 
+# if already sourced, return
+[[ -v _ARGS__LOADED ]] && return || _ARGS__LOADED=True
+
 # @file args.sh
 # @brief Provide argument parsing functionalities
 # @show-internal
@@ -16,7 +19,38 @@ _ARGS__CYAN='\e[0;36m'
 _ARGS__COLOR_OFF='\e[0m'
 
 # alias to print a coloured error message
-alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}${_ARGS__COLOR_OFF}#"'
+alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
+
+# @internal
+# @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+#   This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+:args_check-number() {
+	: trap.suspend-trace
+	local max="${3:-$2}"
+	[[ "$max" = - ]] && max="$1"
+	(( "$1" < "$2" || "$1" > "${max}" )) && {
+		[[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
+		errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"		# $2${3:+..}${3} => $2 (if $3 is not provided), or $2..$3 (if $3 is provided)
+		exit 1
+	} || true
+}
+
+# @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+#   This is actually an alias defined as `:args_check-number $#`.
+# @alias args.check-number
+# @arg $1 Number The number of arguments to be validated against the number provided in $2, or the interval $2..$3
+# @arg $2 Number The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+# @arg $2 Number (Optional) Maximum number of arguments: can be `-` for there is no limit on the number of maximum arguments
+# @exitcodes Standard (0 on success, 1 on fail)
+# @stderr Print an error message in case of failed validationvalidation
+# @example
+#   $ args.check-number 2
+#   $ alias alias2="alias1"
+#   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+#   # return __="func1"
+args_check-number() { :; }
+alias args_check-number=':args_check-number $#'
+alias args.check-number=':args_check-number $#'
 
 # @description Parse the command line options.
 #   It store the parsed options and remaining arguments to the provided variables.
@@ -27,17 +61,22 @@ alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}$
 # @alias args.parse
 # @arg $1 Hashname Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
 # @arg $2 Arrayname (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
+# @arg $3 Number (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
+# @arg $4 Number (Optional) Maximum number of arguments
+# @arg $5 String Literal `--`: used as a separator for the following arguments
 # @arg $@ String Options definition and arguments to parse separated by `--`
 # @exitcodes Standard
 # @stdout Parsed options and arguments, only if `-` is passed as the first argument
 # @example
+#   # Example n. 1
 #   $ declare -A opts ; declare -a args
-#   $ args.parse opts args -av -b: -n:,--name -- -aav --name=somename arg1 arg2
+#   $ args.parse opts args -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
 #   $ declare -p opts
 #   declare -A opts=([-v]="1" [-a]="2" [-n]="pippo" [--name]="pippo" )
 #   $ declare -p args
 #   declare -a args=([0]="arg1" [1]="arg2")
-#   $ args.parse - -av -b: -n:,--name -- -aav --name=somename arg1 arg2
+#   # Example n. 2
+#   $ args.parse - -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
 #   ### args_parse
 #   # Options:
 #   -v 1
@@ -48,8 +87,11 @@ alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}$
 #   arg1
 #   arg2
 #   #- args_parse
-
+#   # Example n. 3
+#   $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
+#   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
+	# check the first two arguments (variable name for options and arguments)
 	(( $# < 1 )) && { errmsg "first argument should be name of the variable to return parsed options" ; return 3 ; } >&2
 	(( $# < 2 )) && { errmsg "second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
 	local opts_varname="$1"
@@ -62,6 +104,16 @@ args_parse() {
 		declare -n _args="$2"
 		shift 2
 	fi
+	
+	# check the next two optionals arguments (regarding the check of the number of arguments)
+	local min_args= max_args=
+	if [[ "$1" != -- ]]; then
+		min_args="$1"
+		shift
+		[[ "$1" != -- ]] && { max_args="$1" ; shift ; }
+	fi
+	[[ "$1" != -- ]] && { errmsg "-- must be present before the options definition" ; return 2 ; } >&2
+	shift
 	
 	local -a short_opts
 	local -a long_opts
@@ -110,7 +162,7 @@ args_parse() {
 		shift
 	done >&2
 	
-	[[ "$1" != "--" ]] && { errmsg "-- must present and delimit options from incoming args string" ; return 2 ; } >&2
+	[[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; } >&2
 	shift
 
 	_opts=()
@@ -177,5 +229,8 @@ args_parse() {
 		fi
 		echo -e "${_ARGS__CYAN}#- ${FUNCNAME[0]}${_ARGS__COLOR_OFF}"
 	fi
+	
+	# validate the number of arguments
+	[[ -n "$min_args" ]] && args_check-number "$min_args" "$max_args"
 }
 alias args.parse="args_parse"

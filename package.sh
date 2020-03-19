@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #github-action genshdoc
 
+# if already sourced, return
+[[ -v _PACKAGE__LOADED ]] && return || _PACKAGE__LOADED=True
+
 # @file package.sh
 # @brief Load shell libraries packages as git repositories
 # @show-internal
@@ -11,7 +14,7 @@ if [[ -z "$_PACKAGE__LIB_DIR" ]]; then
 	[[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
 fi
 
-# @description Print library base path
+# @description Return the library base path.
 # @alias package.get-lib-dir_
 # @noargs
 # @return Library dir path
@@ -19,11 +22,25 @@ fi
 #   $ package.get-lib-dir_
 #      return> /lib/sh
 package_get-lib-dir_() {
+	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
 	declare -g __="$_PACKAGE__LIB_DIR"
 }
 alias package.get-lib-dir_="package_get-lib-dir_"
 
-# @description Load required package, cloning the git repository hosting it
+# @description Return the path of the provided package
+# @alias package.get-path_
+# @arg $1 String Name of the package (in the form of a git repository url without scheme)
+# @example
+#   $ package_get-path_ github.com/vargiuscuola/std-lib.bash
+#   # return __=/lib/sh/github.com/vargiuscuola/std-lib.bash
+# @return Path of the provided package
+package_get-path_() {
+	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	declare -g __="$_PACKAGE__LIB_DIR/$1"
+}
+alias package.get-path_="package_get-path_"
+
+# @description Load required package, cloning the git repository hosting it.
 # @alias package.load
 # @arg $1 String Git repository url without scheme (https is used)
 # @exitcodes Standard
@@ -32,16 +49,18 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 # @example
 #   $ package.load github.com/vargiuscuola/std-lib.bash
 package_load() {
-	local is_update is_check git_package
+	local is_update is_check git_package lib_dir git_url
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 			--update) is_update=true ; shift ;;
 			--check) is_check=true ; shift ;;
-			*) [[ -n "$git_package" ]] && { echo "[ERROR] Argument error" >&2 ; return 1 ; } ; git_package="$1" ; shift ;;
+			*) break ;;
 		esac
 	done
-	local lib_dir="$_PACKAGE__LIB_DIR/$git_package"
-	local git_url="https://$git_package"
+	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	git_package="$1"
+	lib_dir="$_PACKAGE__LIB_DIR/$git_package"
+	git_url="https://$git_package"
 	
 	if [[ ! -d "$lib_dir" ]]; then
 		echo "Cloning $git_url..."

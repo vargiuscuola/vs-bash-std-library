@@ -5,16 +5,28 @@ CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$(dirname "${BASH_SOURCE[0]}")/../package.sh"
 package.load "github.com/vargiuscuola/std-lib.bash"
 source "$(dirname "${BASH_SOURCE[0]}")/../module.sh"
-
-#module.import "../reconquest-args/args"
 module.import "../main"
 module.import "../args"
+module.import "../info"
+
+declare -p _MODULE__CLASS_TO_PATH
+exit
+info.show args.check-number
+info.list-class-functions args
+exit
+
+f() {
+args.check-number 2
+}
+#f a b c
+
 
 declare -A opts
 declare -a args
+args.parse - -- -av -b: -n:,--name -- -aav --name=pippo arg1 arg2 arg3
 
-args.parse
-args.parse - -av -b: -n:,--name -- -aav --name=pippo arg1 arg2
+
+exit
 args.parse opts args -av -b: -n:,--name -- -aav --name=pippo arg1 arg2
 declare -p opts
 declare -p args
@@ -31,5 +43,6 @@ trap.add-error-handler CHECKERR trap.show-stack-trace
 #f
 lock.list_ ""
 lock.new "" 5s 1m && echo OK || echo NO
-lock.list_ "" ; declare -p __a
+lock.list_
+ "" ; declare -p __a
 sleep 1000

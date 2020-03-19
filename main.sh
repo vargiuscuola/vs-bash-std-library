@@ -1,6 +1,10 @@
 #!/bin/bash
 #github-action genshdoc
 
+# if already sourced, return
+[[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
+declare -a _MAIN__CLASSES=(main array collection hash shopt datetime list)
+
 # @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
 # @show-internal
@@ -58,7 +62,6 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 # INITIALITAZION
 #
 
-[[ -v _MAIN__FLAGS ]] && return
 declare -gA _MAIN__FLAGS=([SOURCED]=0)
 
 # test if file is sourced or executed
@@ -87,26 +90,31 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #   $ alias alias1="func1"
 #   $ alias alias2="alias1"
 #   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
-#      return>func1
+#   # return __="func1"
 main_dereference-alias_() {
 	# recursively expand alias, dropping arguments
 	# output == input if no alias matches
-	local p
-	local a="$1"
-	if [[ "alias" = $(type -t -- $a) ]] && p=$(alias -- "$a" 2>&-); then
-		main_dereference-alias_ $(sed -re "s/alias "$a"='(\S+).*'$/\1/" <<< "$p")
-	else
-		declare -g __="$a"
-	fi
+	local function_name="$1" p
+	while [[ "alias" = $(type -t -- $function_name) ]] && p=$(alias -- "$function_name" 2>&-); do
+		function_name=$(sed -re "s/alias "$function_name"='(\S+).*'$/\1/" <<< "$p")
+	done
+	declare -g __="$function_name"
 }
 alias main.dereference-alias_="main_dereference-alias_"
 
-parse_check-args-number() {
-	: trap.suspend-trace
-	(( "$1" < "$2" )) && error_msg --exit 1 --show-function "Wrong number of arguments: $1 instead of $2" || true
-}
-alias parse.check-args-number="parse_check-args-number"
-
+# @description Backup the provided shopt options.
+# @alias shopt.backup
+# @arg $@ String Options to be backed up
+# @example
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+#   $ shopt.backup expand_aliases extdebug
+#   $ shopt -u expand_aliases
+#   $ shopt -p expand_aliases
+#   shopt -u expand_aliases
+#   $ shopt.restore expand_aliases extdebug
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
 shopt_backup() {
 	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
 	declare -gA _MAIN__SHOPT_BACKUP
@@ -117,6 +125,19 @@ shopt_backup() {
 }
 alias shopt.backup="shopt_backup"
 
+# @description Restore the provided shopt options backuped up by the previously called `shopt.backup` function.
+# @alias shopt.restore
+# @arg $@ String Options to be restored
+# @example
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+#   $ shopt.backup expand_aliases extdebug
+#   $ shopt -u expand_aliases
+#   $ shopt -p expand_aliases
+#   shopt -u expand_aliases
+#   $ shopt.restore expand_aliases extdebug
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
 shopt_restore() {
 	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
 	local opt is_enabled
@@ -133,6 +154,15 @@ shopt_restore() {
 }
 alias shopt.restore="shopt_restore"
 
+# @description Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
+#   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
+# @exitcodes Standard (0 for true, 1 for false)
+# @alias main.is-windows?
+# @example
+#   $ uname -a
+#   MINGW64_NT-6.1 chiller2 2.11.2(0.329/5/3) 2018-11-10 14:38 x86_64 Msys
+#   $ main.is-windows?
+#   # statuscode = 0
 main_is-windows?() {
 	if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
 		[[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
@@ -141,10 +171,9 @@ main_is-windows?() {
 }
 alias main.is-windows?="main_is-windows?"
 
-# @description Return 0 if the current script is chroot'ed, and store the result in flag $_MAIN__FLAGS[CHROOTED]
+# @description Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
 # @alias main.is-chroot?
-# @exitcode 0 Script is chroot'ed
-# @exitcode 1 Script is not chroot'ed
+# @exitcodes Standard (0 for true, 1 for false)
 # @example
 #   main.is-chroot?
 main_is-chroot?() {
@@ -155,24 +184,34 @@ main_is-chroot?() {
 }
 alias main.is-chroot?="main_is-chroot?"
 
-# @description Set the 
+# @description Set the current script path and the current script directory to the global variables `_MAIN__SCRIPTPATH` and `_MAIN__SCRIPTDIR`.
 # @alias main.set-script-path-info
-# @exitcode 0 Script is chroot'ed
-# @exitcode 1 Script is not chroot'ed
 # @example
-#   main.is-chroot?
+#   $ main.set-script-path-info
+#   $ echo _MAIN__SCRIPTPATH=$_MAIN__SCRIPTPATH
+#   _MAIN__SCRIPTPATH=/usr/local/src/script.sh
+#   $ echo _MAIN__SCRIPTDIR=$_MAIN__SCRIPTDIR
+#   _MAIN__SCRIPTDIR=/usr/local/src
 main_set-script-path-info() {
 	_MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
 	_MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
 }
 alias main.set-script-path-info="main_set-script-path-info"
 
+# @description Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
+#   [<n>d] [<n>h] [<n>m] [<n>s]
+# @alias datetime.interval-to-sec_
+# @arg $@ String Any of the following time intervals: <n>d (<n> days), <n>h (<n> hours), <n>m (<n> minutes) and <n>s (<n> seconds)
+# @example
+#   $ datetime.interval-to-sec_ 1d 2h 3m 45s
+#   # return __=93825
 datetime_interval-to-sec_() {
+	local args="$@"
 	declare -g __=0
-	[[ "$1" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
-	[[ "$1" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
-	[[ "$1" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
-	[[ "$1" =~ ([[:digit:]]*)s ]] && (( __+=${BASH_REMATCH[1]} ))
+	[[ "$args" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
+	[[ "$args" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
+	[[ "$args" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
+	[[ "$args" =~ ([[:digit:]]*)s ]] && (( __+=${BASH_REMATCH[1]} ))
 }
 alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 
