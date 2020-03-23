@@ -28,14 +28,19 @@ module.import "args"
 # @global _TRAP__LAST_LINENO Number Line number of previous command: available when command trace is enabled through `trap.enable-trace` function
 # @global _TRAP__EXITCODE_<signal> Number Exit code received by the trap handler for signal \<signal\>
 # @global _TRAP__SUSPEND_COMMAND_TRACE String The name of the function for which to suspend the debugger trace functionality (set by the use of the special syntax `: trap_suspend-trace`)
+
 # @global _TRAP__SUSPEND_COMMAND_TRACE_IDX Number The position inside the stack trace of the suspended function stored in the global variable `_TRAP__SUSPEND_COMMAND_TRACE`
 declare -g _TRAP__SUSPEND_COMMAND_TRACE="" _TRAP__SUSPEND_COMMAND_TRACE_IDX=""
+
 # @global _TRAP__FUNCTION_STACK Array An array of functions storing the stack trace
 declare -ga _TRAP__FUNCTION_STACK=()
+
 # @global _TRAP__LINENO_STACK Array An array of numbers storing the line numbers inside each function in the stack trace respectively
 declare -ga _TRAP__LINENO_STACK=()
+
 # @global _TRAP__STEP_INTO_FUNCTIONS String The name of the function inside which activate a debugging trace with a step into logic (set by the functions `trap.step-trace-add`, `trap.step-trace-remove` and `trap.step-trace-reset`)
 declare -ga _TRAP__STEP_INTO_FUNCTIONS=()
+
 # @global _TRAP__STEP_OVER_FUNCTIONS String The name of the function inside which activate a debugging trace with a step over logic (set by the functions `trap.step-trace-add`, `trap.step-trace-remove` and `trap.step-trace-reset`)
 declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 
@@ -100,7 +105,8 @@ trap_add-handler() {
 alias trap.add-handler="trap_add-handler"
 
 
-# @description Enable command tracing by setting a trap on signal `DEBUG` that set the global variables `_TRAP__LAST_COMMAND`, `_TRAP__CURRENT_COMMAND` and `_TRAP__LINENO`.
+# @description Enable command tracing by setting a trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
+#   The actual management of the stack trace is done by [:trap_handler-helper()](#:trap_handler-helper)
 # @alias trap.enable-trace
 trap_enable-trace() {
 	_TRAP__IS_COMMAND_TRACE_ENABLED=$True
