@@ -62,7 +62,7 @@ trap.add-handler LABEL "echo EXIT" TERM
 ## trap_enable-trace()
 
 Enable command tracing by setting a trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
-  The actual management of the stack trace is done by [:trap_handler-helper()](#:trap_handler-helper)
+  The actual management of the stack trace is done by [:trap_handler-helper()](#trap_handler-helper)
 
 ### Aliases
 
