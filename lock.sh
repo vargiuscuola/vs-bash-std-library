@@ -22,9 +22,9 @@ main_is-windows? && export MSYS=winsymlinks:nativestrict		# enable symbolic link
 _LOCK__RUN_DIR=/var/run/std-lib.bash
 [ ! -d "$_LOCK__RUN_DIR" ] && mkdir -p "$_LOCK__RUN_DIR"
 
-# @setting _LOCK__KILL_PROCESS_WAIT1 Number[0.1] Time to wait for the first check if successfully killed a process
+# @setting _LOCK__KILL_PROCESS_WAIT1 Number[0.1] Time to wait for the first check whether a process has been successfully killed
 [[ -v _LOCK__KILL_PROCESS_WAIT1 ]] || _LOCK__KILL_PROCESS_WAIT1=0.1
-# @setting _LOCK__KILL_PROCESS_WAIT2 Number[0.5] Time to wait for the second check if successfully killed a process 
+# @setting _LOCK__KILL_PROCESS_WAIT2 Number[0.5] Time to wait for the second check whether a process has been successfully killed 
 [[ -v _LOCK__KILL_PROCESS_WAIT1 ]] || _LOCK__KILL_PROCESS_WAIT1=0.5
 
 # @description Remove lock and kill associated process if present.  

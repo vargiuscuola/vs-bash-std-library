@@ -209,9 +209,9 @@ main_set-script-path-info() {
 alias main.set-script-path-info="main_set-script-path-info"
 
 # @description Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
-#   [<n>d] [<n>h] [<n>m] [<n>s]
+#   [\<n\>d] [\<n\>h] [\<n\>m] [\<n\>s]
 # @alias datetime.interval-to-sec_
-# @arg $@ String Any of the following time intervals: <n>d (<n> days), <n>h (<n> hours), <n>m (<n> minutes) and <n>s (<n> seconds)
+# @arg $@ String Any of the following time intervals: \<n\>d (\<n\> days), \<n\>h (\<n\> hours), \<n\>m (\<n\> minutes) and \<n\>s (\<n\> seconds)
 # @example
 #   $ datetime.interval-to-sec_ 1d 2h 3m 45s
 #   # return __=93825
