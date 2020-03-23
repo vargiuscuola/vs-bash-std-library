@@ -4,8 +4,8 @@ Provide locking functionalities.
 
 # Settings
 
-* **\_LOCK__KILL_PROCESS_WAIT1** (Number)[default: **0.1**]: Time to wait for the first check if successfully killed a process
-* **\_LOCK__KILL_PROCESS_WAIT2** (Number)[default: **0.5**]: Time to wait for the second check if successfully killed a process 
+* **\_LOCK__KILL_PROCESS_WAIT1** (Number)[default: **0.1**]: Time to wait for the first check whether a process has been successfully killed
+* **\_LOCK__KILL_PROCESS_WAIT2** (Number)[default: **0.5**]: Time to wait for the second check whether a process has been successfully killed 
 
 
 # Global Variables

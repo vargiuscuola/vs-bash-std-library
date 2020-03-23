@@ -140,7 +140,7 @@ _MAIN__SCRIPTDIR=/usr/local/src
 ## datetime_interval-to-sec_()
 
 Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
-  [<n>d] [<n>h] [<n>m] [<n>s]
+  [\<n\>d] [\<n\>h] [\<n\>m] [\<n\>s]
 
 ### Aliases
 
@@ -148,7 +148,7 @@ Convert the provided time interval to a seconds interval. The format of the time
 
 ### Arguments
 
-* **...** (String): Any of the following time intervals: <n>d (<n> days), <n>h (<n> hours), <n>m (<n> minutes) and <n>s (<n> seconds)
+* **...** (String): Any of the following time intervals: \<n\>d (\<n\> days), \<n\>h (\<n\> hours), \<n\>m (\<n\> minutes) and \<n\>s (\<n\> seconds)
 
 ### Example
 
