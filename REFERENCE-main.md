@@ -19,16 +19,18 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ## Flags
 * **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
-* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set by the call to function main.is-chroot?()
-* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set by the call to function main.is-windows?()
+* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot?()`
+* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows?()`
 ## Boolean Values
 * True 0
 * False 1
 ## Others
-* **\_MAIN__RAW_SCRIPTNAME** (string): Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
-* **\_MAIN__SCRIPTPATH** (string): Calling script path after any possible link resolution
-* **\_MAIN__SCRIPTNAME** (string): Calling script real name (after any possible link resolution)
-* **\_MAIN__SCRIPTDIR** (string): Absolute path where reside the calling script, after any possible link resolution
+* **\_MAIN__RAW_SCRIPTNAME** (String): Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
+* **\_MAIN__SCRIPTPATH** (String): Calling script path after any possible link resolution
+* **\_MAIN__SCRIPTNAME** (String): Calling script real name (after any possible link resolution)
+* **\_MAIN__SCRIPTDIR** (String): Absolute path where reside the calling script, after any possible link resolution
+* **\_MAIN__GIT_PATH** (String): Root path of Git for Windows environment: it's set when calling `main.is-windows?()`
+* **\_MAIN__WINUTILS_PATH** (String): Path to the `win-utils` directory: it's set when calling `main.is-windows?()`
 
 
 # Functions

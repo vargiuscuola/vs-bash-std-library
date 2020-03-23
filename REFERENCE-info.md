@@ -8,36 +8,8 @@ Include shell libraries modules
 
 
 # Functions
-* [info_list-class-functions()](#info_list-class-functions)
 * [info_show()](#info_show)
 
-
-## info_list-class-functions()
-
-List the functions of the provided class, which must be already loaded with `module.import` or at least `source`-ed.
-
-### Aliases
-
-* **info.list-class-functions**
-
-### Arguments
-
-* **$1** (String): Class name
-
-### Output on stdout
-
-* List of functions which are part of the provided class
-
-### Example
-
-```bash
-$ info.list-class-functions args
-args.check-number
-args.parse
-args_check-number
-args_parse
-args_to_str_
-```
 
 ## info_show()
 

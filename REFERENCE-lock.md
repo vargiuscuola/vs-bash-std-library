@@ -1,6 +1,6 @@
 # lock.sh
 
-Provide locking functionalities
+Provide locking functionalities.
 
 # Settings
 
@@ -22,7 +22,8 @@ Provide locking functionalities
 
 ## lock_kill()
 
-Remove lock and kill associated process if present.
+Remove lock and kill associated process if present.  
+  **This function is not concurrent safe.**
 
 ### Aliases
 
@@ -34,13 +35,14 @@ Remove lock and kill associated process if present.
 
 ### Exit codes
 
-* **0**: Lock is removed and associated process is already terminated or successfuly killed
-* **1**: Cannot kill process associated to lock
-* **2**: Lock file cannot be deleted, but associated process is already terminated or successfully killed
+* **0**: Lock is removed and process holding it is already terminated or successfuly killed
+* **1**: Cannot kill the process holding to lock
+* **2**: Lock file cannot be deleted, but process that held is already terminated or successfully killed
 
 ## lock_release()
 
-Release lock if current process own it.
+Release lock if current process own it.  
+  **This function is not concurrent safe.**
 
 ### Aliases
 
@@ -66,7 +68,7 @@ List of locks owned by the current process of by the process with the provided p
 
 ### Arguments
 
-* **$1** (Number)[default: **PID of current process $$**]: Pid of the process for which determine the list of locks owned by it: if empty, all locks are returned, regardless of owner
+* **$1** (Number)[default: **PID of current process $$**]: Pid of the process for which determine the list of locks owned by it: if null, all locks are returned, regardless of owner
 
 ### Return with global scalar $__, array $__a or hash $__h
 
@@ -74,7 +76,8 @@ List of locks owned by the current process of by the process with the provided p
 
 ## lock_new()
 
-Try to obtain a lock.
+Try to obtain a lock.  
+  **This function is not concurrent safe.**
 
 ### Aliases
 
@@ -83,8 +86,8 @@ Try to obtain a lock.
 ### Arguments
 
 * **$1** (String)[default: **Caller script name**]: Lock name
-* **$2** (String)[default: **0**]: If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as described here (**needed link**)
-* **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if it the lock is expired, i.e. if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as described here (**needed link**)
+* **$2** (String)[default: **0**]: If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
+* **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if it the lock is expired, i.e. if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
 
 ### Exit codes
 

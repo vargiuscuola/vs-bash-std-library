@@ -11,6 +11,8 @@ Include shell libraries modules
 # Functions
 * [module_import()](#module_import)
 * [module_get-class-path_()](#module_get-class-path_)
+* [module_list-class-functions()](#module_list-class-functions)
+* [module_list-classes()](#module_list-classes)
 
 
 ## module_import()
@@ -66,6 +68,60 @@ Return the path of the provided class.
 $ cd /var/cache
 $ module.abs-path_ "../lib"
 # return __="/var/lib"
+```
+
+## module_list-class-functions()
+
+List the functions of the provided class, which must be already loaded with `module.import` or at least `source`-ed.
+
+### Aliases
+
+* **module.list-class-functions**
+
+### Arguments
+
+* **$1** (String): Class name
+
+### Output on stdout
+
+* List of functions which are part of the provided class
+
+### Example
+
+```bash
+$ module.list-class-functions args
+args.check-number
+args.parse
+args_check-number
+args_parse
+args_to_str_
+```
+
+## module_list-classes()
+
+List the classes defined inside a module.
+
+### Aliases
+
+* **module.list-classes**
+
+### Arguments
+
+* **$1** (String): Module name.
+
+### Output on stdout
+
+* List of classes defined in the provided module
+
+### Example
+
+```bash
+$ module.list-classes main
+args.check-number
+args.parse
+args_check-number
+args_parse
+args_to_str_
 ```
 
 

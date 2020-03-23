@@ -4,7 +4,7 @@ Provide argument parsing functionalities
 
 # Global Variables
 
-* **\_ARGS__RED** (String): Red terminal color code
+* **\_ARGS__BRED** (String): Red terminal color code
 * **\_ARGS__YELLOW** (String): Yellow terminal color code
 * **\_ARGS__CYAN** (String): Cyan terminal color code
 * **\_ARGS__COLOR_OFF** (String): Terminal code to turn off color
