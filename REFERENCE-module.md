@@ -4,7 +4,7 @@ Include shell libraries modules
 
 # Global Variables
 
-* **\_MODULE__CLASS_TO_PATH** (Hash): Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function and his alias `module.import`
+* **\_MODULE__CLASS_TO_PATH** (Hash): Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function or his alias `module.import`
 * **\_MODULE__IMPORTED_MODULES** (Array): Imported modules
 
 
