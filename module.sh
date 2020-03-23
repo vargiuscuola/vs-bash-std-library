@@ -10,7 +10,7 @@
 shopt -s expand_aliases
 source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 
-# @global _MODULE__CLASS_TO_PATH Hash Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function and his alias `module.import`
+# @global _MODULE__CLASS_TO_PATH Hash Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function or his alias `module.import`
 declare -A _MODULE__CLASS_TO_PATH
 
 # alias for printing an error message

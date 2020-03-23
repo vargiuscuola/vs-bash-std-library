@@ -11,10 +11,14 @@ module.import "../main"
 module.import "../lock"
 
 echo PID=$$
-lock.new prova 10
-echo RET=$? PID=$(</var/run/std-lib.bash/prova.lock)
-lock.list_ ; declare -p __a
-sleep 5
+lock.new prova 3 10
+ret=$?
+echo RET=$ret PID=$(</var/run/std-lib.bash/prova.lock)
+#[[ "$ret" != 0 ]] && lock.kill prova
+echo -n "Mine: " ; lock.is-mine? prova && echo yes || echo no
+echo -n "Active: " ; lock.is-active? prova && echo yes || echo no
+lock.list_ "" ; declare -p __a
+sleep 20
 echo END
 #lock.list_ ; declare -p __a
 #lock.new prova
