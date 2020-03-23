@@ -13,6 +13,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 # @global _MODULE__CLASS_TO_PATH Hash Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function and his alias `module.import`
 declare -A _MODULE__CLASS_TO_PATH
 
+# alias for printing an error message
+alias errmsg='echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
+
 # @internal
 # @description Return normalized absolute path.
 # @alias module.abs-path_
@@ -23,7 +26,7 @@ declare -A _MODULE__CLASS_TO_PATH
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 :module_abs-path_() {
-	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
 	local path="$1"
 	if [[ -d "$path" ]]; then
 		pushd "$path" &>/dev/null
@@ -41,6 +44,7 @@ alias :module.abs-path_=":module_abs-path_"
 :module.abs-path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$__")
 :module.abs-path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$__")
 
+
 # @description Import a module, i.e. a shell library path which is sourced by the current function.  
 #   The provided library path can be relative or absolute. If it's relative, the library will be searched in the following paths:
 #   * calling path
@@ -57,7 +61,7 @@ alias :module.abs-path_=":module_abs-path_"
 # @example
 #   $ module.import "github/vargiuscuola/std-lib.bash/main"
 module_import() {
-	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
 	local module="$1" module_name="${1##*/}"
 	module_name="${module_name%.sh}"
 	:module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$__"
@@ -74,7 +78,7 @@ module_import() {
 		[[ -f "$__/${module}" ]] && module_path="$__/${module}"											# try system wide lib path
 		break
 	done
-	[[ -z "$module_path" ]] && { echo "[ERROR] failed to import \"$module\"" ; return 1 ; }
+	[[ -z "$module_path" ]] && { errmsg "Failed to import \"$module\"" ; return 1 ; }
 	# normalize module_path
 	:module.abs-path_  "$module_path" && module_path="$__"
 	
@@ -94,6 +98,7 @@ module_import() {
 }
 alias module.import="module_import"
 
+
 # @description Return the path of the provided class.
 # @alias module.get-class-path_
 # @arg $1 String Class name
@@ -103,8 +108,44 @@ alias module.import="module_import"
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 module_get-class-path_() {
-	(( $# != 1 )) && { echo "[ERROR] ${FUNCNAME[0]}()# Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
 	declare -g __="${_MODULE__CLASS_TO_PATH[$1]}"
 }
 alias module.get-class-path_="module_get-class-path_"
 
+
+# @description List the functions of the provided class, which must be already loaded with `module.import` or at least `source`-ed.
+# @alias module.list-class-functions
+# @arg $1 String Class name
+# @stdout List of functions which are part of the provided class
+# @example
+#   $ module.list-class-functions args
+#   args.check-number
+#   args.parse
+#   args_check-number
+#   args_parse
+#   args_to_str_
+module_list-class-functions() {
+	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."					# aliases
+	declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"		# functions
+}
+alias module.list-class-functions="module_list-class-functions"
+
+
+# @description List the classes defined inside a module.
+# @alias module.list-classes
+# @arg $1 String Module name.
+# @stdout List of classes defined in the provided module
+# @example
+#   $ module.list-classes main
+#   args.check-number
+#   args.parse
+#   args_check-number
+#   args_parse
+#   args_to_str_
+module_list-classes() {
+	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+	printf "%s\n" "${!_MODULE__CLASS_TO_PATH[@]}"
+}
+alias module.list-classes="module_list-classes"

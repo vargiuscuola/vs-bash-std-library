@@ -6,13 +6,18 @@ source "$(dirname "${BASH_SOURCE[0]}")/../package.sh"
 package.load "github.com/vargiuscuola/std-lib.bash"
 source "$(dirname "${BASH_SOURCE[0]}")/../module.sh"
 module.import "../main"
-module.import "../args"
-module.import "../info"
+#module.import "../args"
+#module.import "../info"
+module.import "../lock"
 
-declare -p _MODULE__CLASS_TO_PATH
-exit
-info.show args.check-number
-info.list-class-functions args
+echo PID=$$
+lock.new prova "" 10
+echo RET=$? PID=$(</var/run/std-lib.bash/prova.lock)
+lock.list_ ; declare -p __a
+sleep 50
+#lock.list_ ; declare -p __a
+#lock.new prova
+#echo RET=$?
 exit
 
 f() {

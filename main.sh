@@ -17,8 +17,8 @@ shopt -s expand_aliases
 
 # @global-header Flags
 # @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
-# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set by the call to function main.is-chroot?()
-# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set by the call to function main.is-windows?()
+# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot?()`
+# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows?()`
 
 # @global-header Boolean Values
 # @global True 0
@@ -27,11 +27,12 @@ True=0
 False=1
 
 # @global-header Others
-# @global _MAIN__RAW_SCRIPTNAME string Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
-# @global _MAIN__SCRIPTPATH string Calling script path after any possible link resolution
-# @global _MAIN__SCRIPTNAME string Calling script real name (after any possible link resolution)
-# @global _MAIN__SCRIPTDIR string Absolute path where reside the calling script, after any possible link resolution
-
+# @global _MAIN__RAW_SCRIPTNAME String Calling script path, raw and not normalized: as seen by the shell through BASH_SOURCE variable
+# @global _MAIN__SCRIPTPATH String Calling script path after any possible link resolution
+# @global _MAIN__SCRIPTNAME String Calling script real name (after any possible link resolution)
+# @global _MAIN__SCRIPTDIR String Absolute path where reside the calling script, after any possible link resolution
+# @global _MAIN__GIT_PATH String Root path of Git for Windows environment: it's set when calling `main.is-windows?()`
+# @global _MAIN__WINUTILS_PATH String Path to the `win-utils` directory: it's set when calling `main.is-windows?()`
 
 ############
 #
@@ -154,6 +155,7 @@ shopt_restore() {
 }
 alias shopt.restore="shopt_restore"
 
+
 # @description Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
 #   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
 # @exitcodes Standard (0 for true, 1 for false)
@@ -165,7 +167,15 @@ alias shopt.restore="shopt_restore"
 #   # statuscode = 0
 main_is-windows?() {
 	if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
-		[[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
+		if [[ "$( uname -a  )" =~ ^MINGW ]]; then
+			_MAIN__FLAGS[WINDOWS]=$True
+#			_MAIN__GIT_PATH="/cygdrive/${EXEPATH//\\/\/}"
+#			_MAIN__GIT_PATH="${_MAIN__GIT_PATH/:/}"
+#			_MAIN__WINUTILS_PATH="${BASH_SOURCE[0]%/*}/win-utils"
+#			env_PATH_append-item "$_MAIN__WINUTILS_PATH"
+		else
+			_MAIN__FLAGS[WINDOWS]=$False
+		fi
 	fi
 	return "${_MAIN__FLAGS[WINDOWS]}"
 }
@@ -208,6 +218,7 @@ alias main.set-script-path-info="main_set-script-path-info"
 datetime_interval-to-sec_() {
 	local args="$@"
 	declare -g __=0
+	[[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
 	[[ "$args" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
 	[[ "$args" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
 	[[ "$args" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
@@ -319,6 +330,25 @@ collection_has-key?() {
 alias collection.has-key?="collection_has-key?"
 alias array.has-key?="collection_has-key?"
 alias hash.has-key?="collection_has-key?"
+
+fd_get_() {
+	local start_fd=11
+	while [[ -e /proc/$$/fd/$start_fd ]]; do
+		(( start_fd+=1 ))
+	done
+	declare -g __="$start_fd"
+}
+alias fd.get_="fd_get_"
+
+env_PATH_append-item() {
+	[[ ":$PATH:" != *":$1:"* ]] && export PATH="${PATH}:$1"
+}
+alias env.PATH.append-item="env_PATH_append-item"
+
+env_PATH_prepend-item() {
+	[[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:${PATH}"
+}
+alias env.PATH.prepend-item="env_PATH_prepend-item"
 
 ===
 ===
@@ -747,14 +777,6 @@ escape_sed_replace_() {
 	declare -g __="$rpl_str"
 }
 
-# funzione per ottenere un file descriptor non ancora utilizzato
-get_fd_() {
-	local start_fd=11
-	while [ -e /proc/$$/fd/$start_fd ]; do
-		(( start_fd+=1 ))
-	done
-	declare -g __="$start_fd"
-}
 
 # backup file descriptors
 backup_fd() {

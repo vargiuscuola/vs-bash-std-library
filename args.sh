@@ -9,8 +9,8 @@
 # @show-internal
 shopt -s expand_aliases
 
-# @global _ARGS__RED String Red terminal color code
-_ARGS__RED='\e[0;31m'
+# @global _ARGS__BRED String Red terminal color code
+_ARGS__BRED='\e[1;31m'
 # @global _ARGS__YELLOW String Yellow terminal color code
 _ARGS__YELLOW='\e[0;33m'
 # @global _ARGS__CYAN String Cyan terminal color code
@@ -19,7 +19,7 @@ _ARGS__CYAN='\e[0;36m'
 _ARGS__COLOR_OFF='\e[0m'
 
 # alias to print a coloured error message
-alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
+alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
 
 # @internal
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
@@ -30,7 +30,8 @@ alias errmsg='echo -e "${_ARGS__RED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}$
 	[[ "$max" = - ]] && max="$1"
 	(( "$1" < "$2" || "$1" > "${max}" )) && {
 		[[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
-		errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"		# $2${3:+..}${3} => $2 (if $3 is not provided), or $2..$3 (if $3 is provided)
+		errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"	# $2${3:+..}${3} => $2 (if $3 is not provided),
+																																			#	or $2..$3 (if $3 is provided)
 		exit 1
 	} || true
 }
