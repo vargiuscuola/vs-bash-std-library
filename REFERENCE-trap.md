@@ -61,7 +61,8 @@ trap.add-handler LABEL "echo EXIT" TERM
 
 ## trap_enable-trace()
 
-Enable command tracing by setting a trap on signal `DEBUG` that set the global variables `_TRAP__LAST_COMMAND`, `_TRAP__CURRENT_COMMAND` and `_TRAP__LINENO`.
+Enable command tracing by setting a trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
+  The actual management of the stack trace is done by [:trap_handler-helper()](#:trap_handler-helper)
 
 ### Aliases
 
