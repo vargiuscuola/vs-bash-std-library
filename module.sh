@@ -73,7 +73,7 @@ module_import() {
 	while :; do
 		[[ $module == /* && -e "$module" ]] && { module_path="$module" ; break ; }						# try absolute path
 		[[ -f "${caller_path}/${module}" ]] && { module_path="${caller_path}/${module}" ; break ; }		# try relative to caller
-		[[ -f "${path}/${module}.sh" ]] && { module_path="${path}/${module}.sh" ; break ; }				# try current path
+		[[ -f "${path}/${module}" ]] && { module_path="${path}/${module}" ; break ; }				# try current path
 		package.get-lib-dir_
 		[[ -f "$__/${module}" ]] && module_path="$__/${module}"											# try system wide lib path
 		break

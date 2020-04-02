@@ -55,24 +55,25 @@ declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 # @arg $2 String Signal to which the handler responds to
 # @exitcodes Boolean ($True or $False)
 # @example
-#   trap.has-handler? LABEL TERM
+#   $ trap.has-handler? LABEL TERM
 trap_has-handler?() {
+	args_check-number 2
 	hash.has-key? "_TRAP__HOOKS_LABEL_TO_CODE_${2^^}" "$1"
 }
 alias trap.has-handler?="trap_has-handler?"
 
-# @description Add trap handler.  
+# @description Add a trap handler.  
 #   It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__HOOKS_LIST_<signal>`.
 # @alias trap.add-handler
 # @arg $1 String Descriptive label to associate to the added trap handler
-# @arg $2 String Action code to call on specified signals: can be shell code or function name
+# @arg $2 String Action code to be called on specified signals: can be shell code or function name
 # @arg $@ String Signals to trap
 # @exitcode 0 On success
 # @exitcode 1 If label of the new trap handler already exists (or of one of the new trap handlers, in case of multiple signals)
 # @example
-#   trap.add-handler LABEL "echo EXIT" TERM
+#   $ trap.add-handler LABEL "echo EXIT" TERM
 trap_add-handler() {
-	args_check-number 3
+	args_check-number 3 -
 	local label="$1" code="$2"
 	shift 2
 	local sig idx addcode ret=0
@@ -80,6 +81,7 @@ trap_add-handler() {
 	for sig in "$@"; do
 		sig="${sig^^}"
 		local hashname="_TRAP__HOOKS_LABEL_TO_CODE_${sig}"
+		hash.defined? "$hashname" || hash.init "$hashname"
 		hash.has-key? "$hashname" "$label" && { ret=1 ; continue ; }
 		
 		# array with list of hooks for signal ${sig}
@@ -88,7 +90,6 @@ trap_add-handler() {
 		declare -n ary_ref="$aryname"
 		
 		# hash that map label of hook with action code
-		hash.defined? "$hashname" || hash.init "$hashname"
 		declare -n hash_ref="$hashname"
 		
 		# update hooks list
@@ -105,7 +106,7 @@ trap_add-handler() {
 alias trap.add-handler="trap_add-handler"
 
 
-# @description Enable command tracing by setting a trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
+# @description Enable command tracing by setting a null trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
 #   The actual management of the stack trace is done by [:trap_handler-helper()](#trap_handler-helper)
 # @alias trap.enable-trace
 trap_enable-trace() {
@@ -115,21 +116,24 @@ trap_enable-trace() {
 }
 alias trap.enable-trace="trap_enable-trace"
 
+# @description Check whether the debug trace is enabled (see [trap_enable-trace](#trap_enable-trace)).
+# @alias trap.is-trace-enabled?
 trap_is-trace-enabled?() {
 	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True ]]
 }
 alias trap.is-trace-enabled?="trap_is-trace-enabled?"
 
 
-# @description Add an error handler called on EXIT signal.  
-#   To force the exit on command fail, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
+# @description Set an handler for the EXIT signal useful for error management.  
+#   To be able to catch every error, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
 # @alias trap.add-error-handler
 # @arg $1 String Label of the trap handler
 # @arg $2 String Action code to call on EXIT signal: can be shell code or a function name
 # @example
-#   trap.add-error-handler CHECKERROR 'echo ERROR Command \"$_TRAP__CURRENT_COMMAND\" [line $_TRAP__LINENO] on function $_TRAP__FUNCTION_NAME\(\)'
-#   trap.add-error-handler CHECKERR trap.show-error
+#   $ trap.add-error-handler CHECKERROR 'echo ERROR Command \"$_TRAP__CURRENT_COMMAND\" [line $_TRAP__LINENO] on function $_TRAP__CURRENT_FUNCTION\(\)'
+#   $ trap.add-error-handler CHECKERR trap.show-stack-trace
 trap_add-error-handler() {
+	args_check-number 2
 	local label="$1" code="$2"
 	
 	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" != $True ]] && trap.enable-trace
@@ -139,13 +143,14 @@ trap_add-error-handler() {
 alias trap.add-error-handler="trap_add-error-handler"
 
 
-# @description Remove trap handler.
+# @description Remove a trap handler.
 # @alias trap.remove-handler
-# @arg $1 String Label of the trap handler to delete (as used in `trap.add-handler` function)
+# @arg $1 String Label of the trap handler to delete (as used in [trap_add-handler()](#trap_add-handler))
 # @arg $2 String Signal to which the trap handler is currently associated
 # @example
-#   trap.remove-handler LABEL TERM
+#   $ trap.remove-handler LABEL TERM
 trap_remove-handler() {
+	args_check-number 2
 	local label="${1^^}" sig="$2"
 	unset "_TRAP__HOOKS_LABEL_TO_CODE_${sig}[$label]"
 	array.remove "_TRAP__HOOKS_LIST_${sig}" "$label"
@@ -173,11 +178,11 @@ alias trap.show-handlers="trap_show-handlers"
 
 # @description Suspend debug trace for the calling function and the inner ones.  
 #   It must be called with the no-op bash built-in command, as in `: trap_suspend-trace` or `: trap.suspend-trace`: it means the function will not be actually called, but that syntax will be
-#   intercepted and treated by the debug trace manager. That allows to suspend the debug trace immediately, while calling a real `trap_suspend-trace` function will fulfill that
+#   intercepted and treated by the debug trace manager. That allows to suspend the debug trace immediately, differently than calling a real `trap_suspend-trace` function which will fulfill that
 #   request too late (for the purpose of not tampering with the stack).
 # @alias trap.suspend-trace
 # @example
-#   func_not_to_be_trace() {
+#   func_not_to_be_traced() {
 #     : trap_suspend-trace
 #     # the following commands and functions are not traced 
 #     func2
@@ -186,12 +191,13 @@ trap_suspend-trace() { : trap_suspend-trace ; }
 
 # @internal
 # @description Trap handler helper.  
-#   It is supposed to be used as the action in `trap` built-in bash command.
+#   It's used as the action in `trap` built-in bash command, and take care of dispatching the signals to the users' handlers set by [trap_add-handler](#trap_add-error-handler) or [trap_add-error-handler](#trap_add-handler).
 # @alias trap.handler-helper
 # @arg $1 String Signal to handle
 # @example
-#   trap ":trap_handler-helper TERM" TERM
+#   $ trap ":trap_handler-helper TERM" TERM
 :trap_handler-helper() {
+	args_check-number 1
 	local current_command="$BASH_COMMAND" exitcode="$?"
 	local __backup="$__"																								# backup of global variable $__
 	local sig="${1^^}" idx label code input
@@ -273,18 +279,23 @@ $( get_ext_color 141 )### Choose one of the above options:${Color_Off} "
 	done
 	if [[ "$sig" = "INT" ]]; then
 		trap - INT
-		kill -INT $$
+		kill -INT $BASHPID
 	fi
-	declare -g __="${__backup}"																							# restore of global variable $__
+	declare -g __="${__backup}"			# restore of global variable $__
 }
 alias :trap.handler-helper=":trap_handler-helper"
 
-trap_step-trace-reset() {
-	_TRAP__STEP_INTO_FUNCTIONS=()
-	_TRAP__STEP_OVER_FUNCTIONS=()
-}
-
+# @description Configure the step trace adding the provided functions to the list of step-trace enabled functions.  
+#    It's possible to specify two types of step trace for every provided function: `step into` will enable the step trace for every command in the function and will be inherited by the called functions; `step over` will enable the step trace for every command in the function, but the debug trace functionality will not be inherited by the called functions.
+# @alias trap.step-trace-add
+# @arg $@ String Function name or alias to function for which enable the stack trace, in `step into` or `step over` mode depending of the closest preceding option, respectively `--step-into` or `--step-over` (step into mode is used by default if no option is specified)
+# @opt --step-into Enable the step into debug trace for the following functions
+# @opt --step-over Enable the step over debug trace for the following functions
+# @example
+#   $ trap.step-trace-add func1		# Add func1 to the list of step into debug traced functions
+#   $ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
 trap_step-trace-add() {
+	args_check-number 1 -
 	local type_trace=into
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
@@ -301,6 +312,22 @@ trap_step-trace-add() {
 }
 alias trap.step-trace-add="trap_step-trace-add"
 
+# @description Reset the step trace function list.
+# @alias trap.step-trace-reset
+trap_step-trace-reset() {
+	_TRAP__STEP_INTO_FUNCTIONS=()
+	_TRAP__STEP_OVER_FUNCTIONS=()
+}
+alias trap.step-trace-reset="trap_step-trace-reset"
+
+# @description Show the list of functions for which is enabled the step trace.
+# @alias trap.step-trace-list
+# @example
+#   $ trap.step-trace-add --step-into func1 --step-over func2 func3
+#   $ trap.step-trace-list
+#   step-into|func1
+#   step-over|func2
+#   step-over|func3
 trap_step-trace-list() {
 	local type item
 	for type in into over; do
@@ -312,7 +339,19 @@ trap_step-trace-list() {
 }
 alias trap.step-trace-list="trap_step-trace-list"
 
+# @description Remove the provided functions from the list of functions for which is enabled the step trace (see [trap_step-trace-add()](#trap_step-trace-add)).
+# @alias trap.step-trace-remove
+# @arg $@ String Function name or alias to function to remove from the step-trace enabled list. The function is removed from the `step into` or `step over` mode list depending of the closest preceding option, respectively `--step-into` or `--step-over` (step into mode is used by default if no option is specified)
+# @opt --step-into Disable the step into debug trace for the following functions
+# @opt --step-over Disable the step over debug trace for the following functions
+# @example
+#   $ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
+#   $ trap.step-trace-remove --step-over func1							# Disable step trace for function func1
+#   $ trap.step-trace-list
+#   step-into|func3
+#   step-over|func2
 trap_step-trace-remove() {
+	args_check-number 1 -
 	local type_trace=into
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
@@ -324,11 +363,16 @@ trap_step-trace-remove() {
 }
 alias trap.step-trace-remove="trap_step-trace-remove"
 
+# @description Enable the step trace, as configured by [trap_step-trace-add()](#trap_step-trace-add), [trap_step-trace-remove()](#trap_step-trace-remove) or [trap_step-trace-reset()](#trap_step-trace-reset).  
+#   The script will pause when reaching one of the traced functions, show a debug information and wait for user input.  
+# @alias trap.step-trace-start
 trap_step-trace-start() {
 	declare -g _TRAP__IS_TRACE=$True
 }
 alias trap.step-trace-start="trap_step-trace-start"
 
+# @description Disable the step trace.
+# @alias trap.step-trace-stop
 trap_step-trace-stop() {
 	declare -g _TRAP__IS_TRACE=$False
 }
@@ -340,6 +384,7 @@ alias trap.step-trace-stop="trap_step-trace-stop"
 # @example
 #   trap.add-error-handler CHECKERR trap.show-stack-trace
 trap_show-stack-trace(){
+	args_check-number 0 1
 	[[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" != $True ]] && { warn_msg --show-function  "Code trace not enabled: cannot show the stack trace" ; return ; }
 	local exitcode="${1:-$_TRAP__EXITCODE_EXIT}"
 	local file str alias found_source_file

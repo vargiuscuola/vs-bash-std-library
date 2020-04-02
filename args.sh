@@ -41,7 +41,7 @@ alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}
 # @alias args.check-number
 # @arg $1 Number The number of arguments to be validated against the number provided in $2, or the interval $2..$3
 # @arg $2 Number The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
-# @arg $2 Number (Optional) Maximum number of arguments: can be `-` for there is no limit on the number of maximum arguments
+# @arg $2 Number (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 # @exitcodes Standard (0 on success, 1 on fail)
 # @stderr Print an error message in case of failed validationvalidation
 # @example
@@ -93,8 +93,8 @@ alias args.check-number=':args_check-number $#'
 #   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
 	# check the first two arguments (variable name for options and arguments)
-	(( $# < 1 )) && { errmsg "first argument should be name of the variable to return parsed options" ; return 3 ; } >&2
-	(( $# < 2 )) && { errmsg "second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
+	(( $# < 1 )) && { errmsg "First argument should be name of the variable to return parsed options" ; return 3 ; } >&2
+	(( $# < 2 )) && { errmsg "Second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
 	local opts_varname="$1"
 	if [[ "$opts_varname" = - ]]; then
 		declare -A _opts

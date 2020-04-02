@@ -25,7 +25,6 @@ fi
 #   $ package.get-lib-dir_
 #      return> /lib/sh
 package_get-lib-dir_() {
-	(( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
 	declare -g __="$_PACKAGE__LIB_DIR"
 }
 alias package.get-lib-dir_="package_get-lib-dir_"

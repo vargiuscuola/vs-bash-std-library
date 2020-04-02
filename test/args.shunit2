@@ -1,0 +1,83 @@
+#!/bin/bash
+
+source "./package.sh"
+#package.load "github.com/vargiuscuola/std-lib.bash"
+source "./module.sh"
+module.import "args"
+
+test__args_check-number() {
+	( :args_check-number 0 0 ) &>/dev/null		; 	assertTrue	 	:args_check-number.1		$?
+	( :args_check-number 1 1 ) &>/dev/null		; 	assertTrue 		:args_check-number.2		$?
+	( :args_check-number 1 2 ) &>/dev/null		; 	assertFalse 	:args_check-number.3		$?
+	( :args_check-number 1 2 5 ) &>/dev/null	; 	assertFalse 	:args_check-number.4		$?
+	( :args_check-number 3 2 5 ) &>/dev/null	; 	assertTrue	 	:args_check-number.5		$?
+	( :args_check-number 0 1 2 ) &>/dev/null	; 	assertFalse 	:args_check-number.6		$?
+	( :args_check-number 3 3 3 ) &>/dev/null	; 	assertTrue	 	:args_check-number.7		$?
+	( :args_check-number 3 0 2 ) &>/dev/null	; 	assertFalse 	:args_check-number.8		$?
+	( :args_check-number 3 0 3 ) &>/dev/null	; 	assertTrue	 	:args_check-number.9		$?
+	( :args_check-number 3 0 4 ) &>/dev/null	; 	assertTrue	 	:args_check-number.10		$?
+	( :args_check-number 1 2 - ) &>/dev/null	; 	assertFalse	 	:args_check-number.11		$?
+	( :args_check-number 1 1 - ) &>/dev/null	; 	assertTrue	 	:args_check-number.12		$?
+	( :args_check-number 10 1 - ) &>/dev/null	; 	assertTrue	 	:args_check-number.13		$?
+}
+
+test_args_check-number() {
+	f() {
+		arg1="$1" ; shift
+		arg2="$1" ; shift
+		args_check-number "$arg1" "$arg2"
+	}
+	( f 0 "" ) &>/dev/null						; 	assertTrue	 	args_check-number.1		$?
+	( f 1 "" a ) &>/dev/null					; 	assertTrue 		args_check-number.2		$?
+	( f 2 "" a ) &>/dev/null					; 	assertFalse 	args_check-number.3		$?
+	( f 2 5 a ) &>/dev/null						; 	assertFalse 	args_check-number.4		$?
+	( f 2 5 a b c ) &>/dev/null					; 	assertTrue	 	args_check-number.5		$?
+	( f 1 2 ) &>/dev/null						; 	assertFalse 	args_check-number.6		$?
+	( f 3 3 a b c ) &>/dev/null					; 	assertTrue	 	args_check-number.7		$?
+	( f 0 2 a b c ) &>/dev/null					; 	assertFalse 	args_check-number.8		$?
+	( f 0 3 a b c ) &>/dev/null					; 	assertTrue	 	args_check-number.9		$?
+	( f 0 4 a b c ) &>/dev/null					; 	assertTrue	 	args_check-number.10	$?
+	( f 2 - a ) &>/dev/null						; 	assertFalse	 	args_check-number.11	$?
+	( f 1 - a ) &>/dev/null						; 	assertTrue	 	args_check-number.12	$?
+	( f 1 - a b c d e f ) &>/dev/null			; 	assertTrue	 	args_check-number.13	$?
+}
+
+test_args_parse() {
+	declare -A opts
+	declare -a args
+	args_parse opts args -- -av -b: -n:,--name -- -aav --name="some name" "arg 1" arg2
+													assertEquals	args_parse.1.1			2			"${#args[@]}"
+													assertEquals	args_parse.1.2			"arg 1"		"${args[0]}"
+													assertEquals	args_parse.1.3			arg2		"${args[1]}"
+													
+													assertEquals	args_parse.1.4			4			"${#opts[@]}"
+													assertEquals	args_parse.1.5			1			"${opts[-v]}"
+													assertEquals	args_parse.1.6			2			"${opts[-a]}"
+													assertEquals	args_parse.1.7			"some name"	"${opts[-n]}"
+													assertEquals	args_parse.1.8			"some name"	"${opts[--name]}"
+
+	args_parse opts args -- -av -b: -n:,--name -- -b "v 1" -va -vv -n"v 2"
+													assertEquals	args_parse.2.1			0			"${#args[@]}"
+													
+													assertEquals	args_parse.2.2			5			"${#opts[@]}"
+													assertEquals	args_parse.2.3			3			"${opts[-v]}"
+													assertEquals	args_parse.2.4			1			"${opts[-a]}"
+													assertEquals	args_parse.2.5			"v 2"		"${opts[-n]}"
+													assertEquals	args_parse.2.6			"v 2"		"${opts[--name]}"
+													assertEquals	args_parse.2.7			"v 1"		"${opts[-b]}"
+
+
+	( args_parse - 0 -- -av -b: -n:,--name -- -aav --name="some name" ) &>/dev/null						; 	assertTrue	 	args_parse.3.1		$?
+	( args_parse - 1 -- -av -b: -n:,--name -- -aav --name="some name" arg1 ) &>/dev/null				; 	assertTrue 		args_parse.3.2		$?
+	( args_parse - 2 -- -av -b: -n:,--name -- -aav --name="some name" arg1 ) &>/dev/null				; 	assertFalse 	args_parse.3.3		$?
+	( args_parse - 2 5 -- -av -b: -n:,--name -- -aav --name="some name" arg1 ) &>/dev/null				; 	assertFalse 	args_parse.3.4		$?
+	( args_parse - 2 5 -- -av -b: -n:,--name -- -aav --name="some name" a b c ) &>/dev/null				; 	assertTrue	 	args_parse.3.5		$?
+	( args_parse - 1 2 -- -av -b: -n:,--name -- -aav --name="some name" ) &>/dev/null					; 	assertFalse 	args_parse.3.6		$?
+	( args_parse - 3 3 -- -av -b: -n:,--name -- -aav --name="some name" a b c ) &>/dev/null				; 	assertTrue	 	args_parse.3.7		$?
+	( args_parse - 0 2 -- -av -b: -n:,--name -- -aav --name="some name" a b c ) &>/dev/null				; 	assertFalse 	args_parse.3.8		$?
+	( args_parse - 0 3 -- -av -b: -n:,--name -- -aav --name="some name" a b c ) &>/dev/null				; 	assertTrue	 	args_parse.3.9		$?
+	( args_parse - 0 4 -- -av -b: -n:,--name -- -aav --name="some name" a b c ) &>/dev/null				; 	assertTrue	 	args_parse.3.10		$?
+	( args_parse - 2 - -- -av -b: -n:,--name -- -aav --name="some name" a ) &>/dev/null					; 	assertFalse	 	args_parse.3.11		$?
+	( args_parse - 1 - -- -av -b: -n:,--name -- -aav --name="some name" a ) &>/dev/null					; 	assertTrue	 	args_parse.3.12		$?
+	( args_parse - 1 - -- -av -b: -n:,--name -- -aav --name="some name" a b c d e f ) &>/dev/null		; 	assertTrue	 	args_parse.3.13		$?
+}

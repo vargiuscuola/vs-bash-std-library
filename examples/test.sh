@@ -8,51 +8,72 @@ source "$(dirname "${BASH_SOURCE[0]}")/../module.sh"
 module.import "../main"
 #module.import "../args"
 #module.import "../info"
-module.import "../lock"
+#module.import "../lock"
 
-echo PID=$$
-lock.new prova 3 10
-ret=$?
-echo RET=$ret PID=$(</var/run/std-lib.bash/prova.lock)
-#[[ "$ret" != 0 ]] && lock.kill prova
-echo -n "Mine: " ; lock.is-mine? prova && echo yes || echo no
-echo -n "Active: " ; lock.is-active? prova && echo yes || echo no
-lock.list_ "" ; declare -p __a
-sleep 20
-echo END
-#lock.list_ ; declare -p __a
-#lock.new prova
-#echo RET=$?
-exit
-
-f() {
-args.check-number 2
-}
-#f a b c
+#{$.*[\^|]
+	declare -a ary_literal=(	".*"	"[x]\\"	"[WW]"	"[^x]"	"]|S"	"$"	"^..."	"\\|E")
+	declare -a ary_sep=(		""		"/"		"W"		"x"		"^"		"]"	"|"		".")
 
 
-declare -A opts
-declare -a args
-args.parse - -- -av -b: -n:,--name -- -aav --name=pippo arg1 arg2 arg3
+time (
+for i in {1..100}; do
+for idx in "${!ary_literal[@]}"; do
+	literal="${ary_literal[$idx]}" sep="${ary_sep[$idx]}"
+	escaped1="$( regexp_escape-ext-regexp-pattern "${literal}" "${sep}" )"
+done
+done
+)
 
+time (
+for i in {1..100}; do
+for idx in "${!ary_literal[@]}"; do
+	literal="${ary_literal[$idx]}" sep="${ary_sep[$idx]}"
+	regexp_escape-ext-regexp-pattern_ "${literal}" "${sep}"
+	escaped2="$__"
+done
+done
+)
 
 exit
-args.parse opts args -av -b: -n:,--name -- -aav --name=pippo arg1 arg2
-declare -p opts
-declare -p args
+var="l1
+
+l3"
+time (
+for i in {1..1000}; do
+string_append -m "var" '.*' '#'
+done
+)
 
 exit
-module.import "../lock"
-set -e
 
-trap.enable-trace
-trap.add-error-handler CHECKERR trap.show-stack-trace
-#trap.add-handler EXIT1 "trap.show-stack-trace" EXIT
-#trap.add-handler EXIT2 "echo EXIT" EXIT
-#trap.add-handler INT "echo INT" INT
-#f
-lock.list_ ""
-lock.new "" 5s 1m && echo OK || echo NO
-lock.list_
- "" ; declare -p __a
-sleep 1000
+var='* # % ? ? % ['
+
+
+
+#time (
+#for i in {1..1000}; do
+#string_escape-bash-re-pattern2_ "$var"
+#done
+#)
+#exit
+
+var=
+string.concat var x
+echo var1="$var"
+string.concat var y
+echo var2="$var"
+string.concat var z ,
+echo var3="$var"
+
+var="l1
+
+l3"
+echo var4=".${var}."
+string_append2 -m var '.*' '#'
+echo var4="$var"
+exit
+
+declare -a ary=(ab "c d" ef "g h i" l "c d")
+array_find-indexes_ ary "c d"
+declare -p __a
+

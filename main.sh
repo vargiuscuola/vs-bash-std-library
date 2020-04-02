@@ -10,6 +10,8 @@ declare -a _MAIN__CLASSES=(main array collection hash shopt datetime list)
 # @show-internal
 shopt -s expand_aliases
 
+module.import "args"
+
 ############
 #
 # GLOBALS
@@ -32,7 +34,6 @@ False=1
 # @global _MAIN__SCRIPTNAME String Calling script real name (after any possible link resolution)
 # @global _MAIN__SCRIPTDIR String Absolute path where reside the calling script, after any possible link resolution
 # @global _MAIN__GIT_PATH String Root path of Git for Windows environment: it's set when calling `main.is-windows?()`
-# @global _MAIN__WINUTILS_PATH String Path to the `win-utils` directory: it's set when calling `main.is-windows?()`
 
 ############
 #
@@ -80,8 +81,9 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 
 ############
 #
-# FUNCTIONS
+# MAIN FUNCTIONS
 #
+############
 
 # @description Dereference shell aliases: return the name of the function to which an alias point to, resolving it recursively if needed
 # @alias main.dereference-alias_
@@ -93,6 +95,7 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 #   # return __="func1"
 main_dereference-alias_() {
+	args.check-number 1
 	# recursively expand alias, dropping arguments
 	# output == input if no alias matches
 	local function_name="$1" p
@@ -102,59 +105,6 @@ main_dereference-alias_() {
 	declare -g __="$function_name"
 }
 alias main.dereference-alias_="main_dereference-alias_"
-
-# @description Backup the provided shopt options.
-# @alias shopt.backup
-# @arg $@ String Options to be backed up
-# @example
-#   $ shopt -p expand_aliases
-#   shopt -s expand_aliases
-#   $ shopt.backup expand_aliases extdebug
-#   $ shopt -u expand_aliases
-#   $ shopt -p expand_aliases
-#   shopt -u expand_aliases
-#   $ shopt.restore expand_aliases extdebug
-#   $ shopt -p expand_aliases
-#   shopt -s expand_aliases
-shopt_backup() {
-	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
-	declare -gA _MAIN__SHOPT_BACKUP
-	local opt
-	for opt ; do
-		shopt -p $opt &>/dev/null && _MAIN__SHOPT_BACKUP["$opt"]=$True || _MAIN__SHOPT_BACKUP["$opt"]=$False
-	done
-}
-alias shopt.backup="shopt_backup"
-
-# @description Restore the provided shopt options backuped up by the previously called `shopt.backup` function.
-# @alias shopt.restore
-# @arg $@ String Options to be restored
-# @example
-#   $ shopt -p expand_aliases
-#   shopt -s expand_aliases
-#   $ shopt.backup expand_aliases extdebug
-#   $ shopt -u expand_aliases
-#   $ shopt -p expand_aliases
-#   shopt -u expand_aliases
-#   $ shopt.restore expand_aliases extdebug
-#   $ shopt -p expand_aliases
-#   shopt -s expand_aliases
-shopt_restore() {
-	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
-	local opt is_enabled
-	for opt ; do
-		shopt -p $opt &>/dev/null
-		is_enabled=$?
-		[[ "$is_enabled" = ${_MAIN__SHOPT_BACKUP["$opt"]} ]] && continue
-		if [[ "$is_enabled" = $True ]]; then
-			shopt -u "$opt" &>/dev/null
-		else
-			shopt -s "$opt" &>/dev/null
-		fi
-	done
-}
-alias shopt.restore="shopt_restore"
-
 
 # @description Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
 #   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
@@ -167,15 +117,7 @@ alias shopt.restore="shopt_restore"
 #   # statuscode = 0
 main_is-windows?() {
 	if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
-		if [[ "$( uname -a  )" =~ ^MINGW ]]; then
-			_MAIN__FLAGS[WINDOWS]=$True
-#			_MAIN__GIT_PATH="/cygdrive/${EXEPATH//\\/\/}"
-#			_MAIN__GIT_PATH="${_MAIN__GIT_PATH/:/}"
-#			_MAIN__WINUTILS_PATH="${BASH_SOURCE[0]%/*}/win-utils"
-#			env_PATH_append-item "$_MAIN__WINUTILS_PATH"
-		else
-			_MAIN__FLAGS[WINDOWS]=$False
-		fi
+		[[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
 	fi
 	return "${_MAIN__FLAGS[WINDOWS]}"
 }
@@ -208,6 +150,75 @@ main_set-script-path-info() {
 }
 alias main.set-script-path-info="main_set-script-path-info"
 
+
+
+############
+#
+# SHOPT FUNCTIONS
+#
+############
+
+# @description Backup the provided shopt options.
+# @alias shopt.backup
+# @arg $@ String Options to be backed up
+# @example
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+#   $ shopt.backup expand_aliases extdebug
+#   $ shopt -u expand_aliases
+#   $ shopt -p expand_aliases
+#   shopt -u expand_aliases
+#   $ shopt.restore expand_aliases extdebug
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+shopt_backup() {
+	args.check-number 1 -
+	declare -gA _MAIN__SHOPT_BACKUP
+	local opt
+	for opt ; do
+		shopt -p $opt &>/dev/null && _MAIN__SHOPT_BACKUP["$opt"]=$True || _MAIN__SHOPT_BACKUP["$opt"]=$False
+	done
+}
+alias shopt.backup="shopt_backup"
+
+# @description Restore the provided shopt options backuped up by the previously called `shopt.backup` function.
+# @alias shopt.restore
+# @arg $@ String Options to be restored
+# @example
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+#   $ shopt.backup expand_aliases extdebug
+#   $ shopt -u expand_aliases
+#   $ shopt -p expand_aliases
+#   shopt -u expand_aliases
+#   $ shopt.restore expand_aliases extdebug
+#   $ shopt -p expand_aliases
+#   shopt -s expand_aliases
+shopt_restore() {
+	args.check-number 1 -
+	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
+	local opt is_enabled
+	for opt ; do
+		shopt -p $opt &>/dev/null
+		is_enabled=$?
+		[[ "$is_enabled" = ${_MAIN__SHOPT_BACKUP["$opt"]} ]] && continue
+		if [[ "$is_enabled" = $True ]]; then
+			shopt -u "$opt" &>/dev/null
+		else
+			shopt -s "$opt" &>/dev/null
+		fi
+	done
+}
+alias shopt.restore="shopt_restore"
+
+
+
+############
+#
+# DATETIME FUNCTIONS
+#
+############
+
 # @description Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
 #   [\<n\>d] [\<n\>h] [\<n\>m] [\<n\>s]
 # @alias datetime.interval-to-sec_
@@ -216,6 +227,7 @@ alias main.set-script-path-info="main_set-script-path-info"
 #   $ datetime.interval-to-sec_ 1d 2h 3m 45s
 #   # return __=93825
 datetime_interval-to-sec_() {
+	args.check-number 1 -
 	local args="$@"
 	declare -g __=0
 	[[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
@@ -226,17 +238,48 @@ datetime_interval-to-sec_() {
 }
 alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 
+
+
+############
+#
+# ARRAY FUNCTIONS
+#
+############
+
+# @description Return the list of array's indexes which have the provided value.
+# @alias array.find-indexes_
+# @arg $1 String Array name
+# @arg $2 String Value to find
+# @return An array of indexes of the array containing the provided value.
+# @exitcodes 0 if at least one item in array is found, 1 otherwise
+# @example
+#   $ declare -a ary=(a b c "s 1" d e "s 1")
+#   $ array.find-indexes_ ary "s 1"
+#   # return __a=(3 6)
 array_find-indexes_() {
+	args.check-number 2
 	declare -n my_array=$1
 	declare -ag __a=()
-	local i
+	local i ret=1
 	for i in "${!my_array[@]}"; do
-		[[ "${my_array[$i]}" = "$2" ]] && __a+=($i) || true
+		[[ "${my_array[$i]}" = "$2" ]] && { __a+=($i) ; ret=0 ; } || true
 	done
+	return $ret
 }
 alias array.find-indexes_="array_find-indexes_"
 
+# @description Return the index of the array containing the provided value, or -1 if not found.
+# @alias array.find_
+# @arg $1 String Array name
+# @arg $2 String Value to find
+# @return The index of the array containing the provided value, or -1 if not found.
+# @exitcodes 0 if found, 1 if not found
+# @example
+#   $ declare -a ary=(a b c "s 1" d e "s 1")
+#   $ array.find_ ary "s 1"
+#   # return __=3
 array_find_() {
+	args.check-number 2
 	declare -n my_array=$1
 	local i
 	for i in "${!my_array[@]}"; do
@@ -252,7 +295,39 @@ alias array.find_="array_find_"
 array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; }
 alias array.find="array_find"
 
+# @description Check whether an item is present in the provided array.
+# @alias array.include?
+# @arg $1 String Array name
+# @arg $2 String Value to find
+# @exitcodes 0 if found, 1 if not found
+# @example
+#   $ declare -a ary=(a b c "s 1" d e "s 1")
+#   $ array.include? ary "s 1"
+#   # exitcode=0
+array_include?() {
+	args.check-number 2
+	declare -n my_array=$1
+	local item
+	for item in "${my_array[@]}"; do
+		[[ "$item" = "$2" ]] && return 0
+	done
+	return 1
+}
+alias array.include?="array_include?"
+
+# @description Return an array containing the intersection between two arrays.
+# @alias array.intersection_
+# @arg $1 String First array name
+# @arg $2 String Second array name
+# @return An array containing the intersection of the two provided arrays.
+# @exitcodes 0 if the intersection contains at least one element, 1 otherwise
+# @example
+#   $ declare -a ary1=(a b c d e f)
+#   $ declare -a ary2=(b d g h)
+#   $ array.intersection_ ary1 ary2
+#   # return __a=(b d)
 array_intersection_() {
+	args.check-number 2
 	declare -n ary1_ref=$1
 	declare -n ary2_ref=$2
 	declare -ga __a=()
@@ -265,7 +340,114 @@ array_intersection_() {
 }
 alias array.intersection_="array_intersection_"
 
+# @description Remove the item at the provided index from array.
+# @alias array.remove-at
+# @arg $1 String Array name
+# @arg $2 String Index of the item to remove
+# @example
+#   $ declare -a ary=(a b c d e f)
+#   $ array.remove-at ary 2
+#   $ declare -p ary
+#   declare -a ary=([0]="a" [1]="b" [2]="d" [3]="e" [4]="f")
+array_remove-at() {
+	args.check-number 2
+	local aryname="$1" idx="$2"
+	declare -n ary_ref="$aryname"
+	ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
+}
+alias array.remove-at="array_remove-at"
+
+# @description Remove the first instance of the provided item from array.
+# @alias array.remove
+# @arg $1 String Array name
+# @arg $2 String Item to remove
+# @exitcodes 0 if item is found and removed, 1 otherwise
+# @example
+#   $ declare -a ary=(a b c d e a)
+#   $ array.remove ary a
+#   $ declare -p ary
+#   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e" [4]="a")
+array_remove() {
+	args.check-number 2
+	local aryname="$1" val="$2"
+	declare -n ary_ref="$aryname"
+	array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
+}
+alias array.remove="array_remove"
+
+# @description Remove any occurrence of the provided item from array.
+# @alias array.remove-values
+# @arg $1 String Array name
+# @arg $2 String Item to remove
+# @example
+#   $ declare -a ary=(a b c d e a)
+#   $ array.remove-values ary a
+#   $ declare -p ary
+#   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e")
+array_remove-values() {
+	args.check-number 2
+	local aryname="$1" val="$2" ret=1
+	declare -n ary_ref="$aryname"
+	array_find-indexes_ "$aryname" "$val"
+	(( ${#__a[@]} > 0 )) && ret=0
+	local i
+	for (( i=$(( ${#__a[@]}-1 )) ; i>=0 ; i-- )); do
+		ary_ref=( "${ary_ref[@]:0:${__a[$i]}}" "${ary_ref[@]:$(( ${__a[$i]}+1 ))}" )
+	done
+	return $ret
+}
+alias array.remove-values="array_remove-values"
+
+# @description Check whether an array with the provided name exists.
+# @alias array.defined?
+# @arg $1 String Array name
+# @exitcodes Standard (0 for true, 1 for false)
+array_defined?() {
+	args.check-number 1
+	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
+}
+alias array.defined?="array_defined?"
+
+# @description Initialize an array (resetting it if already existing).
+# @alias array.init
+# @arg $1 String Array name
+array_init() {
+	args.check-number 1
+	unset "$1"
+	declare -ga "$1"='()'
+}
+alias array.init="array_init"
+
+# @description Return an array with duplicates removed from the provided array.
+# @alias array.unique_
+# @arg $1 String Array name
+# @return Array with duplicates removed
+array_unique_() {
+	local v
+	declare -A h
+	for v in "$@"; do
+		h[$v]=1
+	done
+	declare -ga __a=("${!h[@]}")
+}
+
+
+############
+#
+# LIST FUNCTIONS
+#
+############
+
+# @description Return the index inside a list in which appear the provided searched item.
+# @alias list.find_
+# @alias list_include?
+# @alias list.include?
+# @arg $1 String Item to find
+# @arg $@ String Elements of the list
+# @return The index inside the list in which appear the provided item.
+# @exitcodes 0 if the item is found, 1 otherwise
 list_find_() {
+	args.check-number 1 -
 	local what="$1" ; shift
 	declare -a ary=("$@")
 	
@@ -273,64 +455,232 @@ list_find_() {
 }
 alias list.find_="list_find_"
 
-array_include?() {
-	array.find_ "$1" "$2"
-	[[ "$__" -ge 0 ]]
-}
-alias array.include?="array_include?"
-
+# @description Check whether an item is included in a list of values.
+# @alias list.include?
+# @arg $1 String Item to find
+# @arg $@ String Elements of the list
+# @exitcodes 0 if the item is found, 1 otherwise
 list_include?() {
+	args.check-number 1 -
 	local what="$1" ; shift
 	declare -a ary=("$@")
+	
 	array.include? ary "$what"
 }
 alias list.include?="list_include?"
 
-array_remove-at() {
-	local aryname="$1" idx="$2"
-	declare -n ary_ref="$aryname"
-	ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
-}
-alias array.remove-at="array_remove-at"
 
-array_remove() {
-	local aryname="$1" val="$2"
-	declare -n ary_ref="$aryname"
-	array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" ) || true
-}
-alias array.remove="array_remove"
 
-array_defined?() {
-	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
-}
-alias array.defined?="array_defined?"
+############
+#
+# REGEXP FUNCTIONS
+#
+############
 
-array_init() {
-	unset "$1"
-	declare -ga "$1"='()'
+# @description Escape a string which have to be used as a search pattern in a bash parameter expansion as ${parameter/pattern/string}.
+# @alias regexp.escape-bash-pattern_
+# @arg $1 String String to be escaped
+# @return Escaped string
+# @example
+#   $ regexp.escape-bash-pattern_ 'a * x #'
+#   # return __=a \* x \#
+regexp_escape-bash-pattern_() {
+	declare -g __="${1//\#/\\#}"
+	__="${__//\%/\\%}"
+	__="${__//\*/\\*}"
+	__="${__//\[/\\[}"
+	__="${__//\?/\\?}"
 }
-alias array.init="array_init"
+alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 
+# @description Escape a string which have to be used as a search pattern in a extended regexp in `sed` or `grep`.
+#   The escaped characters are `{$.*[\^|]` and the 
+# @alias regexp.escape-ext-regexp-pattern_
+# @arg $1 String String to be escaped
+# @arg $2 String[/] Separator used in the `sed` expression
+# @return Escaped string
+# @example
+#   $ regexp.escape-ext-regexp-pattern_ "[WW]"  "W"
+#   # return __=\[\W\W[]]
+regexp_escape-ext-regexp-pattern_() {
+	local sep="${2-/}"
+	declare -g __="$1"
+	# escape backslash first, so we don't escape the backslash used to escape the other special characters
+	__="${__//\\/\\\\}"
+	if [[ ! "$sep" =~ \{|\$|\.|\*|\[|\\|\^|\||\] ]]; then
+		[[ "${sep}" =~ \%|\*|\[|\? ]] && __="${__//\\${sep}/\\${sep}}" || __="${__//${sep}/\\${sep}}"
+	fi
+	# escape * and [, which have special meaning in bash parameter expansion too
+	__="${__//\*/\\*}"
+	__="${__//\[/\\[}"
+	# escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern
+	__="${__//{/\\{}"
+	__="${__//$/\\$}"
+	__="${__//./\\.}"
+	__="${__//^/\\^}"
+	__="${__//|/\\|}"
+	__="${__//\]/[]]}"		# ] needs a special escaping, not only backslash but all the sequence \[]]
+}
+alias regexp.escape-ext-regexp-pattern_="regexp_escape-ext-regexp-pattern_"
+
+# escape_sed_replace_: fa l'escape della stringa da utilizzare come replace del comando sed
+regexp_escape-regexp-replace_() {
+	local rpl_str="$1" sep_ch="$2"
+	
+	[[ "$sep_ch" != / && "$sep_ch" != \& ]] && rpl_str="${rpl_str//${sep_ch//\*/\\*}/\\$sep_ch}"
+	rpl_str="${rpl_str//\//\\/}"
+	rpl_str="${rpl_str//&/\\&}"
+	declare -g __="$rpl_str"
+}
+
+
+
+############
+#
+# STRING FUNCTIONS
+#
+############
+
+# @description Append a string to the content of the provided variable, optionally prefixing it with a separator if the variable is not empty.
+# @alias string.append
+# @alias string.concat
+# @arg $1 String Variable name
+# @arg $2 String String to append
+# @arg $3 String[" "] Separator
+# @option -m|--multi-line Append the string to every line of the destination variable
+# @return Concatenation of the two strings, optionally separated by the provided separator
+string_append() {
+	[[ "$1" = -m || "$1" = --multi-line ]] && { local multi=1 ; shift ; } || local multi
+	declare -n var_ref="$1"
+	if [[ -n "$multi" ]]; then
+		regexp.escape-bash-pattern_ "${3:- }$2" ; local esc_search="$__"
+		var_ref=$'\n'"${var_ref}"$'\n'
+		var_ref="${var_ref//$'\n'/${3:- }$2$'\n'}"
+		var_ref="${var_ref//$'\n'${esc_search}$'\n'/$'\n'$2$'\n'}"
+		var_ref="${var_ref#*$'\n'}"
+		var_ref="${var_ref%$'\n'}"
+	else
+		[[ -z "$var_ref" ]] && var_ref="$2" || var_ref="${var_ref}${3:- }$2"
+	fi
+}
+alias string.append="string_append"
+alias string.concat="string_append"
+
+
+
+############
+#
+# HASH FUNCTIONS
+#
+############
+
+# @description Check whether an hash with the provided name exists.
+# @alias hash.defined?
+# @arg $1 String Hash name
+# @exitcodes Standard (0 for true, 1 for false)
 hash_defined?() {
+	args.check-number 1
 	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
 }
 alias hash.defined?="hash_defined?"
 
+# @description Initialize an hash (resetting it if already existing).
+# @alias hash.init
+# @arg $1 String Hash name
 hash_init() {
+	args.check-number 1
 	unset "$1"
 	declare -gA "$1"='()'
 }
 alias hash.init="hash_init"
 
-collection_has-key?() {
+# @description Check whether a hash contains the provided key.
+# @alias hash.has-key?
+# @arg $1 String Hash name
+# @arg $2 String Key name to find
+# @exitcodes Standard (0 for true, 1 for false)
+hash_has-key?() {
+	args.check-number 2
 	declare -n ref="$1"
-	[[ -v ref[$2] ]]
-
+	[[ ${ref["$2"]+x} ]]
 }
-alias collection.has-key?="collection_has-key?"
-alias array.has-key?="collection_has-key?"
-alias hash.has-key?="collection_has-key?"
+alias hash.has-key?="hash_has-key?"
 
+# @description Merge two hashes.
+# @alias hash.merge
+# @arg $1 String Variable name of the 1st hash, in which to merge the 2nd hash
+# @arg $2 String Variable name of the 2nd hash, which is merged into the 1st hash
+# @example
+#   $ declare -A h1=([a]=1 [b]=2 [e]=3)
+#   $ declare -A h2=([a]=5 [c]=6)
+#   $ hash.merge h1 h2
+#   $ declare -p h1
+#   declare -A h1=([a]="5" [b]="2" [c]="6" [e]="3" )
+hash_merge() {
+	local merge_into="$1" merge_from="$2"
+	local def_h1="$( declare -p $merge_into )" def_h2="$( declare -p $merge_from )"
+	shopt_backup extglob
+	shopt -s extglob
+	[[ "$def_h1" =~ "(" ]] && { def_h1="${def_h1#*\(}" ; def_h1="${def_h1%)*(\')}" ; } || def_h1=""
+	[[ "$def_h2" =~ "(" ]] && { def_h2="${def_h2#*\(}" ; def_h2="${def_h2%)*(\')}" ; } || def_h2=""
+	shopt_restore extglob
+	eval "$merge_into=($def_h1 $def_h2)"
+}
+alias hash.merge="hash_merge"
+
+# @description Copy an hash.
+# @alias hash.copy
+# @arg $1 String Variable name of the hash to copy from
+# @arg $2 String Variable name of the hash to copy to: if the hash is not yet defined, it will be created as a global hash
+# @example
+#   $ declare -A h1=([a]=1 [b]=2 [e]=3)
+#   $ hash.copy h1 h2
+#   $ declare -p h2
+#   declare -A h2=([a]="1" [b]="2" [e]="3")
+hash_copy() {
+	local from="$1" to="$2"
+	local hash_def="$( declare -p $from 2>/dev/null | cut -s -d= -f2- )"
+	[[ -z "$hash_def" ]] && hash_def="()"
+	if declare -p "$to" &>/dev/null; then
+		eval "$to=$hash_def"
+	else
+		declare -gA "$to=$hash_def"
+	fi
+}
+alias hash.copy="hash_copy"
+
+# @description Return the key of the hash which have the provided value.
+# @alias hash.find-value_
+# @arg $1 String Hash name
+# @arg $2 String Value to find
+# @example
+#   $ declare -A h1=([a]=1 [b]=2 [e]=3)
+#   $ hash.find-value h1 h2
+#   $ declare -p h2
+#   declare -A h2=([a]="1" [b]="2" [e]="3")
+hash_find-value_() {
+	declare -n hash_ref="$1"
+	declare -g __=""
+	local value="$2" key
+	for key in "${!hash_ref[@]}"; do
+		varname="$hname[$key]"
+		[[ "${hash_ref[$key]}" = "$value" ]] && { __="$key" ; return 0 ; }
+	done
+	return 1
+}
+alias hash.find-value_="hash_find-value_"
+
+
+############
+#
+# FD FUNCTIONS
+#
+############
+
+# @description Get the first file descriptor number available.
+# @alias hfd.get_
+# @noargs
+# @return File descriptor number
 fd_get_() {
 	local start_fd=11
 	while [[ -e /proc/$$/fd/$start_fd ]]; do
@@ -340,15 +690,31 @@ fd_get_() {
 }
 alias fd.get_="fd_get_"
 
+
+
+############
+#
+# ENV FUNCTIONS
+#
+############
+
+# @description Append the provided path to the `PATH` environment variable.
+# @alias env.PATH.append-item
+# @arg $1 String Path to append
 env_PATH_append-item() {
 	[[ ":$PATH:" != *":$1:"* ]] && export PATH="${PATH}:$1"
 }
 alias env.PATH.append-item="env_PATH_append-item"
 
+# @description Prepend the provided path to the `PATH` environment variable.
+# @alias env.PATH.prepend-item
+# @arg $1 String Path to prepend
 env_PATH_prepend-item() {
 	[[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:${PATH}"
 }
 alias env.PATH.prepend-item="env_PATH_prepend-item"
+
+
 
 ===
 ===
@@ -598,38 +964,6 @@ in_array() {
 }
 
 
-####
-#
-# funzioni hash
-#
-merge_hash() {
-	local dest="$1" hash="$2"
-	local def_h1="$( declare -p $dest )" def_h2="$( declare -p $hash )"
-	shopt -s extglob
-	def_h1="${def_h1#*\(}" ; def_h1="${def_h1%)*(\')}" ; def_h2="${def_h2#*\(}" ; def_h2="${def_h2%)*(\')}"
-	shopt -u extglob
-	eval "$dest=($def_h1 $def_h2)"
-}
-
-# copy_hash <from> <to>
-# duplica un hash
-copy_hash() {
-	local from="$1" to="$2"
-	local cmd="declare -gA $to"
-	local assoc_array_string="$(declare -p $from 2>/dev/null)"
-	[ -n "$assoc_array_string" ] && eval "${cmd}=${assoc_array_string#*=}" || eval "$cmd=()"
-}
-
-# search_hash_by_value_
-search_hash_by_value_() {
-	local hname="$1" value="$2" key
-	for key in $( eval "echo \${!$hname[@]}" ); do
-		varname="$hname[$key]"
-		[ "${!varname}" = "$value" ] && { declare -g __="$key" ; return 0 ; }
-	done
-	return 1
-}
-
 
 ####
 #
@@ -758,24 +1092,6 @@ edit_while_running_workaround() {
 	fi
 }
 
-# escape_ext_regexp: fa l'escape di una stringa per poter essere usata in una regexp extended di sed (o anche egrep)?
-escape_ext_regexp() {
-	local str="$1" esc_sep_ch="${2-\/}"
-
-	[[ "$2" =~ \{|\$|\.|\*|\[|\\|\^|\||\] ]] && esc_sep_ch=
-	<<<"$str" sed -E 's/([\{\$\.\*'"$esc_sep_ch"'\[\\^\|])/\\\1/g' | sed 's/[]]/\[]]/g'
-}
-
-
-# escape_sed_replace_: fa l'escape della stringa da utilizzare come replace del comando sed
-escape_sed_replace_() {
-	local rpl_str="$1" sep_ch="$2"
-	
-	[[ "$sep_ch" != / && "$sep_ch" != \& ]] && rpl_str="${rpl_str//${sep_ch//\*/\\*}/\\$sep_ch}"
-	rpl_str="${rpl_str//\//\\/}"
-	rpl_str="${rpl_str//&/\\&}"
-	declare -g __="$rpl_str"
-}
 
 
 # backup file descriptors
@@ -880,34 +1196,7 @@ print_args() {
 	echo "$__"
 }
 	
-# str_concat($var, $str, [$sep=" "])
-# concatena la stringa $str alla variabile $var separando l'eventuale contenuto precedente con il separatore $sep (di default " ")
-str_concat() {
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			-m|--multi-line) 
-				shift
-				eval "local old_val=\$'\n'\"\${!1}\"\$'\n'
-old_val=\"\${old_val//\$'\n'/\${3:- }\$2\$'\n'}\"
-old_val=\"\${old_val//\$'\n'\${3:- }\$2\$'\n'/\$'\n'\$2\$'\n'}\"
-old_val=\"\${old_val#*\$'\n'}\" ; $1=\"\${old_val%\$'\n'}\""
-				return
-			;;
-			*) break ;;
-		esac
-	done
-	[ -z "${!1}" ] && eval "$1=\"\$2\"" || eval "$1=\"\${!1}\${3:- }\$2\""
-}
 
-# visualizza le parole uniche fornite
-unique_words() {
-	local str="$@" w
-	declare -A hash
-	for w in $str; do
-		hash[$w]=1
-	done
-	echo "${!hash[@]}"
-}
 
 
 ####
