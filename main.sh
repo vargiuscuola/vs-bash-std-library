@@ -494,7 +494,7 @@ regexp_escape-bash-pattern_() {
 alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 
 # @description Escape a string which have to be used as a search pattern in a extended regexp in `sed` or `grep`.
-#   The escaped characters are `{$.*[\^|]` and the 
+#   The escaped characters are the following: `{$.*[\^|]`.
 # @alias regexp.escape-ext-regexp-pattern_
 # @arg $1 String String to be escaped
 # @arg $2 String[/] Separator used in the `sed` expression
@@ -513,7 +513,7 @@ regexp_escape-ext-regexp-pattern_() {
 	# escape * and [, which have special meaning in bash parameter expansion too
 	__="${__//\*/\\*}"
 	__="${__//\[/\\[}"
-	# escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern
+	# escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern)
 	__="${__//{/\\{}"
 	__="${__//$/\\$}"
 	__="${__//./\\.}"
