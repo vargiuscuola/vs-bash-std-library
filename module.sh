@@ -26,7 +26,7 @@ alias errmsg='echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 :module_abs-path_() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   local path="$1"
   if [[ -d "$path" ]]; then
     pushd "$path" &>/dev/null
@@ -61,7 +61,7 @@ alias :module.abs-path_=":module_abs-path_"
 # @example
 #   $ module.import "github/vargiuscuola/std-lib.bash/main"
 module_import() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   echo 1 $1
   local module="$1" module_name="${1##*/}"
   module_name="${module_name%.sh}"
@@ -74,11 +74,11 @@ module_import() {
   
   echo 3
   while :; do
-    [[ $module == /* && -e "$module" ]] && { module_path="$module" ; break ; }						# try absolute path
-    [[ -f "${caller_path}/${module}" ]] && { module_path="${caller_path}/${module}" ; break ; }		# try relative to caller
-    [[ -f "${path}/${module}" ]] && { module_path="${path}/${module}" ; break ; }				# try current path
+    [[ $module == /* && -e "$module" ]] && { module_path="$module" ; break ; }            # try absolute path
+    [[ -f "${caller_path}/${module}" ]] && { module_path="${caller_path}/${module}" ; break ; }    # try relative to caller
+    [[ -f "${path}/${module}" ]] && { module_path="${path}/${module}" ; break ; }        # try current path
     package.get-lib-dir_
-    [[ -f "$__/${module}" ]] && module_path="$__/${module}"											# try system wide lib path
+    [[ -f "$__/${module}" ]] && module_path="$__/${module}"                      # try system wide lib path
     break
   done
   [[ -z "$module_path" ]] && { errmsg "Failed to import \"$module\"" ; return 1 ; }
@@ -115,7 +115,7 @@ alias module.import="module_import"
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 module_get-class-path_() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   declare -g __="${_MODULE__CLASS_TO_PATH[$1]}"
 }
 alias module.get-class-path_="module_get-class-path_"
@@ -133,9 +133,9 @@ alias module.get-class-path_="module_get-class-path_"
 #   args_parse
 #   args_to_str_
 module_list-class-functions() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
-  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."					# aliases
-  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"		# functions
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
+  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."          # aliases
+  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"    # functions
 }
 alias module.list-class-functions="module_list-class-functions"
 
@@ -152,7 +152,7 @@ alias module.list-class-functions="module_list-class-functions"
 #   args_parse
 #   args_to_str_
 module_list-classes() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   printf "%s\n" "${!_MODULE__CLASS_TO_PATH[@]}"
 }
 alias module.list-classes="module_list-classes"

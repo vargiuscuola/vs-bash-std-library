@@ -50,17 +50,17 @@ declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 #
 
 # @description Test whether a trap with provided label for provided signal is defined.
-# @alias trap.has-handler?
+# @alias trap.has-handler
 # @arg $1 String Label of the handler
 # @arg $2 String Signal to which the handler responds to
 # @exitcodes Boolean ($True or $False)
 # @example
-#   $ trap.has-handler? LABEL TERM
-trap_has-handler?() {
+#   $ trap.has-handler LABEL TERM
+trap_has-handler() {
   args_check-number 2
-  hash.has-key? "_TRAP__HOOKS_LABEL_TO_CODE_${2^^}" "$1"
+  hash.has-key "_TRAP__HOOKS_LABEL_TO_CODE_${2^^}" "$1"
 }
-alias trap.has-handler?="trap_has-handler?"
+alias trap.has-handler="trap_has-handler"
 
 # @description Add a trap handler.  
 #   It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__HOOKS_LIST_<signal>`.
@@ -81,12 +81,12 @@ trap_add-handler() {
   for sig in "$@"; do
     sig="${sig^^}"
     local hashname="_TRAP__HOOKS_LABEL_TO_CODE_${sig}"
-    hash.defined? "$hashname" || hash.init "$hashname"
-    hash.has-key? "$hashname" "$label" && { ret=1 ; continue ; }
+    hash.defined "$hashname" || hash.init "$hashname"
+    hash.has-key "$hashname" "$label" && { ret=1 ; continue ; }
     
     # array with list of hooks for signal ${sig}
     local aryname="_TRAP__HOOKS_LIST_${sig}"
-    array.defined? "$aryname" || array.init "$aryname"
+    array.defined "$aryname" || array.init "$aryname"
     declare -n ary_ref="$aryname"
     
     # hash that map label of hook with action code
@@ -117,11 +117,11 @@ trap_enable-trace() {
 alias trap.enable-trace="trap_enable-trace"
 
 # @description Check whether the debug trace is enabled (see [trap_enable-trace](#trap_enable-trace)).
-# @alias trap.is-trace-enabled?
-trap_is-trace-enabled?() {
+# @alias trap.is-trace-enabled
+trap_is-trace-enabled() {
   [[ "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True ]]
 }
-alias trap.is-trace-enabled?="trap_is-trace-enabled?"
+alias trap.is-trace-enabled="trap_is-trace-enabled"
 
 
 # @description Set an handler for the EXIT signal useful for error management.  
@@ -199,12 +199,12 @@ trap_suspend-trace() { : trap_suspend-trace ; }
 :trap_handler-helper() {
   args_check-number 1
   local current_command="$BASH_COMMAND" exitcode="$?"
-  local __backup="$__"																								# backup of global variable $__
+  local __backup="$__"                                                # backup of global variable $__
   local sig="${1^^}" idx label code input
-  while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&				# if it's a DEBUG signal and trace is enabled and
-    ( "$_TRAP__LAST_LINENO" != "$_TRAP__TEMP_LINENO" || "$_TRAP__CURRENT_COMMAND" != "$current_command"  ) ]] &&	# if current command or line number is changed and
-    ! list.include? :trap_handler-helper "${FUNCNAME[@]:1}"; do														# if the stack trace, apart the current function, doesn't include :trap_handler-helper
-																										        # then provice tracing functionality...
+  while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&        # if it's a DEBUG signal and trace is enabled and
+    ( "$_TRAP__LAST_LINENO" != "$_TRAP__TEMP_LINENO" || "$_TRAP__CURRENT_COMMAND" != "$current_command"  ) ]] &&  # if current command or line number is changed and
+    ! list.include :trap_handler-helper "${FUNCNAME[@]:1}"; do                            # if the stack trace, apart the current function, doesn't include :trap_handler-helper
+                                                            # then provice tracing functionality...
     array.find-indexes_ FUNCNAME :trap_handler-helper
     local new_current_funcname="${FUNCNAME[1]}"
     # if trap.suspend-trace is called, enable the trace suspension keeping track of the current function name and his index in the stack trace 
@@ -263,8 +263,8 @@ $( get_ext_color 141 )### Choose one of the above options:${Color_Off} "
         i) trap_step-trace-add --step-into "${_TRAP__CURRENT_COMMAND/ */}" ;;
         o) trap_step-trace-add --step-over "${_TRAP__CURRENT_COMMAND/ */}" ;;
         s)
-	        _TRAP__SUSPEND_COMMAND_TRACE="$_TRAP__CURRENT_FUNCTION"
-	        _TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( 1-${#FUNCNAME[@]} ))"
+          _TRAP__SUSPEND_COMMAND_TRACE="$_TRAP__CURRENT_FUNCTION"
+          _TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( 1-${#FUNCNAME[@]} ))"
         ;;
       esac
       [[ "$input" != $'\n' ]] && echo
@@ -281,7 +281,7 @@ $( get_ext_color 141 )### Choose one of the above options:${Color_Off} "
     trap - INT
     kill -INT $BASHPID
   fi
-  declare -g __="${__backup}"			# restore of global variable $__
+  declare -g __="${__backup}"      # restore of global variable $__
 }
 alias :trap.handler-helper=":trap_handler-helper"
 
@@ -292,8 +292,8 @@ alias :trap.handler-helper=":trap_handler-helper"
 # @opt --step-into Enable the step into debug trace for the following functions
 # @opt --step-over Enable the step over debug trace for the following functions
 # @example
-#   $ trap.step-trace-add func1		# Add func1 to the list of step into debug traced functions
-#   $ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
+#   $ trap.step-trace-add func1    # Add func1 to the list of step into debug traced functions
+#   $ trap.step-trace-add --step-over func1 func2 --step-into func3    # Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
 trap_step-trace-add() {
   args_check-number 1 -
   local type_trace=into
@@ -345,8 +345,8 @@ alias trap.step-trace-list="trap_step-trace-list"
 # @opt --step-into Disable the step into debug trace for the following functions
 # @opt --step-over Disable the step over debug trace for the following functions
 # @example
-#   $ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
-#   $ trap.step-trace-remove --step-over func1							# Disable step trace for function func1
+#   $ trap.step-trace-add --step-over func1 func2 --step-into func3    # Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
+#   $ trap.step-trace-remove --step-over func1              # Disable step trace for function func1
 #   $ trap.step-trace-list
 #   step-into|func3
 #   step-over|func2

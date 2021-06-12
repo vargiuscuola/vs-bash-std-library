@@ -37,7 +37,7 @@ alias package.get-lib-dir_="package_get-lib-dir_"
 #   # return __=/lib/sh/github.com/vargiuscuola/std-lib.bash
 # @return Path of the provided package
 package_get-path_() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   declare -g __="$_PACKAGE__LIB_DIR/$1"
 }
 alias package.get-path_="package_get-path_"
@@ -59,7 +59,7 @@ package_load() {
       *) break ;;
     esac
   done
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }			# validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   git_package="$1"
   lib_dir="$_PACKAGE__LIB_DIR/$git_package"
   git_url="https://$git_package"

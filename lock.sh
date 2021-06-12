@@ -16,7 +16,7 @@ shopt -s expand_aliases
 module.import "args"
 module.import "main"
 module.import "trap"
-main_is-windows? && export MSYS=winsymlinks:nativestrict		# enable symbolic links management in Git for Windows
+main_is-windows && export MSYS=winsymlinks:nativestrict    # enable symbolic links management in Git for Windows
 
 # @global _LOCK__RUN_DIR String Run dir path
 _LOCK__RUN_DIR=/var/run/std-lib.bash
@@ -39,19 +39,19 @@ lock_kill() {
   [[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
   
   local lockfile="$_LOCK__RUN_DIR/${lock_name}.lock"
-  [[ ! -L "$lockfile" ]] && return 0												# lock is not present, return
+  [[ ! -L "$lockfile" ]] && return 0                        # lock is not present, return
   local pid pidfile="$( readlink -f "$lockfile" 2>/dev/null )"
   [[ -n "$pidfile" && -f "$pidfile" ]] && pid=$(<"$lockfile")
-  if [[ -n "$pid" && -e "/proc/$pid" ]]; then							# if process holding the lock is still running...
-    main_is-windows? && local pgid="$pid" || local pgid="-$(ps -o pgid= $pid | tr -d ' ')"
-    kill -TERM "$pgid" &>/dev/null									#	try to kill the process with SIGTERM signal
-    sleep "$_LOCK__KILL_PROCESS_WAIT1"								#	wait a bit
-    [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"		#	check if process is terminated: if not wait a bit more
-    if [[ -e "/proc/$pid" ]]; then									#	if still not terminated...
-      kill -9 "$pgid" &>/dev/null								#		try to kill with SIGKILL signal
-      sleep "$_LOCK__KILL_PROCESS_WAIT1"							#		wait a bit
-      [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"	#		check if process is terminated: if not wait a bit more
-      [[ -e "/proc/$pid" ]] && return 1							#		if process is still running, return with error code
+  if [[ -n "$pid" && -e "/proc/$pid" ]]; then              # if process holding the lock is still running...
+    main_is-windows && local pgid="$pid" || local pgid="-$(ps -o pgid= $pid | tr -d ' ')"
+    kill -TERM "$pgid" &>/dev/null                  #  try to kill the process with SIGTERM signal
+    sleep "$_LOCK__KILL_PROCESS_WAIT1"                #  wait a bit
+    [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"    #  check if process is terminated: if not wait a bit more
+    if [[ -e "/proc/$pid" ]]; then                  #  if still not terminated...
+      kill -9 "$pgid" &>/dev/null                #    try to kill with SIGKILL signal
+      sleep "$_LOCK__KILL_PROCESS_WAIT1"              #    wait a bit
+      [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"  #    check if process is terminated: if not wait a bit more
+      [[ -e "/proc/$pid" ]] && return 1              #    if process is still running, return with error code
     fi
   fi
   # the process holding the lock is terminated (or killed by this function or already terminated before)
@@ -87,11 +87,11 @@ alias lock.release="lock_release"
 
 
 # @description Check if a lock is currently active, i.e. if file lock is present and the process holding it is still running.
-# @alias lock.is-active?
+# @alias lock.is-active
 # @arg $1 String[Caller script name] Lock name
 # @exitcode 0 Lock is active
 # @exitcode 1 Lock is expired (file lock not present or associated process already terminated)
-lock_is-active?() {
+lock_is-active() {
   args_check-number 0 1
   [[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
   
@@ -100,14 +100,14 @@ lock_is-active?() {
   local pidfile="$( readlink -f "$lockfile" 2>/dev/null )"
   [[ -n "$pidfile" && -f "$pidfile" && -e "/proc/$(<"$pidfile")" ]] && return 0 || return 1
 }
-alias lock.is-active?="lock_is-active?"
+alias lock.is-active="lock_is-active"
 
 
 # @description Check if the current process is holding the provided lock.
-# @alias lock.is-mine?
+# @alias lock.is-mine
 # @arg $1 String[Caller script name] Lock name
 # @exitcodes $True (0) if lock is present and owned by the current process
-lock_is-mine?() {
+lock_is-mine() {
   args_check-number 0 1
   [[ -z "$1" ]] && local lock_name="${_MAIN__SCRIPTNAME%.sh}" || local lock_name="$1"
   
@@ -116,7 +116,7 @@ lock_is-mine?() {
   local pidfile="$( readlink -f "$lockfile" 2>/dev/null )"
   [[ -n "$pidfile" && -f "$pidfile" && "$(<"$pidfile")" = "$BASHPID" ]] && return 0 || return 1
 }
-alias lock.is-mine?="lock_is-mine?"
+alias lock.is-mine="lock_is-mine"
 
 
 # @description List of locks owned by the current process of by the process with the provided pid.
@@ -153,33 +153,33 @@ lock_new() {
   
   local cur_pid=$BASHPID
   local lockfile="$_LOCK__RUN_DIR/${lock_name}.lock" lock_pid pidfile_cur tmp
-  if [[ -L "$lockfile" ]]; then						# if the lock is already present...
+  if [[ -L "$lockfile" ]]; then            # if the lock is already present...
     pidfile_cur="$( readlink -f "$lockfile" 2>/dev/null )"
     [[ -n "$pidfile_cur" && -f "$pidfile_cur" ]] && lock_pid=$(<"$lockfile")
-    [[ "$lock_pid" = "$cur_pid" ]] && return 0		#	and the current process hold it, then return successfully
+    [[ "$lock_pid" = "$cur_pid" ]] && return 0    #  and the current process hold it, then return successfully
   fi
   local pidfile="$(mktemp)"
   trap.add-handler "LOCK_${lock_name}_RELEASE" "lock_release '$lock_name'" EXIT
   
-  echo "$cur_pid" >"$pidfile" || { error_msg "Cannot write pid to file \"$pidfile\"" ; return 3 ; }		# write pid to $pidfile, and exit with error if fail
+  echo "$cur_pid" >"$pidfile" || { error_msg "Cannot write pid to file \"$pidfile\"" ; return 3 ; }    # write pid to $pidfile, and exit with error if fail
   
   local start_time="$(date +%s)"
   local now_time="$start_time"
   # try to obtain the lock for $wait time
   while (( $wait == -1 || $now_time-$start_time <= $wait )); do
-    ln -s "${pidfile}" "${lockfile}" &>/dev/null && return 0		# try to obtain the lock with the creation of a link (should be atomic operation): if successful, return
+    ln -s "${pidfile}" "${lockfile}" &>/dev/null && return 0    # try to obtain the lock with the creation of a link (should be atomic operation): if successful, return
     if [[ -L "$lockfile" ]]; then
       tmp="$( readlink -f "$lockfile" 2>/dev/null )"
-      if [[ -z "$lock_pid" || "$tmp" != "$pidfile_cur" ]]; then	# if current lock pid is not set or the pid file is changed, then evaluate again the lock_pid and pidfile_cur variables
+      if [[ -z "$lock_pid" || "$tmp" != "$pidfile_cur" ]]; then  # if current lock pid is not set or the pid file is changed, then evaluate again the lock_pid and pidfile_cur variables
         pidfile_cur="$tmp"
-        [[ -n "$pidfile_cur" && -f "$pidfile_cur" ]] &&			# if pidfile exists...
-          lock_pid=$(<"$lockfile") ||							#	read the pid and set the lock_pid and pidfile_cur variables
-          lock_pid=											#	otherwise reset them
+        [[ -n "$pidfile_cur" && -f "$pidfile_cur" ]] &&      # if pidfile exists...
+          lock_pid=$(<"$lockfile") ||              #  read the pid and set the lock_pid and pidfile_cur variables
+          lock_pid=                      #  otherwise reset them
       fi
-      [[ ( ( -n "$lock_pid" && ! -e "/proc/$lock_pid" ) ||						# if lock is held by a terminated process
+      [[ ( ( -n "$lock_pid" && ! -e "/proc/$lock_pid" ) ||            # if lock is held by a terminated process
         ! -f "$pidfile_cur" ) &&
-        "$pidfile_cur" = "$( readlink -f "$lockfile" 2>/dev/null )" ]] &&		# and lock file didn't change in the last few commands (to rule out concurrent operations by other processes)
-        { rm -f "$pidfile_cur" ; rm -f "$lockfile" ; }							# then remove the current lock
+        "$pidfile_cur" = "$( readlink -f "$lockfile" 2>/dev/null )" ]] &&    # and lock file didn't change in the last few commands (to rule out concurrent operations by other processes)
+        { rm -f "$pidfile_cur" ; rm -f "$lockfile" ; }              # then remove the current lock
     else
       lock_pid=
       pidfile_cur=
@@ -189,31 +189,31 @@ lock_new() {
   done
   # we waited $wait time without being able to obtain the lock
   
-  [[ -z "$lock_pid" ]] && { rm -f "$pidfile" ; return 3 ; }		# we don't have the pid of the process currently holding the lock: we return with generic error code 3
+  [[ -z "$lock_pid" ]] && { rm -f "$pidfile" ; return 3 ; }    # we don't have the pid of the process currently holding the lock: we return with generic error code 3
   local lock_creation_time=$(stat --format=%Y "$lockfile")
-  if (( $expiration_time > -1 && $now_time-$lock_creation_time >= $expiration_time )); then					# if the lock is expired, kill the process owning it
+  if (( $expiration_time > -1 && $now_time-$lock_creation_time >= $expiration_time )); then          # if the lock is expired, kill the process owning it
     while : ; do
-      main_is-windows? && local pgid="$lock_pid" || local pgid="-$(ps -o pgid= $lock_pid | tr -d ' ')"
-      kill -TERM "$pgid" &>/dev/null			# try to kill the process owning the lock with SIGTERM
-      sleep "$_LOCK__KILL_PROCESS_WAIT1"		# wait a little
-      [[ ! -e "/proc/$lock_pid" ]] && break	# we test if the process terminated
-      sleep "$_LOCK__KILL_PROCESS_WAIT2"		# if not, we wait another bit
-      [[ ! -e "/proc/$lock_pid" ]] && break	# we test again if the process is terminated
-      kill -9 "$pgid" &>/dev/null			# if not, we send a SIGKILL
-      sleep "$_LOCK__KILL_PROCESS_WAIT1"		# again wait a little
-      [[ ! -e "/proc/$lock_pid" ]] && break	# test if the process terminated
-      sleep "$_LOCK__KILL_PROCESS_WAIT2"		# if not, we wait some more
-      [[ ! -e "/proc/$lock_pid" ]] && break	# again test the process
-      rm -f "$pidfile"										# if the process helding the lock is still running, we remove our pidfile...
-      trap.remove-handler "LOCK_${lock_name}_RELEASE" EXIT	#	remove the handler to release the lock
-      return 2												#	and return with error code
+      main_is-windows && local pgid="$lock_pid" || local pgid="-$(ps -o pgid= $lock_pid | tr -d ' ')"
+      kill -TERM "$pgid" &>/dev/null      # try to kill the process owning the lock with SIGTERM
+      sleep "$_LOCK__KILL_PROCESS_WAIT1"    # wait a little
+      [[ ! -e "/proc/$lock_pid" ]] && break  # we test if the process terminated
+      sleep "$_LOCK__KILL_PROCESS_WAIT2"    # if not, we wait another bit
+      [[ ! -e "/proc/$lock_pid" ]] && break  # we test again if the process is terminated
+      kill -9 "$pgid" &>/dev/null      # if not, we send a SIGKILL
+      sleep "$_LOCK__KILL_PROCESS_WAIT1"    # again wait a little
+      [[ ! -e "/proc/$lock_pid" ]] && break  # test if the process terminated
+      sleep "$_LOCK__KILL_PROCESS_WAIT2"    # if not, we wait some more
+      [[ ! -e "/proc/$lock_pid" ]] && break  # again test the process
+      rm -f "$pidfile"                    # if the process helding the lock is still running, we remove our pidfile...
+      trap.remove-handler "LOCK_${lock_name}_RELEASE" EXIT  #  remove the handler to release the lock
+      return 2                        #  and return with error code
     done
-    [[ ! -L "$lockfile" || "$(<"$lockfile")" = "$lock_pid" ]] && { rm -f "$pidfile_cur" ; rm -f "$lockfile" ; }		# we delete the current lock
-    ln -s "${pidfile}" "${lockfile}" &>/dev/null && return 0									# and try again to obtain it
-    rm -f "$pidfile"																			# if fail, remove the pidfile...
-    return 3																					#	and return with error code
+    [[ ! -L "$lockfile" || "$(<"$lockfile")" = "$lock_pid" ]] && { rm -f "$pidfile_cur" ; rm -f "$lockfile" ; }    # we delete the current lock
+    ln -s "${pidfile}" "${lockfile}" &>/dev/null && return 0                  # and try again to obtain it
+    rm -f "$pidfile"                                      # if fail, remove the pidfile...
+    return 3                                          #  and return with error code
   else
-    return 1			# the lock is busy and is not expired
+    return 1      # the lock is busy and is not expired
   fi
 }
 alias lock.new="lock_new"

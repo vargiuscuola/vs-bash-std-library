@@ -19,8 +19,8 @@ module.import "args"
 
 # @global-header Flags
 # @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
-# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot?()`
-# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows?()`
+# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
+# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 
 # @global-header Boolean Values
 # @global True 0
@@ -33,7 +33,7 @@ False=1
 # @global _MAIN__SCRIPTPATH String Calling script path after any possible link resolution
 # @global _MAIN__SCRIPTNAME String Calling script real name (after any possible link resolution)
 # @global _MAIN__SCRIPTDIR String Absolute path where reside the calling script, after any possible link resolution
-# @global _MAIN__GIT_PATH String Root path of Git for Windows environment: it's set when calling `main.is-windows?()`
+# @global _MAIN__GIT_PATH String Root path of Git for Windows environment: it's set when calling `main.is-windows()`
 
 ############
 #
@@ -109,34 +109,32 @@ alias main.dereference-alias_="main_dereference-alias_"
 # @description Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
 #   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
 # @exitcodes Standard (0 for true, 1 for false)
-# @alias main.is-windows?
+# @alias main.is-windows
 # @example
 #   $ uname -a
 #   MINGW64_NT-6.1 chiller2 2.11.2(0.329/5/3) 2018-11-10 14:38 x86_64 Msys
-#   $ main.is-windows?
+#   $ main.is-windows
 #   # statuscode = 0
-main_is-windows?() {
-  echo main_is-windows[0]
+main_is-windows() {
   if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
     [[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
   fi
-  echo main_is-windows[1]
   return "${_MAIN__FLAGS[WINDOWS]}"
 }
-alias main.is-windows?="main_is-windows?"
+alias main.is-windows="main_is-windows"
 
 # @description Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
-# @alias main.is-chroot?
+# @alias main.is-chroot
 # @exitcodes Standard (0 for true, 1 for false)
 # @example
-#   main.is-chroot?
-main_is-chroot?() {
+#   main.is-chroot
+main_is-chroot() {
   if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
     [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
   fi
   return "${_MAIN__FLAGS[CHROOTED]}"
 }
-alias main.is-chroot?="main_is-chroot?"
+alias main.is-chroot="main_is-chroot"
 
 # @description Set the current script path and the current script directory to the global variables `_MAIN__SCRIPTPATH` and `_MAIN__SCRIPTDIR`.
 # @alias main.set-script-path-info
@@ -298,15 +296,15 @@ array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; 
 alias array.find="array_find"
 
 # @description Check whether an item is present in the provided array.
-# @alias array.include?
+# @alias array.include
 # @arg $1 String Array name
 # @arg $2 String Value to find
 # @exitcodes 0 if found, 1 if not found
 # @example
 #   $ declare -a ary=(a b c "s 1" d e "s 1")
-#   $ array.include? ary "s 1"
+#   $ array.include ary "s 1"
 #   # exitcode=0
-array_include?() {
+array_include() {
   args.check-number 2
   declare -n my_array=$1
   local item
@@ -315,7 +313,7 @@ array_include?() {
   done
   return 1
 }
-alias array.include?="array_include?"
+alias array.include="array_include"
 
 # @description Return an array containing the intersection between two arrays.
 # @alias array.intersection_
@@ -401,14 +399,14 @@ array_remove-values() {
 alias array.remove-values="array_remove-values"
 
 # @description Check whether an array with the provided name exists.
-# @alias array.defined?
+# @alias array.defined
 # @arg $1 String Array name
 # @exitcodes Standard (0 for true, 1 for false)
-array_defined?() {
+array_defined() {
   args.check-number 1
   local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
 }
-alias array.defined?="array_defined?"
+alias array.defined="array_defined"
 
 # @description Initialize an array (resetting it if already existing).
 # @alias array.init
@@ -442,8 +440,8 @@ array_unique_() {
 
 # @description Return the index inside a list in which appear the provided searched item.
 # @alias list.find_
-# @alias list_include?
-# @alias list.include?
+# @alias list_include
+# @alias list.include
 # @arg $1 String Item to find
 # @arg $@ String Elements of the list
 # @return The index inside the list in which appear the provided item.
@@ -458,18 +456,18 @@ list_find_() {
 alias list.find_="list_find_"
 
 # @description Check whether an item is included in a list of values.
-# @alias list.include?
+# @alias list.include
 # @arg $1 String Item to find
 # @arg $@ String Elements of the list
 # @exitcodes 0 if the item is found, 1 otherwise
-list_include?() {
+list_include() {
   args.check-number 1 -
   local what="$1" ; shift
   declare -a ary=("$@")
   
-  array.include? ary "$what"
+  array.include ary "$what"
 }
-alias list.include?="list_include?"
+alias list.include="list_include"
 
 
 
@@ -521,7 +519,7 @@ regexp_escape-ext-regexp-pattern_() {
   __="${__//./\\.}"
   __="${__//^/\\^}"
   __="${__//|/\\|}"
-  __="${__//\]/[]]}"		# ] needs a special escaping, not only backslash but all the sequence \[]]
+  __="${__//\]/[]]}"    # ] needs a special escaping, not only backslash but all the sequence \[]]
 }
 alias regexp.escape-ext-regexp-pattern_="regexp_escape-ext-regexp-pattern_"
 
@@ -577,14 +575,14 @@ alias string.concat="string_append"
 ############
 
 # @description Check whether an hash with the provided name exists.
-# @alias hash.defined?
+# @alias hash.defined
 # @arg $1 String Hash name
 # @exitcodes Standard (0 for true, 1 for false)
-hash_defined?() {
+hash_defined() {
   args.check-number 1
   local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
 }
-alias hash.defined?="hash_defined?"
+alias hash.defined="hash_defined"
 
 # @description Initialize an hash (resetting it if already existing).
 # @alias hash.init
@@ -597,16 +595,16 @@ hash_init() {
 alias hash.init="hash_init"
 
 # @description Check whether a hash contains the provided key.
-# @alias hash.has-key?
+# @alias hash.has-key
 # @arg $1 String Hash name
 # @arg $2 String Key name to find
 # @exitcodes Standard (0 for true, 1 for false)
-hash_has-key?() {
+hash_has-key() {
   args.check-number 2
   declare -n ref="$1"
   [[ ${ref["$2"]+x} ]]
 }
-alias hash.has-key?="hash_has-key?"
+alias hash.has-key="hash_has-key"
 
 # @description Merge two hashes.
 # @alias hash.merge
@@ -1144,7 +1142,7 @@ restore_fd() {
 # funziona per gestire l'input
 # choose "<domanda>" "<option1=val1> <option2=val2> ..." <default>
 # Esempio: choose "Vuoi fare questo?" "s=0 n=1" s
-#	return code: valore della scelta
+#  return code: valore della scelta
 choose() {
   local args_input_msg
   while [[ $# -gt 0 ]]; do
@@ -1155,7 +1153,7 @@ choose() {
       --show-value) shift ; local is_show_value=1 ;;
       *) break ;;
     esac
-  done	
+  done  
   local msg="$1" accept=( $2 ) default="$3"
   local accept_str="$( printf '%s\n' "${accept[@]}" )" answer args cur_str cur_ans choice_str val
   
