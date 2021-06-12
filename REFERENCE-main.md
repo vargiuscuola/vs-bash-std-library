@@ -410,7 +410,7 @@ $ regexp.escape-bash-pattern_ 'a * x #'
 ## regexp_escape-ext-regexp-pattern_()
 
 Escape a string which have to be used as a search pattern in a extended regexp in `sed` or `grep`.
-  The escaped characters are `{$.*[\^|]` and the 
+  The escaped characters are the following: `{$.*[\^|]`.
 
 ### Aliases
 
