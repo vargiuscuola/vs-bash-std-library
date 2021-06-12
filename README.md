@@ -23,11 +23,13 @@ Functions are organized in the following modules:
 # Installation
 
 Clone the repository:
-```console
+
+```bash
 git clone git@github.com:vargiuscuola/std-lib.bash.git /lib/sh/std-lib.bash
 ```
 
-and load the required modules from your script:
+and from your script load the library for managing modules `module.sh` and then import the required modules:
+
 ```bash
 source "/lib/sh/std-lib.bash/module.sh"
 module.import "std-lib.bash/main"
