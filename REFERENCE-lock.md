@@ -16,6 +16,8 @@ Provide locking functionalities.
 # Functions
 * [lock_kill()](#lock_kill)
 * [lock_release()](#lock_release)
+* [lock_is-active()](#lock_is-active)
+* [lock_is-mine()](#lock_is-mine)
 * [lock_list_()](#lock_list_)
 * [lock_new()](#lock_new)
 
@@ -57,6 +59,39 @@ Release lock if current process own it.
 * **0**: Lock successfully released
 * **1**: Current process doesn't own the lock and cannot release it
 * **2**: Lock file cannot be deleted
+
+## lock_is-active()
+
+Check if a lock is currently active, i.e. if file lock is present and the process holding it is still running.
+
+### Aliases
+
+* **lock.is-active**
+
+### Arguments
+
+* **$1** (String)[default: **Caller script name**]: Lock name
+
+### Exit codes
+
+* **0**: Lock is active
+* **1**: Lock is expired (file lock not present or associated process already terminated)
+
+## lock_is-mine()
+
+Check if the current process is holding the provided lock.
+
+### Aliases
+
+* **lock.is-mine**
+
+### Arguments
+
+* **$1** (String)[default: **Caller script name**]: Lock name
+
+### Exit codes
+
+* $True (0) if lock is present and owned by the current process
 
 ## lock_list_()
 

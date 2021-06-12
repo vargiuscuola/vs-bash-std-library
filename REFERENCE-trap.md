@@ -23,8 +23,10 @@ Manage shell traps
 
 
 # Functions
+* [trap_has-handler()](#trap_has-handler)
 * [trap_add-handler()](#trap_add-handler)
 * [trap_enable-trace()](#trap_enable-trace)
+* [trap_is-trace-enabled()](#trap_is-trace-enabled)
 * [trap_add-error-handler()](#trap_add-error-handler)
 * [trap_remove-handler()](#trap_remove-handler)
 * [trap_show-handlers()](#trap_show-handlers)
@@ -38,6 +40,29 @@ Manage shell traps
 * [trap_step-trace-stop()](#trap_step-trace-stop)
 * [trap_show-stack-trace()](#trap_show-stack-trace)
 
+
+## trap_has-handler()
+
+Test whether a trap with provided label for provided signal is defined.
+
+### Aliases
+
+* **trap.has-handler**
+
+### Arguments
+
+* **$1** (String): Label of the handler
+* **$2** (String): Signal to which the handler responds to
+
+### Exit codes
+
+* Boolean ($True or $False)
+
+### Example
+
+```bash
+$ trap.has-handler LABEL TERM
+```
 
 ## trap_add-handler()
 
@@ -73,6 +98,14 @@ Enable command tracing by setting a null trap for signal `DEBUG` with the purpos
 ### Aliases
 
 * **trap.enable-trace**
+
+## trap_is-trace-enabled()
+
+Check whether the debug trace is enabled (see [trap_enable-trace](#trap_enable-trace)).
+
+### Aliases
+
+* **trap.is-trace-enabled**
 
 ## trap_add-error-handler()
 
@@ -170,8 +203,8 @@ Configure the step trace adding the provided functions to the list of step-trace
 ### Example
 
 ```bash
-$ trap.step-trace-add func1		# Add func1 to the list of step into debug traced functions
-$ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
+$ trap.step-trace-add func1    # Add func1 to the list of step into debug traced functions
+$ trap.step-trace-add --step-over func1 func2 --step-into func3    # Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
 ```
 
 ## trap_step-trace-reset()
@@ -220,8 +253,8 @@ Remove the provided functions from the list of functions for which is enabled th
 ### Example
 
 ```bash
-$ trap.step-trace-add --step-over func1 func2 --step-into func3		# Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
-$ trap.step-trace-remove --step-over func1							# Disable step trace for function func1
+$ trap.step-trace-add --step-over func1 func2 --step-into func3    # Add func1 and func2 to the list of step over debug traced functions, and func3 to the list of step into debug traced functions
+$ trap.step-trace-remove --step-over func1              # Disable step trace for function func1
 $ trap.step-trace-list
 step-into|func3
 step-over|func2

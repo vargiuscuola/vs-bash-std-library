@@ -19,8 +19,8 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 ## Flags
 * **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
-* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot?()`
-* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows?()`
+* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot()`
+* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 ## Boolean Values
 * True 0
 * False 1
@@ -29,28 +29,35 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * **\_MAIN__SCRIPTPATH** (String): Calling script path after any possible link resolution
 * **\_MAIN__SCRIPTNAME** (String): Calling script real name (after any possible link resolution)
 * **\_MAIN__SCRIPTDIR** (String): Absolute path where reside the calling script, after any possible link resolution
-* **\_MAIN__GIT_PATH** (String): Root path of Git for Windows environment: it's set when calling `main.is-windows?()`
+* **\_MAIN__GIT_PATH** (String): Root path of Git for Windows environment: it's set when calling `main.is-windows()`
 
 
 # Functions
 * [main_dereference-alias_()](#main_dereference-alias_)
+* [main_is-windows()](#main_is-windows)
+* [main_is-chroot()](#main_is-chroot)
 * [main_set-script-path-info()](#main_set-script-path-info)
 * [shopt_backup()](#shopt_backup)
 * [shopt_restore()](#shopt_restore)
 * [datetime_interval-to-sec_()](#datetime_interval-to-sec_)
 * [array_find-indexes_()](#array_find-indexes_)
 * [array_find_()](#array_find_)
+* [array_include()](#array_include)
 * [array_intersection_()](#array_intersection_)
 * [array_remove-at()](#array_remove-at)
 * [array_remove()](#array_remove)
 * [array_remove-values()](#array_remove-values)
+* [array_defined()](#array_defined)
 * [array_init()](#array_init)
 * [array_unique_()](#array_unique_)
 * [list_find_()](#list_find_)
+* [list_include()](#list_include)
 * [regexp_escape-bash-pattern_()](#regexp_escape-bash-pattern_)
 * [regexp_escape-ext-regexp-pattern_()](#regexp_escape-ext-regexp-pattern_)
 * [string_append()](#string_append)
+* [hash_defined()](#hash_defined)
 * [hash_init()](#hash_init)
+* [hash_has-key()](#hash_has-key)
 * [hash_merge()](#hash_merge)
 * [hash_copy()](#hash_copy)
 * [hash_find-value_()](#hash_find-value_)
@@ -83,6 +90,46 @@ $ alias alias1="func1"
 $ alias alias2="alias1"
 $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 # return __="func1"
+```
+
+## main_is-windows()
+
+Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
+  Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
+
+### Aliases
+
+* **main.is-windows**
+
+### Example
+
+```bash
+$ uname -a
+MINGW64_NT-6.1 chiller2 2.11.2(0.329/5/3) 2018-11-10 14:38 x86_64 Msys
+$ main.is-windows
+# statuscode = 0
+```
+
+## main_is-chroot()
+
+Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
+
+### Aliases
+
+* **main.is-chroot**
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
+
+### Example
+
+```bash
+main.is-chroot
 ```
 
 ## main_set-script-path-info()
@@ -233,6 +280,31 @@ $ array.find_ ary "s 1"
 # return __=3
 ```
 
+## array_include()
+
+Check whether an item is present in the provided array.
+
+### Aliases
+
+* **array.include**
+
+### Arguments
+
+* **$1** (String): Array name
+* **$2** (String): Value to find
+
+### Exit codes
+
+* 0 if found, 1 if not found
+
+### Example
+
+```bash
+$ declare -a ary=(a b c "s 1" d e "s 1")
+$ array.include ary "s 1"
+# exitcode=0
+```
+
 ## array_intersection_()
 
 Return an array containing the intersection between two arrays.
@@ -333,6 +405,22 @@ $ declare -p ary
 declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e")
 ```
 
+## array_defined()
+
+Check whether an array with the provided name exists.
+
+### Aliases
+
+* **array.defined**
+
+### Arguments
+
+* **$1** (String): Array name
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
+
 ## array_init()
 
 Initialize an array (resetting it if already existing).
@@ -368,8 +456,8 @@ Return the index inside a list in which appear the provided searched item.
 ### Aliases
 
 * **list.find_**
-* **list_include?**
-* **list.include?**
+* **list_include**
+* **list.include**
 
 ### Arguments
 
@@ -379,6 +467,23 @@ Return the index inside a list in which appear the provided searched item.
 ### Return with global scalar $__, array $__a or hash $__h
 
 * The index inside the list in which appear the provided item.
+
+### Exit codes
+
+* 0 if the item is found, 1 otherwise
+
+## list_include()
+
+Check whether an item is included in a list of values.
+
+### Aliases
+
+* **list.include**
+
+### Arguments
+
+* **$1** (String): Item to find
+* **...** (String): Elements of the list
 
 ### Exit codes
 
@@ -455,6 +560,22 @@ Append a string to the content of the provided variable, optionally prefixing it
 
 * Concatenation of the two strings, optionally separated by the provided separator
 
+## hash_defined()
+
+Check whether an hash with the provided name exists.
+
+### Aliases
+
+* **hash.defined**
+
+### Arguments
+
+* **$1** (String): Hash name
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
+
 ## hash_init()
 
 Initialize an hash (resetting it if already existing).
@@ -466,6 +587,23 @@ Initialize an hash (resetting it if already existing).
 ### Arguments
 
 * **$1** (String): Hash name
+
+## hash_has-key()
+
+Check whether a hash contains the provided key.
+
+### Aliases
+
+* **hash.has-key**
+
+### Arguments
+
+* **$1** (String): Hash name
+* **$2** (String): Key name to find
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
 
 ## hash_merge()
 
