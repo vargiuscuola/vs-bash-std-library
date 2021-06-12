@@ -715,7 +715,7 @@ env_PATH_prepend-item() {
 alias env.PATH.prepend-item="env_PATH_prepend-item"
 
 
-
+return
 ===
 ===
 [[ "${_MAIN__CMD_LOGFILE+x}" ]] || _MAIN__CMD_LOGFILE=/var/log

@@ -62,17 +62,14 @@ alias :module.abs-path_=":module_abs-path_"
 #   $ module.import "github/vargiuscuola/std-lib.bash/main"
 module_import() {
   (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
-  echo 1 $1
   local module="$1" module_name="${1##*/}"
   module_name="${module_name%.sh}"
   :module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$__"
   :module.abs-path_ "$(dirname "${BASH_SOURCE[1]}")" && local caller_path="$__"
   local module_path
-  echo 2
   
   [[ "$module" =~ \.sh$ ]] || module="${module}.sh"
   
-  echo 3
   while :; do
     [[ $module == /* && -e "$module" ]] && { module_path="$module" ; break ; }            # try absolute path
     [[ -f "${caller_path}/${module}" ]] && { module_path="${caller_path}/${module}" ; break ; }    # try relative to caller
@@ -84,24 +81,20 @@ module_import() {
   [[ -z "$module_path" ]] && { errmsg "Failed to import \"$module\"" ; return 1 ; }
   # normalize module_path
   :module.abs-path_  "$module_path" && module_path="$__"
-  echo 4
   
   # check if module already loaded
   local loaded_module
   for loaded_module in "${_MODULE__IMPORTED_MODULES[@]}"; do
     [[ "$loaded_module" == "$module_path" ]] && return 0
   done
-  echo 5 $module_path
   
   _MODULE__IMPORTED_MODULES+=("$module_path")
   source "$module_path" || return 1
   declare -n aref="_${module_name^^}__CLASSES"
   local class
-  echo 6
   for class in "${aref[@]:-${module_name}}"; do
     _MODULE__CLASS_TO_PATH[$class]="$module_path"
   done
-  echo 7
 }
 alias module.import="module_import"
 
