@@ -68,7 +68,7 @@ List of locks owned by the current process of by the process with the provided p
 
 ### Arguments
 
-* **$1** (Number)[default: **PID of current process $$**]: Pid of the process for which determine the list of locks owned by it: if null, all locks are returned, regardless of owner
+* **$1** (Number)[default: **PID of current process $BASHPID**]: Pid of the process for which determine the list of locks owned by it: if null, all locks are returned, regardless of owner
 
 ### Return with global scalar $__, array $__a or hash $__h
 

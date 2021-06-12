@@ -28,7 +28,7 @@ Validate the number of arguments, writing an error message and exiting if the ch
 
 * **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
 * **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
-* **$2** (Number): (Optional) Maximum number of arguments: can be `-` for there is no limit on the number of maximum arguments
+* **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 
 ### Exit codes
 
