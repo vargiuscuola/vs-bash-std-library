@@ -68,10 +68,10 @@ declare -gA _MAIN__FLAGS=([SOURCED]=0)
 
 # test if file is sourced or executed
 if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
-	_MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
-	_MAIN__FLAGS[SOURCED]=1
+  _MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
+  _MAIN__FLAGS[SOURCED]=1
 else
-	_MAIN__RAW_SCRIPTNAME="$0"
+  _MAIN__RAW_SCRIPTNAME="$0"
 fi
 
 test -L "${_MAIN__RAW_SCRIPTNAME}" && _MAIN__SCRIPTPATH="$( readlink "${_MAIN__RAW_SCRIPTNAME}" )" || _MAIN__SCRIPTPATH="${_MAIN__RAW_SCRIPTNAME}"
@@ -95,14 +95,14 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 #   # return __="func1"
 main_dereference-alias_() {
-	args.check-number 1
-	# recursively expand alias, dropping arguments
-	# output == input if no alias matches
-	local function_name="$1" p
-	while [[ "alias" = $(type -t -- $function_name) ]] && p=$(alias -- "$function_name" 2>&-); do
-		function_name=$(sed -re "s/alias "$function_name"='(\S+).*'$/\1/" <<< "$p")
-	done
-	declare -g __="$function_name"
+  args.check-number 1
+  # recursively expand alias, dropping arguments
+  # output == input if no alias matches
+  local function_name="$1" p
+  while [[ "alias" = $(type -t -- $function_name) ]] && p=$(alias -- "$function_name" 2>&-); do
+    function_name=$(sed -re "s/alias "$function_name"='(\S+).*'$/\1/" <<< "$p")
+  done
+  declare -g __="$function_name"
 }
 alias main.dereference-alias_="main_dereference-alias_"
 
@@ -116,10 +116,12 @@ alias main.dereference-alias_="main_dereference-alias_"
 #   $ main.is-windows?
 #   # statuscode = 0
 main_is-windows?() {
-	if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
-		[[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
-	fi
-	return "${_MAIN__FLAGS[WINDOWS]}"
+  echo main_is-windows[0]
+  if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
+    [[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
+  fi
+  echo main_is-windows[1]
+  return "${_MAIN__FLAGS[WINDOWS]}"
 }
 alias main.is-windows?="main_is-windows?"
 
@@ -129,10 +131,10 @@ alias main.is-windows?="main_is-windows?"
 # @example
 #   main.is-chroot?
 main_is-chroot?() {
-	if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
-		[[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
-	fi
-	return "${_MAIN__FLAGS[CHROOTED]}"
+  if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
+    [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
+  fi
+  return "${_MAIN__FLAGS[CHROOTED]}"
 }
 alias main.is-chroot?="main_is-chroot?"
 
@@ -145,8 +147,8 @@ alias main.is-chroot?="main_is-chroot?"
 #   $ echo _MAIN__SCRIPTDIR=$_MAIN__SCRIPTDIR
 #   _MAIN__SCRIPTDIR=/usr/local/src
 main_set-script-path-info() {
-	_MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
-	_MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
+  _MAIN__SCRIPTPATH="$( realpath "$_MAIN__SCRIPTPATH" )"
+  _MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
 }
 alias main.set-script-path-info="main_set-script-path-info"
 
@@ -172,12 +174,12 @@ alias main.set-script-path-info="main_set-script-path-info"
 #   $ shopt -p expand_aliases
 #   shopt -s expand_aliases
 shopt_backup() {
-	args.check-number 1 -
-	declare -gA _MAIN__SHOPT_BACKUP
-	local opt
-	for opt ; do
-		shopt -p $opt &>/dev/null && _MAIN__SHOPT_BACKUP["$opt"]=$True || _MAIN__SHOPT_BACKUP["$opt"]=$False
-	done
+  args.check-number 1 -
+  declare -gA _MAIN__SHOPT_BACKUP
+  local opt
+  for opt ; do
+    shopt -p $opt &>/dev/null && _MAIN__SHOPT_BACKUP["$opt"]=$True || _MAIN__SHOPT_BACKUP["$opt"]=$False
+  done
 }
 alias shopt.backup="shopt_backup"
 
@@ -195,19 +197,19 @@ alias shopt.backup="shopt_backup"
 #   $ shopt -p expand_aliases
 #   shopt -s expand_aliases
 shopt_restore() {
-	args.check-number 1 -
-	[[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
-	local opt is_enabled
-	for opt ; do
-		shopt -p $opt &>/dev/null
-		is_enabled=$?
-		[[ "$is_enabled" = ${_MAIN__SHOPT_BACKUP["$opt"]} ]] && continue
-		if [[ "$is_enabled" = $True ]]; then
-			shopt -u "$opt" &>/dev/null
-		else
-			shopt -s "$opt" &>/dev/null
-		fi
-	done
+  args.check-number 1 -
+  [[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
+  local opt is_enabled
+  for opt ; do
+    shopt -p $opt &>/dev/null
+    is_enabled=$?
+    [[ "$is_enabled" = ${_MAIN__SHOPT_BACKUP["$opt"]} ]] && continue
+    if [[ "$is_enabled" = $True ]]; then
+      shopt -u "$opt" &>/dev/null
+    else
+      shopt -s "$opt" &>/dev/null
+    fi
+  done
 }
 alias shopt.restore="shopt_restore"
 
@@ -227,14 +229,14 @@ alias shopt.restore="shopt_restore"
 #   $ datetime.interval-to-sec_ 1d 2h 3m 45s
 #   # return __=93825
 datetime_interval-to-sec_() {
-	args.check-number 1 -
-	local args="$@"
-	declare -g __=0
-	[[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
-	[[ "$args" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
-	[[ "$args" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
-	[[ "$args" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
-	[[ "$args" =~ ([[:digit:]]*)s ]] && (( __+=${BASH_REMATCH[1]} ))
+  args.check-number 1 -
+  local args="$@"
+  declare -g __=0
+  [[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
+  [[ "$args" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
+  [[ "$args" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))
+  [[ "$args" =~ ([[:digit:]]*)m ]] && (( __+=${BASH_REMATCH[1]}*60 ))
+  [[ "$args" =~ ([[:digit:]]*)s ]] && (( __+=${BASH_REMATCH[1]} ))
 }
 alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 
@@ -257,14 +259,14 @@ alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 #   $ array.find-indexes_ ary "s 1"
 #   # return __a=(3 6)
 array_find-indexes_() {
-	args.check-number 2
-	declare -n my_array=$1
-	declare -ag __a=()
-	local i ret=1
-	for i in "${!my_array[@]}"; do
-		[[ "${my_array[$i]}" = "$2" ]] && { __a+=($i) ; ret=0 ; } || true
-	done
-	return $ret
+  args.check-number 2
+  declare -n my_array=$1
+  declare -ag __a=()
+  local i ret=1
+  for i in "${!my_array[@]}"; do
+    [[ "${my_array[$i]}" = "$2" ]] && { __a+=($i) ; ret=0 ; } || true
+  done
+  return $ret
 }
 alias array.find-indexes_="array_find-indexes_"
 
@@ -279,17 +281,17 @@ alias array.find-indexes_="array_find-indexes_"
 #   $ array.find_ ary "s 1"
 #   # return __=3
 array_find_() {
-	args.check-number 2
-	declare -n my_array=$1
-	local i
-	for i in "${!my_array[@]}"; do
-		if [[ "${my_array[$i]}" = "$2" ]]; then
-			declare -g __=$i
-			return 0
-		fi
-	done
-	declare -g __=-1
-	return 1
+  args.check-number 2
+  declare -n my_array=$1
+  local i
+  for i in "${!my_array[@]}"; do
+    if [[ "${my_array[$i]}" = "$2" ]]; then
+      declare -g __=$i
+      return 0
+    fi
+  done
+  declare -g __=-1
+  return 1
 }
 alias array.find_="array_find_"
 array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; }
@@ -305,13 +307,13 @@ alias array.find="array_find"
 #   $ array.include? ary "s 1"
 #   # exitcode=0
 array_include?() {
-	args.check-number 2
-	declare -n my_array=$1
-	local item
-	for item in "${my_array[@]}"; do
-		[[ "$item" = "$2" ]] && return 0
-	done
-	return 1
+  args.check-number 2
+  declare -n my_array=$1
+  local item
+  for item in "${my_array[@]}"; do
+    [[ "$item" = "$2" ]] && return 0
+  done
+  return 1
 }
 alias array.include?="array_include?"
 
@@ -327,16 +329,16 @@ alias array.include?="array_include?"
 #   $ array.intersection_ ary1 ary2
 #   # return __a=(b d)
 array_intersection_() {
-	args.check-number 2
-	declare -n ary1_ref=$1
-	declare -n ary2_ref=$2
-	declare -ga __a=()
-	local item ret=1
-	
-	for item in "${ary1_ref[@]}"; do
-		array_find_ ary2_ref "$item" && { __a+=("$item") ; ret=0 ; } || true
-	done
-	return $ret
+  args.check-number 2
+  declare -n ary1_ref=$1
+  declare -n ary2_ref=$2
+  declare -ga __a=()
+  local item ret=1
+  
+  for item in "${ary1_ref[@]}"; do
+    array_find_ ary2_ref "$item" && { __a+=("$item") ; ret=0 ; } || true
+  done
+  return $ret
 }
 alias array.intersection_="array_intersection_"
 
@@ -350,10 +352,10 @@ alias array.intersection_="array_intersection_"
 #   $ declare -p ary
 #   declare -a ary=([0]="a" [1]="b" [2]="d" [3]="e" [4]="f")
 array_remove-at() {
-	args.check-number 2
-	local aryname="$1" idx="$2"
-	declare -n ary_ref="$aryname"
-	ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
+  args.check-number 2
+  local aryname="$1" idx="$2"
+  declare -n ary_ref="$aryname"
+  ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
 }
 alias array.remove-at="array_remove-at"
 
@@ -368,10 +370,10 @@ alias array.remove-at="array_remove-at"
 #   $ declare -p ary
 #   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e" [4]="a")
 array_remove() {
-	args.check-number 2
-	local aryname="$1" val="$2"
-	declare -n ary_ref="$aryname"
-	array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
+  args.check-number 2
+  local aryname="$1" val="$2"
+  declare -n ary_ref="$aryname"
+  array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
 }
 alias array.remove="array_remove"
 
@@ -385,16 +387,16 @@ alias array.remove="array_remove"
 #   $ declare -p ary
 #   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e")
 array_remove-values() {
-	args.check-number 2
-	local aryname="$1" val="$2" ret=1
-	declare -n ary_ref="$aryname"
-	array_find-indexes_ "$aryname" "$val"
-	(( ${#__a[@]} > 0 )) && ret=0
-	local i
-	for (( i=$(( ${#__a[@]}-1 )) ; i>=0 ; i-- )); do
-		ary_ref=( "${ary_ref[@]:0:${__a[$i]}}" "${ary_ref[@]:$(( ${__a[$i]}+1 ))}" )
-	done
-	return $ret
+  args.check-number 2
+  local aryname="$1" val="$2" ret=1
+  declare -n ary_ref="$aryname"
+  array_find-indexes_ "$aryname" "$val"
+  (( ${#__a[@]} > 0 )) && ret=0
+  local i
+  for (( i=$(( ${#__a[@]}-1 )) ; i>=0 ; i-- )); do
+    ary_ref=( "${ary_ref[@]:0:${__a[$i]}}" "${ary_ref[@]:$(( ${__a[$i]}+1 ))}" )
+  done
+  return $ret
 }
 alias array.remove-values="array_remove-values"
 
@@ -403,8 +405,8 @@ alias array.remove-values="array_remove-values"
 # @arg $1 String Array name
 # @exitcodes Standard (0 for true, 1 for false)
 array_defined?() {
-	args.check-number 1
-	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
+  args.check-number 1
+  local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
 }
 alias array.defined?="array_defined?"
 
@@ -412,9 +414,9 @@ alias array.defined?="array_defined?"
 # @alias array.init
 # @arg $1 String Array name
 array_init() {
-	args.check-number 1
-	unset "$1"
-	declare -ga "$1"='()'
+  args.check-number 1
+  unset "$1"
+  declare -ga "$1"='()'
 }
 alias array.init="array_init"
 
@@ -423,12 +425,12 @@ alias array.init="array_init"
 # @arg $1 String Array name
 # @return Array with duplicates removed
 array_unique_() {
-	local v
-	declare -A h
-	for v in "$@"; do
-		h[$v]=1
-	done
-	declare -ga __a=("${!h[@]}")
+  local v
+  declare -A h
+  for v in "$@"; do
+    h[$v]=1
+  done
+  declare -ga __a=("${!h[@]}")
 }
 
 
@@ -447,11 +449,11 @@ array_unique_() {
 # @return The index inside the list in which appear the provided item.
 # @exitcodes 0 if the item is found, 1 otherwise
 list_find_() {
-	args.check-number 1 -
-	local what="$1" ; shift
-	declare -a ary=("$@")
-	
-	array.find_ ary "$what"
+  args.check-number 1 -
+  local what="$1" ; shift
+  declare -a ary=("$@")
+  
+  array.find_ ary "$what"
 }
 alias list.find_="list_find_"
 
@@ -461,11 +463,11 @@ alias list.find_="list_find_"
 # @arg $@ String Elements of the list
 # @exitcodes 0 if the item is found, 1 otherwise
 list_include?() {
-	args.check-number 1 -
-	local what="$1" ; shift
-	declare -a ary=("$@")
-	
-	array.include? ary "$what"
+  args.check-number 1 -
+  local what="$1" ; shift
+  declare -a ary=("$@")
+  
+  array.include? ary "$what"
 }
 alias list.include?="list_include?"
 
@@ -485,11 +487,11 @@ alias list.include?="list_include?"
 #   $ regexp.escape-bash-pattern_ 'a * x #'
 #   # return __=a \* x \#
 regexp_escape-bash-pattern_() {
-	declare -g __="${1//\#/\\#}"
-	__="${__//\%/\\%}"
-	__="${__//\*/\\*}"
-	__="${__//\[/\\[}"
-	__="${__//\?/\\?}"
+  declare -g __="${1//\#/\\#}"
+  __="${__//\%/\\%}"
+  __="${__//\*/\\*}"
+  __="${__//\[/\\[}"
+  __="${__//\?/\\?}"
 }
 alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 
@@ -503,34 +505,34 @@ alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 #   $ regexp.escape-ext-regexp-pattern_ "[WW]"  "W"
 #   # return __=\[\W\W[]]
 regexp_escape-ext-regexp-pattern_() {
-	local sep="${2-/}"
-	declare -g __="$1"
-	# escape backslash first, so we don't escape the backslash used to escape the other special characters
-	__="${__//\\/\\\\}"
-	if [[ ! "$sep" =~ \{|\$|\.|\*|\[|\\|\^|\||\] ]]; then
-		[[ "${sep}" =~ \%|\*|\[|\? ]] && __="${__//\\${sep}/\\${sep}}" || __="${__//${sep}/\\${sep}}"
-	fi
-	# escape * and [, which have special meaning in bash parameter expansion too
-	__="${__//\*/\\*}"
-	__="${__//\[/\\[}"
-	# escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern)
-	__="${__//{/\\{}"
-	__="${__//$/\\$}"
-	__="${__//./\\.}"
-	__="${__//^/\\^}"
-	__="${__//|/\\|}"
-	__="${__//\]/[]]}"		# ] needs a special escaping, not only backslash but all the sequence \[]]
+  local sep="${2-/}"
+  declare -g __="$1"
+  # escape backslash first, so we don't escape the backslash used to escape the other special characters
+  __="${__//\\/\\\\}"
+  if [[ ! "$sep" =~ \{|\$|\.|\*|\[|\\|\^|\||\] ]]; then
+    [[ "${sep}" =~ \%|\*|\[|\? ]] && __="${__//\\${sep}/\\${sep}}" || __="${__//${sep}/\\${sep}}"
+  fi
+  # escape * and [, which have special meaning in bash parameter expansion too
+  __="${__//\*/\\*}"
+  __="${__//\[/\\[}"
+  # escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern)
+  __="${__//{/\\{}"
+  __="${__//$/\\$}"
+  __="${__//./\\.}"
+  __="${__//^/\\^}"
+  __="${__//|/\\|}"
+  __="${__//\]/[]]}"		# ] needs a special escaping, not only backslash but all the sequence \[]]
 }
 alias regexp.escape-ext-regexp-pattern_="regexp_escape-ext-regexp-pattern_"
 
 # escape_sed_replace_: fa l'escape della stringa da utilizzare come replace del comando sed
 regexp_escape-regexp-replace_() {
-	local rpl_str="$1" sep_ch="$2"
-	
-	[[ "$sep_ch" != / && "$sep_ch" != \& ]] && rpl_str="${rpl_str//${sep_ch//\*/\\*}/\\$sep_ch}"
-	rpl_str="${rpl_str//\//\\/}"
-	rpl_str="${rpl_str//&/\\&}"
-	declare -g __="$rpl_str"
+  local rpl_str="$1" sep_ch="$2"
+  
+  [[ "$sep_ch" != / && "$sep_ch" != \& ]] && rpl_str="${rpl_str//${sep_ch//\*/\\*}/\\$sep_ch}"
+  rpl_str="${rpl_str//\//\\/}"
+  rpl_str="${rpl_str//&/\\&}"
+  declare -g __="$rpl_str"
 }
 
 
@@ -550,18 +552,18 @@ regexp_escape-regexp-replace_() {
 # @option -m|--multi-line Append the string to every line of the destination variable
 # @return Concatenation of the two strings, optionally separated by the provided separator
 string_append() {
-	[[ "$1" = -m || "$1" = --multi-line ]] && { local multi=1 ; shift ; } || local multi
-	declare -n var_ref="$1"
-	if [[ -n "$multi" ]]; then
-		regexp.escape-bash-pattern_ "${3:- }$2" ; local esc_search="$__"
-		var_ref=$'\n'"${var_ref}"$'\n'
-		var_ref="${var_ref//$'\n'/${3:- }$2$'\n'}"
-		var_ref="${var_ref//$'\n'${esc_search}$'\n'/$'\n'$2$'\n'}"
-		var_ref="${var_ref#*$'\n'}"
-		var_ref="${var_ref%$'\n'}"
-	else
-		[[ -z "$var_ref" ]] && var_ref="$2" || var_ref="${var_ref}${3:- }$2"
-	fi
+  [[ "$1" = -m || "$1" = --multi-line ]] && { local multi=1 ; shift ; } || local multi
+  declare -n var_ref="$1"
+  if [[ -n "$multi" ]]; then
+    regexp.escape-bash-pattern_ "${3:- }$2" ; local esc_search="$__"
+    var_ref=$'\n'"${var_ref}"$'\n'
+    var_ref="${var_ref//$'\n'/${3:- }$2$'\n'}"
+    var_ref="${var_ref//$'\n'${esc_search}$'\n'/$'\n'$2$'\n'}"
+    var_ref="${var_ref#*$'\n'}"
+    var_ref="${var_ref%$'\n'}"
+  else
+    [[ -z "$var_ref" ]] && var_ref="$2" || var_ref="${var_ref}${3:- }$2"
+  fi
 }
 alias string.append="string_append"
 alias string.concat="string_append"
@@ -579,8 +581,8 @@ alias string.concat="string_append"
 # @arg $1 String Hash name
 # @exitcodes Standard (0 for true, 1 for false)
 hash_defined?() {
-	args.check-number 1
-	local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
+  args.check-number 1
+  local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
 }
 alias hash.defined?="hash_defined?"
 
@@ -588,9 +590,9 @@ alias hash.defined?="hash_defined?"
 # @alias hash.init
 # @arg $1 String Hash name
 hash_init() {
-	args.check-number 1
-	unset "$1"
-	declare -gA "$1"='()'
+  args.check-number 1
+  unset "$1"
+  declare -gA "$1"='()'
 }
 alias hash.init="hash_init"
 
@@ -600,9 +602,9 @@ alias hash.init="hash_init"
 # @arg $2 String Key name to find
 # @exitcodes Standard (0 for true, 1 for false)
 hash_has-key?() {
-	args.check-number 2
-	declare -n ref="$1"
-	[[ ${ref["$2"]+x} ]]
+  args.check-number 2
+  declare -n ref="$1"
+  [[ ${ref["$2"]+x} ]]
 }
 alias hash.has-key?="hash_has-key?"
 
@@ -617,14 +619,14 @@ alias hash.has-key?="hash_has-key?"
 #   $ declare -p h1
 #   declare -A h1=([a]="5" [b]="2" [c]="6" [e]="3" )
 hash_merge() {
-	local merge_into="$1" merge_from="$2"
-	local def_h1="$( declare -p $merge_into )" def_h2="$( declare -p $merge_from )"
-	shopt_backup extglob
-	shopt -s extglob
-	[[ "$def_h1" =~ "(" ]] && { def_h1="${def_h1#*\(}" ; def_h1="${def_h1%)*(\')}" ; } || def_h1=""
-	[[ "$def_h2" =~ "(" ]] && { def_h2="${def_h2#*\(}" ; def_h2="${def_h2%)*(\')}" ; } || def_h2=""
-	shopt_restore extglob
-	eval "$merge_into=($def_h1 $def_h2)"
+  local merge_into="$1" merge_from="$2"
+  local def_h1="$( declare -p $merge_into )" def_h2="$( declare -p $merge_from )"
+  shopt_backup extglob
+  shopt -s extglob
+  [[ "$def_h1" =~ "(" ]] && { def_h1="${def_h1#*\(}" ; def_h1="${def_h1%)*(\')}" ; } || def_h1=""
+  [[ "$def_h2" =~ "(" ]] && { def_h2="${def_h2#*\(}" ; def_h2="${def_h2%)*(\')}" ; } || def_h2=""
+  shopt_restore extglob
+  eval "$merge_into=($def_h1 $def_h2)"
 }
 alias hash.merge="hash_merge"
 
@@ -638,14 +640,14 @@ alias hash.merge="hash_merge"
 #   $ declare -p h2
 #   declare -A h2=([a]="1" [b]="2" [e]="3")
 hash_copy() {
-	local from="$1" to="$2"
-	local hash_def="$( declare -p $from 2>/dev/null | cut -s -d= -f2- )"
-	[[ -z "$hash_def" ]] && hash_def="()"
-	if declare -p "$to" &>/dev/null; then
-		eval "$to=$hash_def"
-	else
-		declare -gA "$to=$hash_def"
-	fi
+  local from="$1" to="$2"
+  local hash_def="$( declare -p $from 2>/dev/null | cut -s -d= -f2- )"
+  [[ -z "$hash_def" ]] && hash_def="()"
+  if declare -p "$to" &>/dev/null; then
+    eval "$to=$hash_def"
+  else
+    declare -gA "$to=$hash_def"
+  fi
 }
 alias hash.copy="hash_copy"
 
@@ -659,14 +661,14 @@ alias hash.copy="hash_copy"
 #   $ declare -p h2
 #   declare -A h2=([a]="1" [b]="2" [e]="3")
 hash_find-value_() {
-	declare -n hash_ref="$1"
-	declare -g __=""
-	local value="$2" key
-	for key in "${!hash_ref[@]}"; do
-		varname="$hname[$key]"
-		[[ "${hash_ref[$key]}" = "$value" ]] && { __="$key" ; return 0 ; }
-	done
-	return 1
+  declare -n hash_ref="$1"
+  declare -g __=""
+  local value="$2" key
+  for key in "${!hash_ref[@]}"; do
+    varname="$hname[$key]"
+    [[ "${hash_ref[$key]}" = "$value" ]] && { __="$key" ; return 0 ; }
+  done
+  return 1
 }
 alias hash.find-value_="hash_find-value_"
 
@@ -682,11 +684,11 @@ alias hash.find-value_="hash_find-value_"
 # @noargs
 # @return File descriptor number
 fd_get_() {
-	local start_fd=11
-	while [[ -e /proc/$$/fd/$start_fd ]]; do
-		(( start_fd+=1 ))
-	done
-	declare -g __="$start_fd"
+  local start_fd=11
+  while [[ -e /proc/$$/fd/$start_fd ]]; do
+    (( start_fd+=1 ))
+  done
+  declare -g __="$start_fd"
 }
 alias fd.get_="fd_get_"
 
@@ -702,7 +704,7 @@ alias fd.get_="fd_get_"
 # @alias env.PATH.append-item
 # @arg $1 String Path to append
 env_PATH_append-item() {
-	[[ ":$PATH:" != *":$1:"* ]] && export PATH="${PATH}:$1"
+  [[ ":$PATH:" != *":$1:"* ]] && export PATH="${PATH}:$1"
 }
 alias env.PATH.append-item="env_PATH_append-item"
 
@@ -710,7 +712,7 @@ alias env.PATH.append-item="env_PATH_append-item"
 # @alias env.PATH.prepend-item
 # @arg $1 String Path to prepend
 env_PATH_prepend-item() {
-	[[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:${PATH}"
+  [[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:${PATH}"
 }
 alias env.PATH.prepend-item="env_PATH_prepend-item"
 
@@ -759,50 +761,50 @@ function parseargs_add_multopt() { local aryname=__OPTS_$1 ; eval "$aryname+=(\"
 #
 
 prefix_date() {
-	local _common__format
-	[ -n "$1" ] && _common__format="$1" || _common__format="%d/%m/%Y %H:%M:%S"
-	awk "{ print strftime(\"$_common__format\"), \$0; fflush() }"
+  local _common__format
+  [ -n "$1" ] && _common__format="$1" || _common__format="%d/%m/%Y %H:%M:%S"
+  awk "{ print strftime(\"$_common__format\"), \$0; fflush() }"
 }
 
 printf_color() {
-	[[ "${__OPTS[COLOR]}" = 1  || "${_MAIN__FLAGS[IS_PIPED]}" != 1 ]] && printf "$@" || ( printf "$@" | sed -r "s/\x1B\[([0-9]{1,3};){0,2}[0-9]{0,3}[mGK]//g" )
+  [[ "${__OPTS[COLOR]}" = 1  || "${_MAIN__FLAGS[IS_PIPED]}" != 1 ]] && printf "$@" || ( printf "$@" | sed -r "s/\x1B\[([0-9]{1,3};){0,2}[0-9]{0,3}[mGK]//g" )
 }
 
 show_msg() {
-	local type="$1" && shift
-	local add_arg="" color exit_code is_stderr is_tty is_indent function_info
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--) shift ; break ;;
-			--show-function) [[ "${FUNCNAME[1]}" =~ _msg ]] && function_info="${FUNCNAME[2]}()# " || function_info="${FUNCNAME[1]}()# " ; shift ;;
-			--exit) exit_code="$2" ; shift 2 ;;
-			-n) shift ; str_concat add_arg "-n" ;;
-			-e) shift ; str_concat add_arg "-e" ;;
-			--color) color="$2" ; shift 2 ;;
-			--stderr) is_stderr=1 ; shift ;;
-			--stdout) is_stderr=0 ; shift ;;
-			--tty) is_tty=1 ; shift ;;
-			--indent) is_indent=1 ; shift ;;
-			*) break ;;
-		esac
-	done
-	[[ "$type" = ERROR && -z "$is_stderr" ]] && is_stderr=1
-	if [ -z "$color" ]; then
-		declare -A color_table=([ERROR]="$Red" [OK]="$BGreen" [WARNING]="$Yellow" [INFO]="$Cyan" [INPUT]="$Yellow")
-		color="${color_table[$type]}"
-	fi
-	if [[ "$is_tty" = 1 || "$is_stderr" = 1 ]]; then
-		get_fd_ ; local fd_stdout=$__
-		if [ "$is_tty" = 1 ]; then
-			eval "exec $fd_stdout>&1 >/dev/tty"
-		elif [ "$is_stderr" = 1 ]; then
-			eval "exec $fd_stdout>&1 >&2"
-		fi
-	fi
-	[ "$is_indent" = 1 ] && print_indent
-	( parseargs_is_optarg COLOR || [ -t 1 ] ) && { echo -ne "$color"[$type]"$Color_Off " ; echo $add_arg "${function_info}""$@" ; } || echo $add_arg [$type] "$${function_info}""$@"
-	[[ "$is_stderr" = 1 || "$is_tty" = 1 ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
-	[ -n "$exit_code" ] && exit "$exit_code" || return 0
+  local type="$1" && shift
+  local add_arg="" color exit_code is_stderr is_tty is_indent function_info
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --) shift ; break ;;
+      --show-function) [[ "${FUNCNAME[1]}" =~ _msg ]] && function_info="${FUNCNAME[2]}()# " || function_info="${FUNCNAME[1]}()# " ; shift ;;
+      --exit) exit_code="$2" ; shift 2 ;;
+      -n) shift ; str_concat add_arg "-n" ;;
+      -e) shift ; str_concat add_arg "-e" ;;
+      --color) color="$2" ; shift 2 ;;
+      --stderr) is_stderr=1 ; shift ;;
+      --stdout) is_stderr=0 ; shift ;;
+      --tty) is_tty=1 ; shift ;;
+      --indent) is_indent=1 ; shift ;;
+      *) break ;;
+    esac
+  done
+  [[ "$type" = ERROR && -z "$is_stderr" ]] && is_stderr=1
+  if [ -z "$color" ]; then
+    declare -A color_table=([ERROR]="$Red" [OK]="$BGreen" [WARNING]="$Yellow" [INFO]="$Cyan" [INPUT]="$Yellow")
+    color="${color_table[$type]}"
+  fi
+  if [[ "$is_tty" = 1 || "$is_stderr" = 1 ]]; then
+    get_fd_ ; local fd_stdout=$__
+    if [ "$is_tty" = 1 ]; then
+      eval "exec $fd_stdout>&1 >/dev/tty"
+    elif [ "$is_stderr" = 1 ]; then
+      eval "exec $fd_stdout>&1 >&2"
+    fi
+  fi
+  [ "$is_indent" = 1 ] && print_indent
+  ( parseargs_is_optarg COLOR || [ -t 1 ] ) && { echo -ne "$color"[$type]"$Color_Off " ; echo $add_arg "${function_info}""$@" ; } || echo $add_arg [$type] "$${function_info}""$@"
+  [[ "$is_stderr" = 1 || "$is_tty" = 1 ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
+  [ -n "$exit_code" ] && exit "$exit_code" || return 0
 }
 error_msg() { show_msg ERROR --color $BRed "$@" ; } # ERROR in rosso
 ok_msg() { show_msg OK --color $Green "$@" ; } # OK in verde
@@ -820,77 +822,77 @@ debug_msg() { show_msg DEBUG --color $Orange "$@" ; } # DEBUG in arancione
 
 # run_cmd_list
 run_cmd_list() {
-	local _common__cmd _common__log_to _common__is_append=0 _common__ignore_status=0 _common__is_silent=0 _common__ret _common__args=()
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--log-to) [ "$2" = - ] && _common__log_to="$__vs_cmds_logfile" || _common__log_to="$2" ; _common__args+=( "--log-to" "$_common__log_to" "--append-log" ) ; shift 2 ;;
-			--append-log) _common__is_append=1 ; shift ;;
-			--ignore-status) _common__ignore_status=1 ; _common__args+=( "--ignore-status" ) ; shift ;;
-			--silent) _common__is_silent=1 ; _common__args+=( "--silent" ) ; shift ;;
-			--) break ;;
-			*) break ;;
-		esac
-	done
-	[[ -n "$_common__log_to" && "$_common__is_append" = 0 ]] && echo -n >"$_common__log_to"
-	local _common__title="$1" && shift
-	local _common__cmds=("$@")
-	
-	parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "### $_common__title:"
-	parseargs_is_optarg TEST && ! parseargs_is_optarg VERBOSE && return
-	for _common__cmd in "${_common__cmds[@]}"; do
-		[ -z "$_common__cmd" ] && continue
-		if [ "${__OPTARGS[TEST]}" = 1 ]; then
-			echo $_common__cmd
-		else
-			run_cmd "${_common__args[@]}" -- $_common__cmd
-			_common__ret="$?"
-			[[ "$_common__ignore_status" = 0 && "$_common__ret" != 0 ]] && { parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "---" ; return "$_common__ret" ; }
-		fi
-	done
-	parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "---" || true
+  local _common__cmd _common__log_to _common__is_append=0 _common__ignore_status=0 _common__is_silent=0 _common__ret _common__args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --log-to) [ "$2" = - ] && _common__log_to="$__vs_cmds_logfile" || _common__log_to="$2" ; _common__args+=( "--log-to" "$_common__log_to" "--append-log" ) ; shift 2 ;;
+      --append-log) _common__is_append=1 ; shift ;;
+      --ignore-status) _common__ignore_status=1 ; _common__args+=( "--ignore-status" ) ; shift ;;
+      --silent) _common__is_silent=1 ; _common__args+=( "--silent" ) ; shift ;;
+      --) break ;;
+      *) break ;;
+    esac
+  done
+  [[ -n "$_common__log_to" && "$_common__is_append" = 0 ]] && echo -n >"$_common__log_to"
+  local _common__title="$1" && shift
+  local _common__cmds=("$@")
+  
+  parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "### $_common__title:"
+  parseargs_is_optarg TEST && ! parseargs_is_optarg VERBOSE && return
+  for _common__cmd in "${_common__cmds[@]}"; do
+    [ -z "$_common__cmd" ] && continue
+    if [ "${__OPTARGS[TEST]}" = 1 ]; then
+      echo $_common__cmd
+    else
+      run_cmd "${_common__args[@]}" -- $_common__cmd
+      _common__ret="$?"
+      [[ "$_common__ignore_status" = 0 && "$_common__ret" != 0 ]] && { parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "---" ; return "$_common__ret" ; }
+    fi
+  done
+  parseargs_is_optarg VERBOSE && [ -n "$_common__title" ] && info_msg "---" || true
 }
 
 # run_cmd
 run_cmd() {
-	local _common__log_to _common__is_append=0 _common__ignore_status=0 _common__is_silent=0 _common__no_newline=0 _common__ret _common__echo_args
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--log-to) [ "$2" = - ] && _common__log_to="$__vs_cmds_logfile" || _common__log_to="$2" ; shift 2 ;;
-			--append-log) _common__is_append=1 ; shift ;;
-			--ignore-status) _common__ignore_status=1 ; shift ;;
-			--silent) _common__is_silent=1 ; shift ;;
-			-n) _common__no_newline=1 ; _common__echo_args=-n ; shift ;;
-			-*) shift ; break ;;
-			*) break ;;
-		esac
-	done
-	if parseargs_is_optarg VERBOSE; then
-		[ "${FUNCNAME[1]}" = run_cmd_list ] && echo $_common__echo_args "Cmd: $@ " || info_msg $_common__echo_args "Cmd: $@ "
-	fi
-	if ! parseargs_is_optarg DEBUG; then
-		if [ -n "$_common__log_to" ]; then
-			get_fd_ ; local _common__fd_stdout=$__
-			get_fd_ ; local _common__fd_stderr=$__
-			if [ "$_common__is_append" = 1 ]; then
-				eval "exec $_common__fd_stdout>&1 $_common__fd_stderr>&2 >>\"$_common__log_to\" 2>&1"
-				echo "## Run command: $@"
-			else
-				eval "exec $_common__fd_stdout>&1 $_common__fd_stderr>&2 &>\"$_common__log_to\""
-			fi
-		fi
-		eval "$@"
-		_common__ret="$?"
-		if [ -n "$_common__log_to" ]; then
-			[[ "$_common__is_append" = 1 && "$_common__ret" != 0 && "$_common__ignore_status" = 0 ]] && echo "#- Ret status: $_common__ret [$@]"
-			eval "exec >&$_common__fd_stdout 2>&$_common__fd_stderr $_common__fd_stdout>&- $_common__fd_stderr>&-"
-		fi
-		if [ "$_common__ignore_status" = 1 ]; then
-			return 0
-		else
-			[[ "$_common__ret" != 0 && "$_common__is_silent" = 0 ]] && error_msg $_common__echo_args "Errore nell'esecuzione del seguente comando: $@"
-			return $_common__ret
-		fi
-	fi
+  local _common__log_to _common__is_append=0 _common__ignore_status=0 _common__is_silent=0 _common__no_newline=0 _common__ret _common__echo_args
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --log-to) [ "$2" = - ] && _common__log_to="$__vs_cmds_logfile" || _common__log_to="$2" ; shift 2 ;;
+      --append-log) _common__is_append=1 ; shift ;;
+      --ignore-status) _common__ignore_status=1 ; shift ;;
+      --silent) _common__is_silent=1 ; shift ;;
+      -n) _common__no_newline=1 ; _common__echo_args=-n ; shift ;;
+      -*) shift ; break ;;
+      *) break ;;
+    esac
+  done
+  if parseargs_is_optarg VERBOSE; then
+    [ "${FUNCNAME[1]}" = run_cmd_list ] && echo $_common__echo_args "Cmd: $@ " || info_msg $_common__echo_args "Cmd: $@ "
+  fi
+  if ! parseargs_is_optarg DEBUG; then
+    if [ -n "$_common__log_to" ]; then
+      get_fd_ ; local _common__fd_stdout=$__
+      get_fd_ ; local _common__fd_stderr=$__
+      if [ "$_common__is_append" = 1 ]; then
+        eval "exec $_common__fd_stdout>&1 $_common__fd_stderr>&2 >>\"$_common__log_to\" 2>&1"
+        echo "## Run command: $@"
+      else
+        eval "exec $_common__fd_stdout>&1 $_common__fd_stderr>&2 &>\"$_common__log_to\""
+      fi
+    fi
+    eval "$@"
+    _common__ret="$?"
+    if [ -n "$_common__log_to" ]; then
+      [[ "$_common__is_append" = 1 && "$_common__ret" != 0 && "$_common__ignore_status" = 0 ]] && echo "#- Ret status: $_common__ret [$@]"
+      eval "exec >&$_common__fd_stdout 2>&$_common__fd_stderr $_common__fd_stdout>&- $_common__fd_stderr>&-"
+    fi
+    if [ "$_common__ignore_status" = 1 ]; then
+      return 0
+    else
+      [[ "$_common__ret" != 0 && "$_common__is_silent" = 0 ]] && error_msg $_common__echo_args "Errore nell'esecuzione del seguente comando: $@"
+      return $_common__ret
+    fi
+  fi
 }
 
 
@@ -909,13 +911,13 @@ sub_indent() { [ "$__INDENT_N" -gt 0 ] && (( __INDENT_N -= 1 )) ; }
 set_indent() { __INDENT_N=$1 ; }
 set_indent_nchars() { __INDENT_NCH=$1 ; }
 print_indent() {
-	local i indent_str
-	for ((i=1 ; i<=$__INDENT_NCH; i++)); do
-		indent_str="${indent_str} "
-	done
-	for ((i=1 ; i<=$__INDENT_N; i++)); do
-		echo -n "$indent_str"
-	done
+  local i indent_str
+  for ((i=1 ; i<=$__INDENT_NCH; i++)); do
+    indent_str="${indent_str} "
+  done
+  for ((i=1 ; i<=$__INDENT_N; i++)); do
+    echo -n "$indent_str"
+  done
 }
 
 
@@ -926,41 +928,41 @@ print_indent() {
 
 # split_string
 split_string() {
-	local str="$1" aryname="$2" ch="${3- }"
-	local IFS="$ch"
-	readarray -t $aryname <<<"${str//$ch/
+  local str="$1" aryname="$2" ch="${3- }"
+  local IFS="$ch"
+  readarray -t $aryname <<<"${str//$ch/
 }"
 }
 
 # split_string_to_h
 split_string_to_h() {
-	local hname="$1" hkeys="$2" str="$3" ch="${4- }"
-	local item
-	set -- $hkeys
-	unset $hname
-	declare -gA $hname
-	while read item; do
-		[ -z "$1" ] && break
-		#declare -gA $hname+=([$1]="$item")
-		eval "$hname[$1]=\"\$item\""
-		shift
-	done <<<"${str//$ch/
+  local hname="$1" hkeys="$2" str="$3" ch="${4- }"
+  local item
+  set -- $hkeys
+  unset $hname
+  declare -gA $hname
+  while read item; do
+    [ -z "$1" ] && break
+    #declare -gA $hname+=([$1]="$item")
+    eval "$hname[$1]=\"\$item\""
+    shift
+  done <<<"${str//$ch/
 }"
 }
 
 # join_array
 join_array() {
-	local aryname="$1[*]" varname="$2" sep="${3- }"
-	local IFS="" ; local res="${!aryname/#/$sep}"
-	eval "$varname=\"\${res:\${#sep}}\""
+  local aryname="$1[*]" varname="$2" sep="${3- }"
+  local IFS="" ; local res="${!aryname/#/$sep}"
+  eval "$varname=\"\${res:\${#sep}}\""
 }
 
 # in_array($find, $el1, ...)
 # restituisce true (0) se $find si trova nella lista degli elementi successivi
 in_array() {
-	local e
-	for e in "${@:2}"; do [ "$e" == "$1" ] && return 0; done
-	return 1
+  local e
+  for e in "${@:2}"; do [ "$e" == "$1" ] && return 0; done
+  return 1
 }
 
 
@@ -974,15 +976,15 @@ in_array() {
 # inizializza il log $path
 # Esempio: init_log /var/log/prova.log
 init_log() { 
-	__VS_LOG_FILE="$1"
-	touch "$__VS_LOG_FILE"
+  __VS_LOG_FILE="$1"
+  touch "$__VS_LOG_FILE"
 }
 
 # log($msg)
 # scrive il messaggio $msg sul log con path $__VS_LOG_FILE (inizializzato da init_log)
 # Esempio: log "messaggio"
 log() {
-	echo `date "+%Y-%m-%d %H:%M:%S"`# "$*" >>$__VS_LOG_FILE
+  echo `date "+%Y-%m-%d %H:%M:%S"`# "$*" >>$__VS_LOG_FILE
 }
 
 
@@ -994,16 +996,16 @@ log() {
 # val_alt_if_null($val1, $val2, ...)
 # restituisce il primo valore non nullo
 val_alt_if_null() {
-	while [[ $# -gt 0 ]]; do
-		[ -n "$1" ] && { echo "$1" ; break ; }
-		shift
-	done
+  while [[ $# -gt 0 ]]; do
+    [ -n "$1" ] && { echo "$1" ; break ; }
+    shift
+  done
 }
 val_alt_if_null_() {
-	while [[ $# -gt 0 ]]; do
-		[ -n "$1" ] && { declare -g __="$1" ; break ; }
-		shift
-	done
+  while [[ $# -gt 0 ]]; do
+    [ -n "$1" ] && { declare -g __="$1" ; break ; }
+    shift
+  done
 }
 
 # is_set($varname)
@@ -1017,41 +1019,41 @@ is_set() { eval "[ \${$1+x} ]" ; }
 #
 
 function finalize_read_keys() {
-	[ -n "$__IFS" ] && IFS="$__IFS"
-	[ -n "$__OLDSTTY" ] && { stty "$__OLDSTTY" ; } </dev/tty
+  [ -n "$__IFS" ] && IFS="$__IFS"
+  [ -n "$__OLDSTTY" ] && { stty "$__OLDSTTY" ; } </dev/tty
 }
 
 function init_read_keys() {
-	local char
-	add_trap_handler finalize_read_keys "" EXIT
-	{
-		declare -g __OLDSTTY=`stty -g`
-		stty -icanon -echo
-		__IFS="$IFS"
-		IFS=$'\0'
-		while read -t 0 -N 0; do
-			read -N 1 char
-		done
-		IFS="$__IFS"
-	} </dev/tty
+  local char
+  add_trap_handler finalize_read_keys "" EXIT
+  {
+    declare -g __OLDSTTY=`stty -g`
+    stty -icanon -echo
+    __IFS="$IFS"
+    IFS=$'\0'
+    while read -t 0 -N 0; do
+      read -N 1 char
+    done
+    IFS="$__IFS"
+  } </dev/tty
 }
 
 function read_key_() {
-	local char ret=1
-	[ -z "$__IFS" ] && __IFS="$IFS"
-	IFS=$'\0'
-	{
-		if read -t 0 -N 0; then
-			__=""
-			while read -t 0 -N 0; do
-				read -N 1 -r char
-				__="$__$char"
-			done
-			ret=0
-		fi
-	} </dev/tty
-	IFS="$__IFS"
-	return $ret
+  local char ret=1
+  [ -z "$__IFS" ] && __IFS="$IFS"
+  IFS=$'\0'
+  {
+    if read -t 0 -N 0; then
+      __=""
+      while read -t 0 -N 0; do
+        read -N 1 -r char
+        __="$__$char"
+      done
+      ret=0
+    fi
+  } </dev/tty
+  IFS="$__IFS"
+  return $ret
 }
 
 
@@ -1082,61 +1084,61 @@ function get_ext_color() { local color ; [ -n "$1" ] && color="38;5;$1" ; [ -n "
 # consente di eseguire lo script mentre lo si edita: utile in caso di aggiornamenti git o simili che possono disturbare l'esecuzione dello script
 # basta eseguire la funzione all'inizio dello script
 edit_while_running_workaround() {
-	if [[ ! "`dirname $0`" =~ ^/tmp/.sh-tmp ]]; then
-		mkdir -p /tmp/.sh-tmp/
-		DIST="/tmp/.sh-tmp/$( basename $0 )"
-		install -m 700 "$0" $DIST
-		exec $DIST "$@"
-	else
-		rm "$0"
-	fi
+  if [[ ! "`dirname $0`" =~ ^/tmp/.sh-tmp ]]; then
+    mkdir -p /tmp/.sh-tmp/
+    DIST="/tmp/.sh-tmp/$( basename $0 )"
+    install -m 700 "$0" $DIST
+    exec $DIST "$@"
+  else
+    rm "$0"
+  fi
 }
 
 
 
 # backup file descriptors
 backup_fd() {
-	local fdlist="1 2"
-	if [ "$1" = --only-stdout ]; then
-		fdlist="1" ; shift
-	elif [ "$1" = --only-stderr ]; then
-		fdlist="2" ; shift
-	elif [ "$1" = --only-stdin ]; then
-		fdlist="0" ; shift
-	elif [ "$1" = --fd ]; then
-		fdlist="$2" ; shift 2
-	fi
-	local varname="$1" curfd bckfd
-	[ -z "$varname" ] && { error_msg "restore_fd: Non è stata specificato il nome della variabile" ; return 1 ; }
-	
-	for curfd in $fdlist; do
-		get_fd_ ; bckfd=$__
-		declare -g ${varname}_$$_$curfd=$bckfd
-		eval "exec $bckfd>&$curfd"
-	done
+  local fdlist="1 2"
+  if [ "$1" = --only-stdout ]; then
+    fdlist="1" ; shift
+  elif [ "$1" = --only-stderr ]; then
+    fdlist="2" ; shift
+  elif [ "$1" = --only-stdin ]; then
+    fdlist="0" ; shift
+  elif [ "$1" = --fd ]; then
+    fdlist="$2" ; shift 2
+  fi
+  local varname="$1" curfd bckfd
+  [ -z "$varname" ] && { error_msg "restore_fd: Non è stata specificato il nome della variabile" ; return 1 ; }
+  
+  for curfd in $fdlist; do
+    get_fd_ ; bckfd=$__
+    declare -g ${varname}_$$_$curfd=$bckfd
+    eval "exec $bckfd>&$curfd"
+  done
 }
 
 # restore file descriptors
 restore_fd() {
-	local fdlist="1 2"
-	if [ "$1" = --only-stdout ]; then
-		fdlist="1" ; shift
-	elif [ "$1" = --only-stderr ]; then
-		fdlist="2" ; shift
-	elif [ "$1" = --only-stdin ]; then
-		fdlist="0" ; shift
-	elif [ "$1" = --fd ]; then
-		fdlist="$2" ; shift 2
-	fi
-	local varname="$1" curfd tmp is_err=0
-	[ -z "$varname" ] && { error_msg "restore_fd: Non è stata specificato il nome della variabile" ; return 1 ; }
-	
-	for curfd in $fdlist; do
-		tmp="${varname}_$$_$curfd"
-		[ -z "${!tmp}" ] && { error_msg "restore_fd: Impossibile ripristinare l'fd n. $curfd tramite variabile $tmp: risulta essere nulla" ; is_err=1 ; continue ; }
-		eval "exec $curfd>&${!tmp} ${!tmp}>&-"
-	done
-	return "$is_err"
+  local fdlist="1 2"
+  if [ "$1" = --only-stdout ]; then
+    fdlist="1" ; shift
+  elif [ "$1" = --only-stderr ]; then
+    fdlist="2" ; shift
+  elif [ "$1" = --only-stdin ]; then
+    fdlist="0" ; shift
+  elif [ "$1" = --fd ]; then
+    fdlist="$2" ; shift 2
+  fi
+  local varname="$1" curfd tmp is_err=0
+  [ -z "$varname" ] && { error_msg "restore_fd: Non è stata specificato il nome della variabile" ; return 1 ; }
+  
+  for curfd in $fdlist; do
+    tmp="${varname}_$$_$curfd"
+    [ -z "${!tmp}" ] && { error_msg "restore_fd: Impossibile ripristinare l'fd n. $curfd tramite variabile $tmp: risulta essere nulla" ; is_err=1 ; continue ; }
+    eval "exec $curfd>&${!tmp} ${!tmp}>&-"
+  done
+  return "$is_err"
 }
 
 # funziona per gestire l'input
@@ -1144,58 +1146,58 @@ restore_fd() {
 # Esempio: choose "Vuoi fare questo?" "s=0 n=1" s
 #	return code: valore della scelta
 choose() {
-	local args_input_msg
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-			--) shift ; break ;;
-			--indent) shift ; str_concat args_input_msg --indent ;;
-			--no-newline) shift ; local no_newline=1 ;;
-			--show-value) shift ; local is_show_value=1 ;;
-			*) break ;;
-		esac
-	done	
-	local msg="$1" accept=( $2 ) default="$3"
-	local accept_str="$( printf '%s\n' "${accept[@]}" )" answer args cur_str cur_ans choice_str val
-	
-	# genera la stringa per la scelta
-	for cur_str in "${accept[@]}"; do
-		cur_ans="${cur_str%=*}"
-		[ "$is_show_value" = 1 ] && val="(${cur_str#*=})"
-		str_concat choice_str "$( [ "$cur_ans" = "$default" ] && echo -e "$Green[$cur_ans$val]$Color_Off" || echo "$cur_ans$val" )" /
-	done
-	
-	# input
-	[ "$no_newline" = 1 ] && args="-n 1"
-	while true; do
-		[ -n "$msg" ] && input_msg $args_input_msg "$msg $choice_str "
-		read $args answer
-		[[ -n "$answer" && "$no_newline" = 1 ]] && echo
-		[[ -z "$answer" && -n "$default" ]] && return "$( <<<"$accept_str" grep -E "^$default=" | cut -d= -f 2 )"
-		for cur_str in "${accept[@]}"; do
-			cur_ans="${cur_str%=*}"
-			val="${cur_str#*=}"
-			[ "$answer" = "$cur_ans" ] && return "$val"
-			[[ "$is_show_value" = 1 && "$answer" = "$val" ]] && return "$val"
-		done
-	done
+  local args_input_msg
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --) shift ; break ;;
+      --indent) shift ; str_concat args_input_msg --indent ;;
+      --no-newline) shift ; local no_newline=1 ;;
+      --show-value) shift ; local is_show_value=1 ;;
+      *) break ;;
+    esac
+  done	
+  local msg="$1" accept=( $2 ) default="$3"
+  local accept_str="$( printf '%s\n' "${accept[@]}" )" answer args cur_str cur_ans choice_str val
+  
+  # genera la stringa per la scelta
+  for cur_str in "${accept[@]}"; do
+    cur_ans="${cur_str%=*}"
+    [ "$is_show_value" = 1 ] && val="(${cur_str#*=})"
+    str_concat choice_str "$( [ "$cur_ans" = "$default" ] && echo -e "$Green[$cur_ans$val]$Color_Off" || echo "$cur_ans$val" )" /
+  done
+  
+  # input
+  [ "$no_newline" = 1 ] && args="-n 1"
+  while true; do
+    [ -n "$msg" ] && input_msg $args_input_msg "$msg $choice_str "
+    read $args answer
+    [[ -n "$answer" && "$no_newline" = 1 ]] && echo
+    [[ -z "$answer" && -n "$default" ]] && return "$( <<<"$accept_str" grep -E "^$default=" | cut -d= -f 2 )"
+    for cur_str in "${accept[@]}"; do
+      cur_ans="${cur_str%=*}"
+      val="${cur_str#*=}"
+      [ "$answer" = "$cur_ans" ] && return "$val"
+      [[ "$is_show_value" = 1 && "$answer" = "$val" ]] && return "$val"
+    done
+  done
 }
 
 # scrive gli argomenti passati con apici se necessario
 # Esempio:
 #    print_args a b "c d" => a b "c d"
 args_to_str_() {
-	local arg args
-	for arg in "$@"; do
-		[[ "$arg" =~ [[:space:]] || "$arg" = "" ]] && arg="\"$arg\""
-		[ -z "$args" ] && args="$arg" || args="$args $arg"
-	done
-	declare -g __="$args"
+  local arg args
+  for arg in "$@"; do
+    [[ "$arg" =~ [[:space:]] || "$arg" = "" ]] && arg="\"$arg\""
+    [ -z "$args" ] && args="$arg" || args="$args $arg"
+  done
+  declare -g __="$args"
 }
 print_args() {
-	args_to_str_ "$@"
-	echo "$__"
+  args_to_str_ "$@"
+  echo "$__"
 }
-	
+  
 
 
 
@@ -1208,19 +1210,19 @@ print_args() {
 # esegue il debug del comando $cmd, riportando sullo stdout qualsiasi esecuzione del comando $cmd
 # Da usare in accoppiata con register_debug
 debug_command() {
-	local cmd=$1 fd_stdout=$2 ; shift 2
-	args_to_str_ "$@"
-	eval "command echo \"debug_command# \$cmd \$__\" >&$fd_stdout"
-	command $cmd "$@"
+  local cmd=$1 fd_stdout=$2 ; shift 2
+  args_to_str_ "$@"
+  eval "command echo \"debug_command# \$cmd \$__\" >&$fd_stdout"
+  command $cmd "$@"
 }
 
 # register_command $cmd
 register_debug() {
-	declare -f "$1" &>/dev/null && { warn_msg "register_debug# Il comando $1 risulta già ridefinito" ; return 0 ; }
-	get_fd_ ; local fd_stdout=$__
-	eval "exec $fd_stdout>&1"
-	eval "$1() {
-		debug_command $1 $fd_stdout \"\$@\"
-	}"
+  declare -f "$1" &>/dev/null && { warn_msg "register_debug# Il comando $1 risulta già ridefinito" ; return 0 ; }
+  get_fd_ ; local fd_stdout=$__
+  eval "exec $fd_stdout>&1"
+  eval "$1() {
+    debug_command $1 $fd_stdout \"\$@\"
+  }"
 }
 

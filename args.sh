@@ -25,15 +25,15 @@ alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
 #   This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
 :args_check-number() {
-	: trap.suspend-trace
-	local max="${3:-$2}"
-	[[ "$max" = - ]] && max="$1"
-	(( "$1" < "$2" || "$1" > "${max}" )) && {
-		[[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
-		errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"	# $2${3:+..}${3} => $2 (if $3 is not provided),
-																																			#	or $2..$3 (if $3 is provided)
-		exit 1
-	} || true
+  : trap.suspend-trace
+  local max="${3:-$2}"
+  [[ "$max" = - ]] && max="$1"
+  (( "$1" < "$2" || "$1" > "${max}" )) && {
+    [[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
+    # $2${3:+..}${3} => $2 (if $3 is not provided), or $2..$3 (if $3 is provided)
+    errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"
+    exit 1
+  } || true
 }
 
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
@@ -92,146 +92,146 @@ alias args.check-number=':args_check-number $#'
 #   $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 #   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
-	# check the first two arguments (variable name for options and arguments)
-	(( $# < 1 )) && { errmsg "First argument should be name of the variable to return parsed options" ; return 3 ; } >&2
-	(( $# < 2 )) && { errmsg "Second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
-	local opts_varname="$1"
-	if [[ "$opts_varname" = - ]]; then
-		declare -A _opts
-		declare -a _args
-		shift
-	else
-		declare -n _opts="$opts_varname"
-		declare -n _args="$2"
-		shift 2
-	fi
-	
-	# check the next two optionals arguments (regarding the check of the number of arguments)
-	local min_args= max_args=
-	if [[ "$1" != -- ]]; then
-		min_args="$1"
-		shift
-		[[ "$1" != -- ]] && { max_args="$1" ; shift ; }
-	fi
-	[[ "$1" != -- ]] && { errmsg "-- must be present before the options definition" ; return 2 ; } >&2
-	shift
-	
-	local -a short_opts
-	local -a long_opts
-	local -a variants
-	local -A values
-	local -A aliases
-	
-	# parse options configuration
-	while (( $# > 0 )); do
-		opt=${1%%,*}
+  # check the first two arguments (variable name for options and arguments)
+  (( $# < 1 )) && { errmsg "First argument should be name of the variable to return parsed options" ; return 3 ; } >&2
+  (( $# < 2 )) && { errmsg "Second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
+  local opts_varname="$1"
+  if [[ "$opts_varname" = - ]]; then
+    declare -A _opts
+    declare -a _args
+    shift
+  else
+    declare -n _opts="$opts_varname"
+    declare -n _args="$2"
+    shift 2
+  fi
+  
+  # check the next two optionals arguments (regarding the check of the number of arguments)
+  local min_args= max_args=
+  if [[ "$1" != -- ]]; then
+    min_args="$1"
+    shift
+    [[ "$1" != -- ]] && { max_args="$1" ; shift ; }
+  fi
+  [[ "$1" != -- ]] && { errmsg "-- must be present before the options definition" ; return 2 ; } >&2
+  shift
+  
+  local -a short_opts
+  local -a long_opts
+  local -a variants
+  local -A values
+  local -A aliases
+  
+  # parse options configuration
+  while (( $# > 0 )); do
+    opt=${1%%,*}
 
-		case "$1" in
-			--)
-				break
-				;;
-			-*:*) 
-				values[${opt%:}]=true
-				;;&
-			-*,-*)
-				IFS="," read -ra variants <<< "${1#*,}"
+    case "$1" in
+      --)
+        break
+        ;;
+      -*:*) 
+        values[${opt%:}]=true
+        ;;&
+      -*,-*)
+        IFS="," read -ra variants <<< "${1#*,}"
 
-				for alias in "${variants[@]}"; do
-					aliases[$alias]=${opt%:}
+        for alias in "${variants[@]}"; do
+          aliases[$alias]=${opt%:}
 
-					if ${values[${opt%:}]:-false}; then
-						values[${alias}]=true
-						alias+=":"
-					fi
-					
-					[[ "${alias}" =~ ^-- ]] && long_opts+=(${alias#--*}) || short_opts+=(${alias#-*})~~
-				done
+          if ${values[${opt%:}]:-false}; then
+            values[${alias}]=true
+            alias+=":"
+          fi
+          
+          [[ "${alias}" =~ ^-- ]] && long_opts+=(${alias#--*}) || short_opts+=(${alias#-*})~~
+        done
 
-				;;&
-			--*)
-				long_opts+=(${opt#--*})
-				;;
-			-*)
-				short_opts+=(${opt#-*})
-				;;
-			*)
-				echo "error: unexpected argument: '$opt'"
-				return 2
-				;;
-		esac
+        ;;&
+      --*)
+        long_opts+=(${opt#--*})
+        ;;
+      -*)
+        short_opts+=(${opt#-*})
+        ;;
+      *)
+        echo "error: unexpected argument: '$opt'"
+        return 2
+        ;;
+    esac
 
-		shift
-	done >&2
-	
-	[[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; } >&2
-	shift
+    shift
+  done >&2
+  
+  [[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; } >&2
+  shift
 
-	_opts=()
-	_args=()
-	(( $# == 0 )) && return 0
-	
-	# parse options with getopt
-	eval set -- $(
-		getopt \
-			-o "$(printf "%s" "${short_opts[@]:-}")" \
-			${long_opts:+-l "$(printf "%s," "${long_opts[@]}")"} \
-			-- "${@}"
-	)
-	(( $? != 0 )) && return 1
-	
-	# set the options
-	local opt alias value
-	while (( $# )); do
-		case "$1" in
-			--)
-				shift
-				break
-				;;
-			-*)
-				opt=$1
+  _opts=()
+  _args=()
+  (( $# == 0 )) && return 0
+  
+  # parse options with getopt
+  eval set -- $(
+    getopt \
+      -o "$(printf "%s" "${short_opts[@]:-}")" \
+      ${long_opts:+-l "$(printf "%s," "${long_opts[@]}")"} \
+      -- "${@}"
+  )
+  (( $? != 0 )) && return 1
+  
+  # set the options
+  local opt alias value
+  while (( $# )); do
+    case "$1" in
+      --)
+        shift
+        break
+        ;;
+      -*)
+        opt=$1
 
-				if ! ${values[$opt]:-false}; then
-					_opts[$opt]=$(( ${_opts[$opt]:-0}+1 ))
-				else
-					shift
-					_opts[$opt]=$1
-				fi
-				;;
-		esac
-		value="${_opts[$opt]:-}"
+        if ! ${values[$opt]:-false}; then
+          _opts[$opt]=$(( ${_opts[$opt]:-0}+1 ))
+        else
+          shift
+          _opts[$opt]=$1
+        fi
+        ;;
+    esac
+    value="${_opts[$opt]:-}"
 
-		# if current option is an alias, find and set the original option
-		if [[ "${aliases[$opt]:-}" ]]; then
-			opt="${aliases[$opt]:-}"
-			_opts[$opt]="$value"
-		fi
-		
-		# set all aliases
-		for alias in "${!aliases[@]}"; do
-			if [[ "${aliases[$alias]}" == "$opt" ]]; then
-				_opts[$alias]=${_opts[$opt]}
-			fi
-		done
+    # if current option is an alias, find and set the original option
+    if [[ "${aliases[$opt]:-}" ]]; then
+      opt="${aliases[$opt]:-}"
+      _opts[$opt]="$value"
+    fi
+    
+    # set all aliases
+    for alias in "${!aliases[@]}"; do
+      if [[ "${aliases[$alias]}" == "$opt" ]]; then
+        _opts[$alias]=${_opts[$opt]}
+      fi
+    done
 
-		shift
-	done
-	
-	# set the arguments
-	_args=("$@")
-	
-	if [[ "$opts_varname" = - ]]; then
-		echo -e "${_ARGS__CYAN}### ${FUNCNAME[0]}${_ARGS__COLOR_OFF}\n\e[0;33m# Options:${_ARGS__COLOR_OFF}"
-		paste -d' ' <(printf '%s\n' "${!_opts[@]}") <(printf '%q\n' "${_opts[@]}")
-		if (( "${#_args[@]}" )); then
-			echo -e "${_ARGS__YELLOW}# Arguments:${_ARGS__COLOR_OFF}"
-			printf '%q\n' "${_args[@]}"
-		else
-			echo -e "${_ARGS__YELLOW}# No Arguments${_ARGS__COLOR_OFF}"
-		fi
-		echo -e "${_ARGS__CYAN}#- ${FUNCNAME[0]}${_ARGS__COLOR_OFF}"
-	fi
-	
-	# validate the number of arguments
-	[[ -n "$min_args" ]] && args_check-number "$min_args" "$max_args"
+    shift
+  done
+  
+  # set the arguments
+  _args=("$@")
+  
+  if [[ "$opts_varname" = - ]]; then
+    echo -e "${_ARGS__CYAN}### ${FUNCNAME[0]}${_ARGS__COLOR_OFF}\n\e[0;33m# Options:${_ARGS__COLOR_OFF}"
+    paste -d' ' <(printf '%s\n' "${!_opts[@]}") <(printf '%q\n' "${_opts[@]}")
+    if (( "${#_args[@]}" )); then
+      echo -e "${_ARGS__YELLOW}# Arguments:${_ARGS__COLOR_OFF}"
+      printf '%q\n' "${_args[@]}"
+    else
+      echo -e "${_ARGS__YELLOW}# No Arguments${_ARGS__COLOR_OFF}"
+    fi
+    echo -e "${_ARGS__CYAN}#- ${FUNCNAME[0]}${_ARGS__COLOR_OFF}"
+  fi
+  
+  # validate the number of arguments
+  [[ -n "$min_args" ]] && args_check-number "$min_args" "$max_args"
 }
 alias args.parse="args_parse"
