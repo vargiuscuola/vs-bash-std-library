@@ -139,11 +139,14 @@ alias module.list-class-functions="module_list-class-functions"
 # @stdout List of classes defined in the provided module
 # @example
 #   $ module.list-classes main
-#   args.check-number
-#   args.parse
-#   args_check-number
-#   args_parse
-#   args_to_str_
+#   hash
+#   main
+#   args
+#   collection
+#   datetime
+#   list
+#   shopt
+#   array
 module_list-classes() {
   (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
   printf "%s\n" "${!_MODULE__CLASS_TO_PATH[@]}"

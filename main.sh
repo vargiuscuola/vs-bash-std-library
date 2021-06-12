@@ -92,7 +92,7 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 # @example
 #   $ alias alias1="func1"
 #   $ alias alias2="alias1"
-#   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+#   $ main.dereference-alias_ alias2
 #   # return __="func1"
 main_dereference-alias_() {
   args.check-number 1
@@ -547,7 +547,7 @@ regexp_escape-regexp-replace_() {
 # @arg $1 String Variable name
 # @arg $2 String String to append
 # @arg $3 String[" "] Separator
-# @option -m|--multi-line Append the string to every line of the destination variable
+# @opt -m|--multi-line Append the string to every line of the destination variable
 # @return Concatenation of the two strings, optionally separated by the provided separator
 string_append() {
   [[ "$1" = -m || "$1" = --multi-line ]] && { local multi=1 ; shift ; } || local multi
@@ -655,9 +655,9 @@ alias hash.copy="hash_copy"
 # @arg $2 String Value to find
 # @example
 #   $ declare -A h1=([a]=1 [b]=2 [e]=3)
-#   $ hash.find-value h1 h2
-#   $ declare -p h2
-#   declare -A h2=([a]="1" [b]="2" [e]="3")
+#   $ hash.find-value_ h1 2
+#   $ echo $__
+#   b
 hash_find-value_() {
   declare -n hash_ref="$1"
   declare -g __=""
