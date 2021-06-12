@@ -117,11 +117,14 @@ List the classes defined inside a module.
 
 ```bash
 $ module.list-classes main
-args.check-number
-args.parse
-args_check-number
-args_parse
-args_to_str_
+hash
+main
+args
+collection
+datetime
+list
+shopt
+array
 ```
 
 

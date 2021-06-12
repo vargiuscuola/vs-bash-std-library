@@ -88,7 +88,7 @@ Dereference shell aliases: return the name of the function to which an alias poi
 ```bash
 $ alias alias1="func1"
 $ alias alias2="alias1"
-$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+$ main.dereference-alias_ alias2
 # return __="func1"
 ```
 
@@ -554,7 +554,7 @@ Append a string to the content of the provided variable, optionally prefixing it
 
 ### Options
 
-* **#**: @option -m|--multi-line Append the string to every line of the destination variable
+* **-m|--multi-line**: Append the string to every line of the destination variable
 
 ### Return with global scalar $__, array $__a or hash $__h
 
@@ -667,9 +667,9 @@ Return the key of the hash which have the provided value.
 
 ```bash
 $ declare -A h1=([a]=1 [b]=2 [e]=3)
-$ hash.find-value h1 h2
-$ declare -p h2
-declare -A h2=([a]="1" [b]="2" [e]="3")
+$ hash.find-value_ h1 2
+$ echo $__
+b
 ```
 
 ## fd_get_()
