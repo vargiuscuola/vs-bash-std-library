@@ -3,7 +3,7 @@
 
 # if already sourced, return
 [[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
-declare -a _MAIN__CLASSES=(main array collection hash shopt datetime list)
+declare -a _MAIN__CLASSES=(main array hash shopt datetime list)
 
 # @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)

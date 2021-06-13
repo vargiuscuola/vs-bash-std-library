@@ -49,7 +49,8 @@ alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}
 #   $ alias alias2="alias1"
 #   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 #   # return __="func1"
-args_check-number() { :; }
+alias -- args_check-number >&- 2>&- && unalias args_check-number
+args_check-number() { :; }   # define function if alias is not already defined (see following line: why such a workaround?!)
 alias args_check-number=':args_check-number $#'
 alias args.check-number=':args_check-number $#'
 

@@ -26,7 +26,7 @@ alias errmsg='echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 :module_abs-path_() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
   local path="$1"
   if [[ -d "$path" ]]; then
     pushd "$path" &>/dev/null
@@ -57,11 +57,14 @@ alias :module.abs-path_=":module_abs-path_"
 #   The concept of class in this context refers to an homogeneous set of functions all starting with the same prefix `<class name>_` as in `args_check-number` and `args_parse`.
 # @alias module.import
 # @arg $1 String Module path. Shell extension `.sh` can be omitted
+# @opt -f|--force Force the import of the module also if already imported
 # @exitcodes Standard
 # @example
-#   $ module.import "github/vargiuscuola/std-lib.bash/main"
+#   $ module.import github/vargiuscuola/std-lib.bash/main
+#   $ module.import --force args
 module_import() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
+  [[ "$1" = -f || "$1" = --force ]] && { local __module__is_force=1 ; shift ; }            # check the `-f|--force` option
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }    # validate the number of arguments
   local module="$1" module_name="${1##*/}"
   module_name="${module_name%.sh}"
   :module.abs-path_ "$(dirname "${BASH_SOURCE[0]}")" && local path="$__"
@@ -83,11 +86,15 @@ module_import() {
   :module.abs-path_  "$module_path" && module_path="$__"
   
   # check if module already loaded
-  local loaded_module
-  for loaded_module in "${_MODULE__IMPORTED_MODULES[@]}"; do
-    [[ "$loaded_module" == "$module_path" ]] && return 0
-  done
-  
+  if [ -v __module__is_force ]; then
+    unset "_${module_name^^}__LOADED"
+  else
+    local loaded_module
+    for loaded_module in "${_MODULE__IMPORTED_MODULES[@]}"; do
+      [[ "$loaded_module" == "$module_path" ]] && return 0
+    done
+  fi
+
   _MODULE__IMPORTED_MODULES+=("$module_path")
   source "$module_path" || return 1
   declare -n aref="_${module_name^^}__CLASSES"
@@ -108,7 +115,7 @@ alias module.import="module_import"
 #   $ module.abs-path_ "../lib"
 #   # return __="/var/lib"
 module_get-class-path_() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
   declare -g __="${_MODULE__CLASS_TO_PATH[$1]}"
 }
 alias module.get-class-path_="module_get-class-path_"
@@ -126,9 +133,11 @@ alias module.get-class-path_="module_get-class-path_"
 #   args_parse
 #   args_to_str_
 module_list-class-functions() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
-  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."          # aliases
-  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"    # functions
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
+  echo >&2 "# Functions"
+  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"  # functions
+  echo >&2 "# Aliases"
+  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."            # aliases
 }
 alias module.list-class-functions="module_list-class-functions"
 
@@ -141,14 +150,13 @@ alias module.list-class-functions="module_list-class-functions"
 #   $ module.list-classes main
 #   hash
 #   main
-#   args
 #   collection
 #   datetime
 #   list
 #   shopt
 #   array
 module_list-classes() {
-  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; exit 1 ; }      # validate the number of arguments
-  printf "%s\n" "${!_MODULE__CLASS_TO_PATH[@]}"
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
+  printf "%s\n" "${_MAIN__CLASSES[@]}"
 }
 alias module.list-classes="module_list-classes"
