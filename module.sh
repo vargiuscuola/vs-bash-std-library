@@ -135,9 +135,9 @@ alias module.get-class-path_="module_get-class-path_"
 module_list-class-functions() {
   (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
   echo >&2 "# Functions"
-  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"  # functions
+  declare -F | sed -E 's/^declare -[^[:space:]]+ //' | grep -- "^${1}_"
   echo >&2 "# Aliases"
-  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."            # aliases
+  alias | sed -E 's/^alias // ; s/=.*//' | grep -- "^${1}\\."
 }
 alias module.list-class-functions="module_list-class-functions"
 
