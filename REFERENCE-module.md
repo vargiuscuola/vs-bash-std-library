@@ -36,6 +36,10 @@ Import a module, i.e. a shell library path which is sourced by the current funct
 
 * **$1** (String): Module path. Shell extension `.sh` can be omitted
 
+### Options
+
+* **-f|--force**: Force the import of the module also if already imported
+
 ### Exit codes
 
 * Standard
@@ -43,7 +47,8 @@ Import a module, i.e. a shell library path which is sourced by the current funct
 ### Example
 
 ```bash
-$ module.import "github/vargiuscuola/std-lib.bash/main"
+$ module.import github/vargiuscuola/std-lib.bash/main
+$ module.import --force args
 ```
 
 ## module_get-class-path_()
@@ -119,7 +124,6 @@ List the classes defined inside a module.
 $ module.list-classes main
 hash
 main
-args
 collection
 datetime
 list
