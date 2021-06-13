@@ -42,16 +42,16 @@ lock_kill() {
   [[ ! -L "$lockfile" ]] && return 0                        # lock is not present, return
   local pid pidfile="$( readlink -f "$lockfile" 2>/dev/null )"
   [[ -n "$pidfile" && -f "$pidfile" ]] && pid=$(<"$lockfile")
-  if [[ -n "$pid" && -e "/proc/$pid" ]]; then              # if process holding the lock is still running...
+  if [[ -n "$pid" && -e "/proc/$pid" ]]; then               # if process holding the lock is still running...
     main_is-windows && local pgid="$pid" || local pgid="-$(ps -o pgid= $pid | tr -d ' ')"
-    kill -TERM "$pgid" &>/dev/null                  #  try to kill the process with SIGTERM signal
-    sleep "$_LOCK__KILL_PROCESS_WAIT1"                #  wait a bit
-    [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"    #  check if process is terminated: if not wait a bit more
-    if [[ -e "/proc/$pid" ]]; then                  #  if still not terminated...
-      kill -9 "$pgid" &>/dev/null                #    try to kill with SIGKILL signal
-      sleep "$_LOCK__KILL_PROCESS_WAIT1"              #    wait a bit
-      [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2"  #    check if process is terminated: if not wait a bit more
-      [[ -e "/proc/$pid" ]] && return 1              #    if process is still running, return with error code
+    kill -TERM "$pgid" &>/dev/null                          # try to kill the process with SIGTERM signal
+    sleep "$_LOCK__KILL_PROCESS_WAIT1"                      # wait a bit
+    [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2" # check if process is terminated: if not wait a bit more
+    if [[ -e "/proc/$pid" ]]; then               # if still not terminated...
+      kill -9 "$pgid" &>/dev/null                # try to kill with SIGKILL signal
+      sleep "$_LOCK__KILL_PROCESS_WAIT1"         # wait a bit
+      [[ -e "/proc/$pid" ]] && sleep "$_LOCK__KILL_PROCESS_WAIT2" # check if process is terminated: if not wait a bit more
+      [[ -e "/proc/$pid" ]] && return 1          # if process is still running, return with error code
     fi
   fi
   # the process holding the lock is terminated (or killed by this function or already terminated before)
