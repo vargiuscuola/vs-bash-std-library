@@ -3,7 +3,7 @@
 
 # if already sourced, return
 [[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
-declare -a _MAIN__CLASSES=(main array hash shopt datetime list)
+declare -a _MAIN__CLASSES=(main array hash shopt datetime list process)
 
 # @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
@@ -40,6 +40,9 @@ False=1
 # SETTINGS
 #
 
+# @setting _MAIN__KILL_PROCESS_WAIT_INTERVAL Number[0.1] Seconds to wait between checks whether a process has been successfully killed
+[[ -v _MAIN__KILL_PROCESS_WAIT_INTERVAL ]] || _MAIN__KILL_PROCESS_WAIT_INTERVAL=0.1
+
 # @constant-header Terminal color codes
 # @constant Color_Off Disable color
 Color_Off='\e[0m'
@@ -64,15 +67,17 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 # INITIALITAZION
 #
 
-declare -gA _MAIN__FLAGS=([SOURCED]=0)
+declare -gA _MAIN__FLAGS=([SOURCED]=$False)
+declare -gA _MAIN__TIMER=()
 
 # test if file is sourced or executed
 if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
   _MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
-  _MAIN__FLAGS[SOURCED]=1
+  _MAIN__FLAGS[SOURCED]=$True
 else
   _MAIN__RAW_SCRIPTNAME="$0"
 fi
+[ -z "${-//*i*/}" ] && _MAIN__FLAGS[INTERACTIVE]=$True || _MAIN__FLAGS[INTERACTIVE]=$False
 
 test -L "${_MAIN__RAW_SCRIPTNAME}" && _MAIN__SCRIPTPATH="$( readlink "${_MAIN__RAW_SCRIPTNAME}" )" || _MAIN__SCRIPTPATH="${_MAIN__RAW_SCRIPTNAME}"
 _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
@@ -95,7 +100,7 @@ _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
 #   $ main.dereference-alias_ alias2
 #   # return __="func1"
 main_dereference-alias_() {
-  args.check-number 1
+  args.check-number 1 || return $?
   # recursively expand alias, dropping arguments
   # output == input if no alias matches
   local function_name="$1" p
@@ -129,8 +134,8 @@ alias main.is-windows="main_is-windows"
 # @example
 #   main.is-chroot
 main_is-chroot() {
-  if [[ -z "${_MAIN__FLAGS[CHROOTED]}" ]]; then
-    [[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ]] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
+  if [ -z "${_MAIN__FLAGS[CHROOTED]}" ]; then
+    [ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
   fi
   return "${_MAIN__FLAGS[CHROOTED]}"
 }
@@ -172,7 +177,7 @@ alias main.set-script-path-info="main_set-script-path-info"
 #   $ shopt -p expand_aliases
 #   shopt -s expand_aliases
 shopt_backup() {
-  args.check-number 1 -
+  args.check-number 1 - || return $?
   declare -gA _MAIN__SHOPT_BACKUP
   local opt
   for opt ; do
@@ -195,7 +200,7 @@ alias shopt.backup="shopt_backup"
 #   $ shopt -p expand_aliases
 #   shopt -s expand_aliases
 shopt_restore() {
-  args.check-number 1 -
+  args.check-number 1 - || return $?
   [[ "$#" = 0 ]] && { echo "Error arguments in function \"${FUNCNAME[0]}\"" ; return 1 ; }
   local opt is_enabled
   for opt ; do
@@ -227,7 +232,7 @@ alias shopt.restore="shopt_restore"
 #   $ datetime.interval-to-sec_ 1d 2h 3m 45s
 #   # return __=93825
 datetime_interval-to-sec_() {
-  args.check-number 1 -
+  args.check-number 1 - || return $?
   local args="$@"
   declare -g __=0
   [[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
@@ -238,7 +243,37 @@ datetime_interval-to-sec_() {
 }
 alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 
+############
+#
+# TIMER FUNCTIONS
+#
+############
 
+# @description Start a timer
+# @alias timer.start
+# @arg $1 String[_] Name of timer
+timer_start() {
+  args.check-number 0 1 || return $?
+  local name="${1:-_}"
+  _MAIN__TIMER[$name]="$SECONDS"
+}
+alias timer.start="timer_start"
+
+# @description Return the seconds elapsed for the provided timer
+# @alias timer.elapsed
+# @arg $1 String[_] Name of timer
+# @return Return the elapsed seconds for the timer
+# @example
+#   $ timer.start timer1
+#   $ sleep 5
+#   $ timer.elapsed timer1
+#   # return __=5
+timer_elapsed() {
+  args.check-number 0 1 || return $?
+  local name="${1:-_}"
+  declare -g __=$(($SECONDS-${_MAIN__TIMER[$name]}))
+}
+alias timer.elapsed="timer_elapsed"
 
 ############
 #
@@ -257,7 +292,7 @@ alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 #   $ array.find-indexes_ ary "s 1"
 #   # return __a=(3 6)
 array_find-indexes_() {
-  args.check-number 2
+  args.check-number 2 || return $?
   declare -n my_array=$1
   declare -ag __a=()
   local i ret=1
@@ -279,7 +314,7 @@ alias array.find-indexes_="array_find-indexes_"
 #   $ array.find_ ary "s 1"
 #   # return __=3
 array_find_() {
-  args.check-number 2
+  args.check-number 2 || return $?
   declare -n my_array=$1
   local i
   for i in "${!my_array[@]}"; do
@@ -305,7 +340,7 @@ alias array.find="array_find"
 #   $ array.include ary "s 1"
 #   # exitcode=0
 array_include() {
-  args.check-number 2
+  args.check-number 2 || return $?
   declare -n my_array=$1
   local item
   for item in "${my_array[@]}"; do
@@ -327,7 +362,7 @@ alias array.include="array_include"
 #   $ array.intersection_ ary1 ary2
 #   # return __a=(b d)
 array_intersection_() {
-  args.check-number 2
+  args.check-number 2 || return $?
   declare -n ary1_ref=$1
   declare -n ary2_ref=$2
   declare -ga __a=()
@@ -350,7 +385,7 @@ alias array.intersection_="array_intersection_"
 #   $ declare -p ary
 #   declare -a ary=([0]="a" [1]="b" [2]="d" [3]="e" [4]="f")
 array_remove-at() {
-  args.check-number 2
+  args.check-number 2 || return $?
   local aryname="$1" idx="$2"
   declare -n ary_ref="$aryname"
   ary_ref=( "${ary_ref[@]:0:$idx}" "${ary_ref[@]:$(( $idx+1 ))}" )
@@ -368,7 +403,7 @@ alias array.remove-at="array_remove-at"
 #   $ declare -p ary
 #   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e" [4]="a")
 array_remove() {
-  args.check-number 2
+  args.check-number 2 || return $?
   local aryname="$1" val="$2"
   declare -n ary_ref="$aryname"
   array_find_ "$aryname" "$val" && ary_ref=( "${ary_ref[@]:0:$__}" "${ary_ref[@]:$(( $__+1 ))}" )
@@ -385,7 +420,7 @@ alias array.remove="array_remove"
 #   $ declare -p ary
 #   declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e")
 array_remove-values() {
-  args.check-number 2
+  args.check-number 2 || return $?
   local aryname="$1" val="$2" ret=1
   declare -n ary_ref="$aryname"
   array_find-indexes_ "$aryname" "$val"
@@ -403,7 +438,7 @@ alias array.remove-values="array_remove-values"
 # @arg $1 String Array name
 # @exitcodes Standard (0 for true, 1 for false)
 array_defined() {
-  args.check-number 1
+  args.check-number 1 || return $?
   local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -a" ]]
 }
 alias array.defined="array_defined"
@@ -412,7 +447,7 @@ alias array.defined="array_defined"
 # @alias array.init
 # @arg $1 String Array name
 array_init() {
-  args.check-number 1
+  args.check-number 1 || return $?
   unset "$1"
   declare -ga "$1"='()'
 }
@@ -453,7 +488,7 @@ alias array.uniq="array_uniq"
 # @return The index inside the list in which appear the provided item.
 # @exitcodes 0 if the item is found, 1 otherwise
 list_find_() {
-  args.check-number 1 -
+  args.check-number 1 - || return $?
   local what="$1" ; shift
   declare -a ary=("$@")
   
@@ -467,7 +502,7 @@ alias list.find_="list_find_"
 # @arg $@ String Elements of the list
 # @exitcodes 0 if the item is found, 1 otherwise
 list_include() {
-  args.check-number 1 -
+  args.check-number 1 - || return $?
   local what="$1" ; shift
   declare -a ary=("$@")
   
@@ -599,7 +634,7 @@ alias string.concat="string_append"
 # @arg $1 String Hash name
 # @exitcodes Standard (0 for true, 1 for false)
 hash_defined() {
-  args.check-number 1
+  args.check-number 1 || return $?
   local def="$( declare -p "$1" 2>/dev/null )" && [[ "$def" =~ "declare -A" ]]
 }
 alias hash.defined="hash_defined"
@@ -608,7 +643,7 @@ alias hash.defined="hash_defined"
 # @alias hash.init
 # @arg $1 String Hash name
 hash_init() {
-  args.check-number 1
+  args.check-number 1 || return $?
   unset "$1"
   declare -gA "$1"='()'
 }
@@ -620,7 +655,7 @@ alias hash.init="hash_init"
 # @arg $2 String Key name to find
 # @exitcodes Standard (0 for true, 1 for false)
 hash_has-key() {
-  args.check-number 2
+  args.check-number 2 || return $?
   declare -n ref="$1"
   [[ ${ref["$2"]+x} ]]
 }
@@ -710,7 +745,50 @@ fd_get_() {
 }
 alias fd.get_="fd_get_"
 
+############
+#
+# PROCESS MANAGEMENT
+#
+############
 
+# @description Check if a process with provided PID exists.
+# @alias process.exists
+# @arg $1 Number PID of the process
+# @exitcodes 0 if process exists, 1 otherwise
+alias process_exists="ps -p &>/dev/null"
+alias process.exists="ps -p &>/dev/null"
+
+# @description Test if process with provided PID is a child of the current process.
+# @alias process.is-child
+# @arg $1 Number PID of the process
+# @exitcodes 0 if process is a child process, 1 otherwise
+process_is-child() {
+  local pid="$1" cur_pid=$BASHPID
+  ps -o pid:1= --ppid $cur_pid 2>&- | grep -Fqx "$1"
+}
+alias process.is-child="process_is-child"
+
+# @description Kill a process and wait for the process to actually terminate.
+# @alias process.kill
+# @arg $1 Number PID of the process to kill
+# @arg $2 String[TERM] Signal to send
+# @arg $2 Number[3] Seconds to wait for the process to end: if zero, kill the process and return immediately
+# @exitcodes 0 if process is successfully killed, 1 otherwise (not killed or not ended before the timeout period)
+process_kill() {
+  local pid="$1" signal="${2:-TERM}" wait="${3:-3}"
+  process_exists "$pid" || return 0
+
+  kill "-${signal}" "$pid" &>/dev/null
+  timer_start _main__process_kill
+  local elapsed_time=0
+  while [ -n "$wait" -a "$elapsed_time" -lt "$wait" ]; do
+    process_exists "$pid" || return 0
+    sleep $_MAIN__KILL_PROCESS_WAIT_INTERVAL
+    timer_elapsed _main__process_kill ; elapsed_time="$__"
+  done
+  process_exists "$pid" && return 1 || return 0
+}
+alias process.kill="process_kill"
 
 ############
 #

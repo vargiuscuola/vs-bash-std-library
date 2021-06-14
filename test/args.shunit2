@@ -57,7 +57,7 @@ test_args_parse() {
                           assertEquals args_parse.1.8      "some name"  "${opts[--name]}"
 
   args_parse opts args -- -av -b: -n:,--name -- -b "v 1" -va -vv -n"v 2"
-                          assertEquals  args_parse.2.1      0           "${#args[@]}"
+                          assertEquals  args_parse.2.1     0            "${#args[@]}"
                           
                           assertEquals args_parse.2.2      5            "${#opts[@]}"
                           assertEquals args_parse.2.3      3            "${opts[-v]}"
@@ -81,3 +81,5 @@ test_args_parse() {
   ( args_parse - 1 - -- -av -b: -n:,--name -- -aav --name="some name" a ) &>/dev/null           ; assertTrue  args_parse.3.12   $?
   ( args_parse - 1 - -- -av -b: -n:,--name -- -aav --name="some name" a b c d e f ) &>/dev/null ; assertTrue  args_parse.3.13   $?
 }
+
+source /opt/shunit2/shunit2

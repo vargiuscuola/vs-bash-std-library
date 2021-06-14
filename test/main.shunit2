@@ -359,12 +359,35 @@ test_main_dereference-alias_() {
 ############
 test_env_PATH() {
   local BCK_PATH="$PATH" append_path="/tmp/test1" prepend_path="/tmp/test2"
-  env_PATH_append-item "$append_path"    ; assertEquals env_PATH.1  "$BCK_PATH:$append_path"                  "$PATH"
-  env_PATH_append-item "$append_path"    ; assertEquals env_PATH.2  "$BCK_PATH:$append_path"                  "$PATH"
+  env_PATH_append-item  "$append_path"   ; assertEquals env_PATH.1  "$BCK_PATH:$append_path"                  "$PATH"
+  env_PATH_append-item  "$append_path"   ; assertEquals env_PATH.2  "$BCK_PATH:$append_path"                  "$PATH"
   env_PATH_prepend-item "$prepend_path"  ; assertEquals env_PATH.3  "$prepend_path:$BCK_PATH:$append_path"    "$PATH"
   env_PATH_prepend-item "$prepend_path"  ; assertEquals env_PATH.4  "$prepend_path:$BCK_PATH:$append_path"    "$PATH"
   env_PATH_prepend-item "$append_path"   ; assertEquals env_PATH.5  "$prepend_path:$BCK_PATH:$append_path"    "$PATH"
-  env_PATH_append-item "$prepend_path"   ; assertEquals env_PATH.6  "$prepend_path:$BCK_PATH:$append_path"    "$PATH"
+  env_PATH_append-item  "$prepend_path"  ; assertEquals env_PATH.6  "$prepend_path:$BCK_PATH:$append_path"    "$PATH"
 }
 
-. /opt/shunit2/shunit2
+############
+#
+# PROCESS
+#
+############
+test_process_class() {
+  process_exists 9999       ; assertFalse process_exists.1 $?
+  
+  local pid="$( ps -ef -o pid:1= | grep -v $$ | tail -1 )"
+  process_is-child "$pid"   ; assertFalse process_child.1  $?
+  
+  ( sleep 1000 ) &
+  local pid=$!
+  process_exists "$pid"     ; assertTrue  process_exists.2 $?
+  
+  process_is-child "$pid"   ; assertTrue  process_child.2  $?
+
+  process_kill "$pid" 0 2   ; assertFalse process_kill.1   $?
+
+  process_kill "$pid"       ; assertTrue  process_kill.2   $?
+  process_exists "$pid"     ; assertFalse process_exists.3 $?
+}
+
+source /opt/shunit2/shunit2

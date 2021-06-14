@@ -49,7 +49,7 @@ declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 # FUNCTIONS
 #
 
-# @description Test whether a trap with provided label for provided signal is defined.
+# @description Test whether a trap with provided label for the provided signal is defined.
 # @alias trap.has-handler
 # @arg $1 String Label of the handler
 # @arg $2 String Signal to which the handler responds to

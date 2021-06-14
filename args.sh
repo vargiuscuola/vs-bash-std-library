@@ -17,9 +17,14 @@ _ARGS__YELLOW='\e[0;33m'
 _ARGS__CYAN='\e[0;36m'
 # @global _ARGS__COLOR_OFF String Terminal code to turn off color
 _ARGS__COLOR_OFF='\e[0m'
+# @global _ARGS__ERROR_CODE Number Error code returned when validation of arguments fail
+_ARGS__ERROR_CODE=99
 
 # alias to print a coloured error message
 alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
+
+# raise an error, returning if interactive shell or exiting otherwise
+alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERROR_CODE || exit $_ARGS__ERROR_CODE'
 
 # @internal
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
@@ -32,7 +37,7 @@ alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}
     [[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
     # $2${3:+..}${3} => $2 (if $3 is not provided), or $2..$3 (if $3 is provided)
     errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"
-    exit 1
+    raise
   } || true
 }
 
@@ -43,7 +48,7 @@ alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}
 # @arg $2 Number The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
 # @arg $2 Number (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 # @exitcodes Standard (0 on success, 1 on fail)
-# @stderr Print an error message in case of failed validationvalidation
+# @stderr Print an error message in case of failed validation
 # @example
 #   $ args.check-number 2
 #   $ alias alias2="alias1"
@@ -94,8 +99,8 @@ alias args.check-number=':args_check-number $#'
 #   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
   # check the first two arguments (variable name for options and arguments)
-  (( $# < 1 )) && { errmsg "First argument should be name of the variable to return parsed options" ; return 3 ; } >&2
-  (( $# < 2 )) && { errmsg "Second argument should be name of the variable to return positional arguments" ; return 3 ; } >&2
+  (( $# < 1 )) && { errmsg "First argument should be name of the variable to store the parsed options to" ; raise ; } >&2
+  (( $# < 2 )) && { errmsg "Second argument should be name of the variable to store the positional arguments to" ; raise ; } >&2
   local opts_varname="$1"
   if [[ "$opts_varname" = - ]]; then
     declare -A _opts
@@ -233,6 +238,8 @@ args_parse() {
   fi
   
   # validate the number of arguments
-  [[ -n "$min_args" ]] && args_check-number "$min_args" "$max_args"
+  if [ -n "$min_args" ]; then
+    args_check-number "$min_args" "$max_args" || return $_ARGS__ERROR_CODE
+  fi
 }
 alias args.parse="args_parse"
