@@ -419,10 +419,15 @@ array_init() {
 alias array.init="array_init"
 
 # @description Return an array with duplicates removed from the provided array.
-# @alias array.unique_
+# @alias array.uniq_
 # @arg $1 String Array name
 # @return Array with duplicates removed
-array_unique_() {
+# @example
+#   $ declare -a ary=(1 2 1 5 6 1 7 2)
+#   $ array.uniq_ "${ary[@]}"
+#   $ declare -p __a
+#   declare -a __a=([0]="1" [1]="2" [2]="5" [3]="6" [4]="7")
+array_uniq_() {
   local v
   declare -A h
   for v in "$@"; do
@@ -430,6 +435,7 @@ array_unique_() {
   done
   declare -ga __a=("${!h[@]}")
 }
+alias array.uniq="array_uniq"
 
 
 ############
@@ -478,6 +484,7 @@ alias list.include="list_include"
 ############
 
 # @description Escape a string which have to be used as a search pattern in a bash parameter expansion as ${parameter/pattern/string}.
+#  The escaped characters are `%*[?/`
 # @alias regexp.escape-bash-pattern_
 # @arg $1 String String to be escaped
 # @return Escaped string
@@ -490,6 +497,7 @@ regexp_escape-bash-pattern_() {
   __="${__//\*/\\*}"
   __="${__//\[/\\[}"
   __="${__//\?/\\?}"
+  __="${__//\//\\/}"
 }
 alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 
@@ -503,35 +511,48 @@ alias regexp.escape-bash-pattern_="regexp_escape-bash-pattern_"
 #   $ regexp.escape-ext-regexp-pattern_ "[WW]"  "W"
 #   # return __=\[\W\W[]]
 regexp_escape-ext-regexp-pattern_() {
-  local sep="${2-/}"
-  declare -g __="$1"
+  local sep="${2:-/}" ret="$1"
   # escape backslash first, so we don't escape the backslash used to escape the other special characters
-  __="${__//\\/\\\\}"
+  ret="${ret//\\/\\\\}"
+  # escape the separator character, but only if it's not one of the characters escaped on the next steps
   if [[ ! "$sep" =~ \{|\$|\.|\*|\[|\\|\^|\||\] ]]; then
-    [[ "${sep}" =~ \%|\*|\[|\? ]] && __="${__//\\${sep}/\\${sep}}" || __="${__//${sep}/\\${sep}}"
+    regexp_escape-bash-pattern_ "$sep"
+    ret="${ret//${__}/\\${sep}}"
   fi
   # escape * and [, which have special meaning in bash parameter expansion too
-  __="${__//\*/\\*}"
-  __="${__//\[/\\[}"
+  ret="${ret//\*/\\*}"
+  ret="${ret//\[/\\[}"
   # escape other characters {$.^|], which doesn't have special meaning in bash parameter expansion (so no need to use backslash in the search pattern)
-  __="${__//{/\\{}"
-  __="${__//$/\\$}"
-  __="${__//./\\.}"
-  __="${__//^/\\^}"
-  __="${__//|/\\|}"
-  __="${__//\]/[]]}"    # ] needs a special escaping, not only backslash but all the sequence \[]]
+  ret="${ret//{/\\{}"
+  ret="${ret//$/\\$}"
+  ret="${ret//./\\.}"
+  ret="${ret//^/\\^}"
+  ret="${ret//|/\\|}"
+  ret="${ret//\]/[]]}"    # ] needs a special escaping, not only backslash but all the sequence \[]]
+  declare -g __="$ret"
 }
 alias regexp.escape-ext-regexp-pattern_="regexp_escape-ext-regexp-pattern_"
 
-# escape_sed_replace_: fa l'escape della stringa da utilizzare come replace del comando sed
+# @description Escape a string which have to be used as a replace string on a `sed` command.
+#   The escaped characters are the separator character and the following characters: `/&`.
+# @alias regexp.escape-ext-regexp-pattern_
+# @arg $1 String String to be escaped
+# @arg $2 String[/] Separator used in the `sed` expression
+# @return Escaped string
+# @example
+#   $ regexp.escape-regexp-replace_ "p/x"
+#   # return __="p\/x"
+#   $ regexp.escape-regexp-replace_ "x//" "x"
+#   # return __="\x//"
 regexp_escape-regexp-replace_() {
-  local rpl_str="$1" sep_ch="$2"
+  local rpl_str="$1" sep_ch="${2:-/}"
   
   [[ "$sep_ch" != / && "$sep_ch" != \& ]] && rpl_str="${rpl_str//${sep_ch//\*/\\*}/\\$sep_ch}"
   rpl_str="${rpl_str//\//\\/}"
   rpl_str="${rpl_str//&/\\&}"
   declare -g __="$rpl_str"
 }
+alias regexp.escape-regexp-replace_="regexp_escape-regexp-replace_"
 
 
 
@@ -565,7 +586,6 @@ string_append() {
 }
 alias string.append="string_append"
 alias string.concat="string_append"
-
 
 
 ############
