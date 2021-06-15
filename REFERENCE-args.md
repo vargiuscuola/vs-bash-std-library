@@ -9,6 +9,7 @@ Basic argument parsing functionalities
 The code and functionalities of the functon `args_parse` is a mix of the following two github projects:
 * [reconquest/args](https://github.com/reconquest/args)
 * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
+
 Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Global Variables

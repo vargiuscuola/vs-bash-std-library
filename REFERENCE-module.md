@@ -11,6 +11,7 @@ For example, the module [main](https://github.com/vargiuscuola/std-lib.bash/blob
 with functions of class `array` starting with the prefix `array_`.  
 For a module containing only one class, the name of the class is the name of the module, as in the module [trap](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-trap.md)
 where all functions start with `trap_`.
+
 Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Global Variables
