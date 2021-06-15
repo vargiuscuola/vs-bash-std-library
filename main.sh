@@ -3,7 +3,7 @@
 
 # if already sourced, return
 [[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
-declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process)
+declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process timer)
 
 # @file main.sh
 # @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.).
@@ -17,6 +17,7 @@ declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process)
 #     * datetime
 #     * list
 #     * process
+#     * timer
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
