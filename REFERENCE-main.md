@@ -17,14 +17,14 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 # Settings
 
-* **\_MAIN__KILL_PROCESS_WAIT_INTERVAL** (Number)[default: **0.1**]: Seconds to wait between checks whether a process has been successfully killed
+* **\_MAIN__KILL_PROCESS_WAIT_INTERVAL** (Number)[default: **0.1**]: Seconds to wait between checks to test whether a process has been successfully killed
 
 
 # Global Variables
 
 ## Flags
-* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced? This flag is automatically set when module is loaded
-* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is the current process running in an interactive shell? This flag is automatically set when module is loaded
+* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced? This flag is automatically set when the module is loaded
+* **\_MAIN__FLAGS\[INTERACTIVE\]** (Bool): Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
 * **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot()`
 * **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 ## Boolean Values
