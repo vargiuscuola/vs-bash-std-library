@@ -5,7 +5,7 @@ Provide argument parsing functionalities
 
 # Overview
 
-Basic argument parsing functionalities
+Basic argument parsing functionalities.  
 The code and functionalities of the functon `args_parse` is a mix of the following two github projects:
 * [reconquest/args](https://github.com/reconquest/args)
 * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
