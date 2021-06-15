@@ -13,6 +13,7 @@ Include shell libraries modules
 * [module_get-class-path_()](#module_get-class-path_)
 * [module_list-class-functions()](#module_list-class-functions)
 * [module_list-classes()](#module_list-classes)
+* [module_doc()](#module_doc)
 
 
 ## module_import()
@@ -130,6 +131,22 @@ list
 shopt
 array
 ```
+
+## module_doc()
+
+Print the documentation for the provided function name.
+
+### Aliases
+
+* **module.doc**
+
+### Arguments
+
+* **$1** (String): Function name
+
+### Output on stdout
+
+* Print the documentation for the function
 
 
 

@@ -1,6 +1,6 @@
 # main.sh
 
-Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
+Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.).
 
 # Constants
 
