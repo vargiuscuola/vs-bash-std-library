@@ -4,8 +4,7 @@ Provide locking functionalities.
 
 # Settings
 
-* **\_LOCK__KILL_PROCESS_WAIT1** (Number)[default: **0.1**]: Time to wait for the first check whether a process has been successfully killed
-* **\_LOCK__KILL_PROCESS_WAIT2** (Number)[default: **0.5**]: Time to wait for the second check whether a process has been successfully killed 
+* **\_LOCK__KILL_PROCESS_WAIT** (Number)[default: **1**]: Seconds to wait for the killed process to terminate: the actual wait can double because a second signal KILL is sent if the first one TERM fail
 
 
 # Global Variables
@@ -17,6 +16,7 @@ Provide locking functionalities.
 * [lock_kill()](#lock_kill)
 * [lock_release()](#lock_release)
 * [lock_is-active()](#lock_is-active)
+* [lock_cleanup()](#lock_cleanup)
 * [lock_is-mine()](#lock_is-mine)
 * [lock_list_()](#lock_list_)
 * [lock_new()](#lock_new)
@@ -63,6 +63,7 @@ Release lock if current process own it.
 ## lock_is-active()
 
 Check if a lock is currently active, i.e. if file lock is present and the process holding it is still running.
+ If the process holding a lock is already terminated, the lock is released.
 
 ### Aliases
 
@@ -75,7 +76,25 @@ Check if a lock is currently active, i.e. if file lock is present and the proces
 ### Exit codes
 
 * **0**: Lock is active
-* **1**: Lock is expired (file lock not present or associated process already terminated)
+* **1**: Lock is expired (file lock not present)
+* **2**: Lock has been released because the associated process has already terminated
+
+## lock_cleanup()
+
+All stale locks created by terminated processes are released.
+
+### Aliases
+
+* **lock.cleanup**
+
+### Exit codes
+
+* **0**: One or more locks has been released
+* **1**: No locks has been released
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* The number of locks released
 
 ## lock_is-mine()
 
@@ -103,7 +122,7 @@ List of locks owned by the current process of by the process with the provided p
 
 ### Arguments
 
-* **$1** (Number)[default: **PID of current process $BASHPID**]: Pid of the process for which determine the list of locks owned by it: if null, all locks are returned, regardless of owner
+* **$1** (Number)[default: **PID of current process $BASHPID**]: Pid of the process for which determine the list of locks owned by it: if an empty argument is provided, all locks are returned regardless of owner
 
 ### Return with global scalar $__, array $__a or hash $__h
 
@@ -122,7 +141,7 @@ Try to obtain a lock.
 
 * **$1** (String)[default: **Caller script name**]: Lock name
 * **$2** (String)[default: **0**]: If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
-* **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if it the lock is expired, i.e. if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
+* **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if the lock is expired, i.e. if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
 
 ### Exit codes
 

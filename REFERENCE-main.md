@@ -15,10 +15,16 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * **On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite**: High Intensty Background Colors
 
 
+# Settings
+
+* **\_MAIN__KILL_PROCESS_WAIT_INTERVAL** (Number)[default: **0.1**]: Seconds to wait between checks whether a process has been successfully killed
+
+
 # Global Variables
 
 ## Flags
-* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced?
+* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced? This flag is automatically set when module is loaded
+* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is the current process running in an interactive shell? This flag is automatically set when module is loaded
 * **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot()`
 * **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 ## Boolean Values
@@ -40,6 +46,8 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * [shopt_backup()](#shopt_backup)
 * [shopt_restore()](#shopt_restore)
 * [datetime_interval-to-sec_()](#datetime_interval-to-sec_)
+* [timer_start()](#timer_start)
+* [timer_elapsed()](#timer_elapsed)
 * [array_find-indexes_()](#array_find-indexes_)
 * [array_find_()](#array_find_)
 * [array_include()](#array_include)
@@ -49,11 +57,15 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * [array_remove-values()](#array_remove-values)
 * [array_defined()](#array_defined)
 * [array_init()](#array_init)
-* [array_unique_()](#array_unique_)
+* [array_uniq_()](#array_uniq_)
+* [array_eq()](#array_eq)
+* [array_to_s()](#array_to_s)
+* [set_eq()](#set_eq)
 * [list_find_()](#list_find_)
 * [list_include()](#list_include)
 * [regexp_escape-bash-pattern_()](#regexp_escape-bash-pattern_)
 * [regexp_escape-ext-regexp-pattern_()](#regexp_escape-ext-regexp-pattern_)
+* [regexp_escape-regexp-replace_()](#regexp_escape-regexp-replace_)
 * [string_append()](#string_append)
 * [hash_defined()](#hash_defined)
 * [hash_init()](#hash_init)
@@ -61,7 +73,10 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 * [hash_merge()](#hash_merge)
 * [hash_copy()](#hash_copy)
 * [hash_find-value_()](#hash_find-value_)
+* [hash_eq()](#hash_eq)
 * [fd_get_()](#fd_get_)
+* [process_is-child()](#process_is-child)
+* [process_kill()](#process_kill)
 * [env_PATH_append-item()](#env_path_append-item)
 * [env_PATH_prepend-item()](#env_path_prepend-item)
 * [get_ext_color()](#get_ext_color)
@@ -220,6 +235,43 @@ Convert the provided time interval to a seconds interval. The format of the time
 ```bash
 $ datetime.interval-to-sec_ 1d 2h 3m 45s
 # return __=93825
+```
+
+## timer_start()
+
+Start a timer
+
+### Aliases
+
+* **timer.start**
+
+### Arguments
+
+* **$1** (String)[default: **\_**]: Name of timer
+
+## timer_elapsed()
+
+Return the seconds elapsed for the provided timer
+
+### Aliases
+
+* **timer.elapsed**
+
+### Arguments
+
+* **$1** (String)[default: **\_**]: Name of timer
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* Return the elapsed seconds for the timer
+
+### Example
+
+```bash
+$ timer.start timer1
+$ sleep 5
+$ timer.elapsed timer1
+# return __=5
 ```
 
 ## array_find-indexes_()
@@ -433,13 +485,13 @@ Initialize an array (resetting it if already existing).
 
 * **$1** (String): Array name
 
-## array_unique_()
+## array_uniq_()
 
 Return an array with duplicates removed from the provided array.
 
 ### Aliases
 
-* **array.unique_**
+* **array.uniq_**
 
 ### Arguments
 
@@ -448,6 +500,88 @@ Return an array with duplicates removed from the provided array.
 ### Return with global scalar $__, array $__a or hash $__h
 
 * Array with duplicates removed
+
+### Example
+
+```bash
+$ declare -a ary=(1 2 1 5 6 1 7 2)
+$ array.uniq_ "${ary[@]}"
+$ declare -p __a
+declare -a __a=([0]="1" [1]="2" [2]="5" [3]="6" [4]="7")
+```
+
+## array_eq()
+
+Compare two arrays
+
+### Aliases
+
+* **array.eq**
+
+### Arguments
+
+* **$1** (String): First array name
+* **$2** (String): Second array name
+
+### Exit codes
+
+* 0 if the array are equal, 1 otherwise
+
+### Example
+
+```bash
+$ declare -a ary1=(1 2 3)
+$ declare -a ary2=(1 2 3)
+$ array.eq ary1 ary2
+# exitcode=0
+```
+
+## array_to_s()
+
+Print a string with the definition of the provided array or hash (as shown in `declare -p` but without the first part declaring the variable).
+
+### Aliases
+
+* **array.to_s**
+* **hash.to_s**
+
+### Arguments
+
+* **$1** (String): Array name
+
+### Example
+
+```bash
+$ declare -a ary=(1 2 3)
+$ array.to_s ary
+([0]="1" [1]="2" [2]="3")
+```
+
+## set_eq()
+
+Compare two sets (a set is an array where index associated to values are negligibles)
+
+### Aliases
+
+* **set.eq**
+
+### Arguments
+
+* **$1** (String): First array name
+* **$2** (String): Second array name
+
+### Exit codes
+
+* 0 if the values of arrays are the same, 1 otherwise
+
+### Example
+
+```bash
+$ declare -a ary1=(1 2 3 1 1)
+$ declare -a ary2=(3 2 1 2 2)
+$ set.eq ary1 ary2
+# exitcode=0
+```
 
 ## list_find_()
 
@@ -492,6 +626,7 @@ Check whether an item is included in a list of values.
 ## regexp_escape-bash-pattern_()
 
 Escape a string which have to be used as a search pattern in a bash parameter expansion as ${parameter/pattern/string}.
+ The escaped characters are `%*[?/`
 
 ### Aliases
 
@@ -535,6 +670,33 @@ Escape a string which have to be used as a search pattern in a extended regexp i
 ```bash
 $ regexp.escape-ext-regexp-pattern_ "[WW]"  "W"
 # return __=\[\W\W[]]
+```
+
+## regexp_escape-regexp-replace_()
+
+Escape a string which have to be used as a replace string on a `sed` command.
+  The escaped characters are the separator character and the following characters: `/&`.
+
+### Aliases
+
+* **regexp.escape-ext-regexp-pattern_**
+
+### Arguments
+
+* **$1** (String): String to be escaped
+* **$2** (String)[default: **/**]: Separator used in the `sed` expression
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* Escaped string
+
+### Example
+
+```bash
+$ regexp.escape-regexp-replace_ "p/x"
+# return __="p\/x"
+$ regexp.escape-regexp-replace_ "x//" "x"
+# return __="\x//"
 ```
 
 ## string_append()
@@ -672,6 +834,32 @@ $ echo $__
 b
 ```
 
+## hash_eq()
+
+Compare two hashes
+
+### Aliases
+
+* **hash.eq**
+
+### Arguments
+
+* **$1** (String): First hash name
+* **$2** (String): Second hash name
+
+### Exit codes
+
+* 0 if the hashes are equal, 1 otherwise
+
+### Example
+
+```bash
+$ declare -a h1=([key1]=val1 [key2]=val2)
+$ declare -a h2=([key1]=val1 [key2]=val2)
+$ hash.eq h1 h2
+# exitcode=0
+```
+
 ## fd_get_()
 
 Get the first file descriptor number available.
@@ -685,6 +873,40 @@ _Function has no arguments._
 ### Return with global scalar $__, array $__a or hash $__h
 
 * File descriptor number
+
+## process_is-child()
+
+Test if process with provided PID is a child of the current process.
+
+### Aliases
+
+* **process.is-child**
+
+### Arguments
+
+* **$1** (Number): PID of the process
+
+### Exit codes
+
+* 0 if process is a child process, 1 otherwise
+
+## process_kill()
+
+Kill a process and wait for the process to actually terminate.
+
+### Aliases
+
+* **process.kill**
+
+### Arguments
+
+* **$1** (Number): PID of the process to kill
+* **$2** (String)[default: **TERM**]: Signal to send
+* **$2** (Number)[default: **3**]: Seconds to wait for the process to end: if zero, kill the process and return immediately
+
+### Exit codes
+
+* 0 if process is successfully killed, 1 otherwise (not killed or not ended before the timeout period)
 
 ## env_PATH_append-item()
 

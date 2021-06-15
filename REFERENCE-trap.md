@@ -43,7 +43,7 @@ Manage shell traps
 
 ## trap_has-handler()
 
-Test whether a trap with provided label for provided signal is defined.
+Test whether a trap with provided label for the provided signal is defined.
 
 ### Aliases
 

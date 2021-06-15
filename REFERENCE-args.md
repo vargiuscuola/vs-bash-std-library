@@ -8,6 +8,7 @@ Provide argument parsing functionalities
 * **\_ARGS__YELLOW** (String): Yellow terminal color code
 * **\_ARGS__CYAN** (String): Cyan terminal color code
 * **\_ARGS__COLOR_OFF** (String): Terminal code to turn off color
+* **\_ARGS__ERROR_CODE** (Number): Error code returned when validation of arguments fail
 
 
 # Functions
@@ -36,7 +37,7 @@ Validate the number of arguments, writing an error message and exiting if the ch
 
 ### Output on stderr
 
-* Print an error message in case of failed validationvalidation
+* Print an error message in case of failed validation
 
 ### Example
 
