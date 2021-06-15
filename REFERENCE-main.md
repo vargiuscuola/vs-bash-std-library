@@ -7,14 +7,14 @@ Generic bash library functions (management of messages, traps, arrays, hashes, s
 
 Contains functions to manipulate different data types (strings, array and associative array) and common usage functions, such as some process
 management functions, shopt manipulation functions, dynamic regular expression manipulation functions and so on.
-It contains the following classes:
-main
-array
-hash
-shopt
-datetime
-list
-process
+It contains the following classes:  
+* main  
+* array  
+hash  
+shopt  
+datetime  
+list  
+process  
 Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Constants
