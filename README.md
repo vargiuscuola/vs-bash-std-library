@@ -8,10 +8,13 @@
 
 Some bash libraries to manage and manipulate traps, locks, arguments, arrays, hashes, strings and others.
 Functions are organized in the following modules:
+
 * package.sh  
   Install a package of shell libraries contained in a git repository
 * module.sh  
-  Load a shell library module, i.e. a set of homogeneous functions
+  Load a shell library module.  
+  A module can contain one or more classes, where a class is simply a set of homogeneous functions with names prefixed with the name of the class.  
+  For example, the module `main` (described later), contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (which is an alias for the related function).
 * main.sh  
   Generic functions for manipulating arrays, hashes, strings, coloured messages and more
 * trap.sh  
@@ -20,7 +23,7 @@ Functions are organized in the following modules:
   A parser of command line options and arguments
 
 
-# Installation
+## Installation
 
 Clone the repository:
 
@@ -36,7 +39,7 @@ module.import "std-lib.bash/main"
 module.import "std-lib.bash/trap"
 ```
 
-# Reference
+## Reference
 
 **Documentation is still incomplete and in progress**
 
@@ -45,6 +48,4 @@ module.import "std-lib.bash/trap"
 * [module.sh](REFERENCE-module.md)
 * [trap.sh](REFERENCE-trap.md)
 * [args.sh](REFERENCE-args.md)
-
-
 
