@@ -2,6 +2,11 @@
 
 Load shell libraries packages as git repositories
 
+
+# Overview
+
+Return the library base path.
+
 # Settings
 
 * **\_PACKAGE__LIB_DIR** (string)[default: **/lib/sh in Linux or /c/linux-lib/sh in Windows**]: shell libraries base path
@@ -14,8 +19,6 @@ Load shell libraries packages as git repositories
 
 
 ## package_get-lib-dir_()
-
-Return the library base path.
 
 ### Aliases
 
@@ -35,8 +38,6 @@ $ package.get-lib-dir_
 ```
 
 ## package_get-path_()
-
-Return the path of the provided package
 
 ### Aliases
 
@@ -58,8 +59,6 @@ $ package_get-path_ github.com/vargiuscuola/std-lib.bash
 * Path of the provided package
 
 ## package_load()
-
-Load required package, cloning the git repository hosting it.
 
 ### Aliases
 

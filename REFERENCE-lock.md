@@ -2,6 +2,12 @@
 
 Provide locking functionalities.
 
+
+# Overview
+
+Remove lock and kill associated process if present.  
+**This function is not concurrent safe.**
+
 # Settings
 
 * **\_LOCK__KILL_PROCESS_WAIT** (Number)[default: **1**]: Seconds to wait for the killed process to terminate: the actual wait can double because a second signal KILL is sent if the first one TERM fail
@@ -24,9 +30,6 @@ Provide locking functionalities.
 
 ## lock_kill()
 
-Remove lock and kill associated process if present.  
-  **This function is not concurrent safe.**
-
 ### Aliases
 
 * **lock.kill**
@@ -38,13 +41,16 @@ Remove lock and kill associated process if present.
 ### Exit codes
 
 * **0**: Lock is removed and process holding it is already terminated or successfuly killed
+
+### Exit codes
+
 * **1**: Cannot kill the process holding to lock
+
+### Exit codes
+
 * **2**: Lock file cannot be deleted, but process that held is already terminated or successfully killed
 
 ## lock_release()
-
-Release lock if current process own it.  
-  **This function is not concurrent safe.**
 
 ### Aliases
 
@@ -57,13 +63,16 @@ Release lock if current process own it.
 ### Exit codes
 
 * **0**: Lock successfully released
+
+### Exit codes
+
 * **1**: Current process doesn't own the lock and cannot release it
+
+### Exit codes
+
 * **2**: Lock file cannot be deleted
 
 ## lock_is-active()
-
-Check if a lock is currently active, i.e. if file lock is present and the process holding it is still running.
- If the process holding a lock is already terminated, the lock is released.
 
 ### Aliases
 
@@ -76,12 +85,16 @@ Check if a lock is currently active, i.e. if file lock is present and the proces
 ### Exit codes
 
 * **0**: Lock is active
+
+### Exit codes
+
 * **1**: Lock is expired (file lock not present)
+
+### Exit codes
+
 * **2**: Lock has been released because the associated process has already terminated
 
 ## lock_cleanup()
-
-All stale locks created by terminated processes are released.
 
 ### Aliases
 
@@ -90,6 +103,9 @@ All stale locks created by terminated processes are released.
 ### Exit codes
 
 * **0**: One or more locks has been released
+
+### Exit codes
+
 * **1**: No locks has been released
 
 ### Return with global scalar $__, array $__a or hash $__h
@@ -97,8 +113,6 @@ All stale locks created by terminated processes are released.
 * The number of locks released
 
 ## lock_is-mine()
-
-Check if the current process is holding the provided lock.
 
 ### Aliases
 
@@ -114,8 +128,6 @@ Check if the current process is holding the provided lock.
 
 ## lock_list_()
 
-List of locks owned by the current process of by the process with the provided pid.
-
 ### Aliases
 
 * **lock.list_**
@@ -130,9 +142,6 @@ List of locks owned by the current process of by the process with the provided p
 
 ## lock_new()
 
-Try to obtain a lock.  
-  **This function is not concurrent safe.**
-
 ### Aliases
 
 * **lock.new**
@@ -140,14 +149,26 @@ Try to obtain a lock.
 ### Arguments
 
 * **$1** (String)[default: **Caller script name**]: Lock name
+
+### Arguments
+
 * **$2** (String)[default: **0**]: If lock is busy, wait $2 amount of time: can be -1 (wait forever), 0 (don't wait) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
 * **$3** (String)[default: **-1**]: If lock is busy, release the lock terminating the process owning it if the lock is expired, i.e. if $3 amount of time is passed since the creation of the lock: can be -1 (the lock never expire), 0 (the lock expire immediately) or a time format as in [datetime.interval-to-sec_()](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md#datetime_interval-to-sec_)
 
 ### Exit codes
 
 * **0**: Got the lock
+
+### Exit codes
+
 * **1**: Lock is busy and is not expired
+
+### Exit codes
+
 * **2**: Lock is expired but was not possible to terminate the process owning it
+
+### Exit codes
+
 * **3**: Cannot obtain the lock for other reasons
 
 

@@ -2,6 +2,12 @@
 
 Provide argument parsing functionalities
 
+
+# Overview
+
+Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+
 # Global Variables
 
 * **\_ARGS__BRED** (String): Red terminal color code
@@ -12,50 +18,10 @@ Provide argument parsing functionalities
 
 
 # Functions
-* [args_check-number()](#args_check-number)
 * [args_parse()](#args_parse)
 
 
-## args_check-number()
-
-Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-  This is actually an alias defined as `:args_check-number $#`.
-
-### Aliases
-
-* **args.check-number**
-
-### Arguments
-
-* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
-* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
-* **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
-
-### Exit codes
-
-* Standard (0 on success, 1 on fail)
-
-### Output on stderr
-
-* Print an error message in case of failed validation
-
-### Example
-
-```bash
-$ args.check-number 2
-$ alias alias2="alias1"
-$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
-# return __="func1"
-```
-
 ## args_parse()
-
-Parse the command line options.
-  It store the parsed options and remaining arguments to the provided variables.
-  In addition to getopt syntax, the form `-n:,--name` is allowed, which means that the same option can be interchangebly provided in the form `-n <value>` and `--name <value>`.
-  The code and functionalities is a mix of the following two github projects:
-  * [reconquest/args](https://github.com/reconquest/args)
-  * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
 
 ### Aliases
 
@@ -64,10 +30,25 @@ Parse the command line options.
 ### Arguments
 
 * **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
+
+### Arguments
+
 * **$2** (Arrayname): (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
+
+### Arguments
+
 * **$3** (Number): (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
+
+### Arguments
+
 * **$4** (Number): (Optional) Maximum number of arguments
+
+### Arguments
+
 * **$5** (String): Literal `--`: used as a separator for the following arguments
+
+### Arguments
+
 * **...** (String): Options definition and arguments to parse separated by `--`
 
 ### Exit codes
@@ -108,12 +89,42 @@ $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 
 
 # Internal Functions
-* [:args_check-number()](#args_check-number)
+* [args_check-number()](#args_check-number)
 
 
-## :args_check-number()
+## args_check-number()
 
-Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-  This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+### Aliases
+
+* **args.check-number**
+
+### Arguments
+
+* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
+
+### Arguments
+
+* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+
+### Arguments
+
+* **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
+
+### Exit codes
+
+* Standard (0 on success, 1 on fail)
+
+### Output on stderr
+
+* Print an error message in case of failed validation
+
+### Example
+
+```bash
+$ args.check-number 2
+$ alias alias2="alias1"
+$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+# return __="func1"
+```
 
 
