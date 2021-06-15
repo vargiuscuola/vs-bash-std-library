@@ -11,7 +11,7 @@ The stack trace allow to set which functions to trace, giving an extensive repor
 * current and previous command
 * current function
 * function stack
-Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
+Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Global Variables
 
