@@ -18,7 +18,8 @@ module.import "args"
 #
 
 # @global-header Flags
-# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced?
+# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced? This flag is automatically set when module is loaded
+# @global _MAIN__FLAGS[SOURCED] Bool Is the current process running in an interactive shell? This flag is automatically set when module is loaded
 # @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
 # @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 
