@@ -17,7 +17,7 @@ declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process)
 #    datetime
 #    list
 #    process
-#  Use the command `module.doc <function_name>` to see the documentation for a function.
+#  Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
 
