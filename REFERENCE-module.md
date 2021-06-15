@@ -65,7 +65,7 @@ $ module.import --force args
 
 ### Return with global scalar $__, array $__a or hash $__h
 
-* Path of the file where the class is defined (see the documentation of [module_import()](#module_import) for an explanation of the concept of class in this context).
+* Path of the file where the class is defined (see the [Overview](#overview) for an explanation of the concept of class in this context).
 
 ### Example
 
