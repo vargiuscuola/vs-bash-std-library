@@ -472,6 +472,41 @@ array_uniq_() {
 }
 alias array.uniq="array_uniq"
 
+# @description Compare two arrays
+# @alias array.eq
+# @arg $1 String First array name
+# @arg $2 String Second array name
+# @exitcodes 0 if the array are equal, 1 otherwise
+# @example
+#   $ declare -a ary1=(1 2 3)
+#   $ declare -a ary2=(1 2 3)
+#   $ array.eq ary1 ary2
+#   # exitcode=0
+array_eq() {
+  declare -a _array_eq_ary1=$( array_to_s $1 )
+  declare -a _array_eq_ary2=$( array_to_s $2 )
+  local i
+  [ "${#_array_eq_ary1[@]}" != "${#_array_eq_ary2[@]}" ] && return 1
+  for i in "${!_array_eq_ary1[@]}"; do
+    [ "${_array_eq_ary1[$i]}" != "${_array_eq_ary2[$i]}" ] && return 1
+  done
+  return 0
+}
+alias array.eq="array_eq"
+
+# @description Print a string with the definition of the provided array or hash (as shown in `declare -p` but without the first part declaring the variable).
+# @alias array.to_s
+# @alias hash.to_s
+# @arg $1 String Array name
+# @example
+#   $ declare -a ary=(1 2 3)
+#   $ array.to_s ary
+#   ([0]="1" [1]="2" [2]="3")
+array_to_s() {
+  declare -p $1 | cut -d= -f 2-
+}
+alias array.to_s="array_to_s"
+alias hash.to_s="array_to_s"
 
 ############
 #
@@ -725,6 +760,26 @@ hash_find-value_() {
 }
 alias hash.find-value_="hash_find-value_"
 
+# @description Compare two hashes
+# @alias hash.eq
+# @arg $1 String First hash name
+# @arg $2 String Second hash name
+# @exitcodes 0 if the hashes are equal, 1 otherwise
+# @example
+#   $ declare -a h1=([key1]=val1 [key2]=val2)
+#   $ declare -a h2=([key1]=val1 [key2]=val2)
+#   $ hash.eq h1 h2
+#   # exitcode=0
+hash_eq() {
+  declare -A _hash_eq_h1=$( array_to_s $1 )
+  declare -A _hash_eq_h2=$( array_to_s $2 )
+  local i
+  [ "${#_hash_eq_h1[@]}" != "${#_hash_eq_h2[@]}" ] && return 1
+  for i in "${!_hash_eq_h1[@]}"; do
+    [ "${_hash_eq_h1[$i]}" != "${_hash_eq_h2[$i]}" ] && return 1
+  done
+  return 0
+}
 
 ############
 #

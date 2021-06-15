@@ -32,7 +32,7 @@ test_array_find-indexes_() {
                                       assertEquals  array_find-indexes_.2  '([0]="1" [1]="5")'  "$( declare -p __a | cut -d= -f2- )"
   array_find-indexes_ ary "ab"      ; assertTrue    array_find-indexes_.3  "$?"
                                       assertEquals  array_find-indexes_.4  '([0]="0")'          "$( declare -p __a | cut -d= -f2- )"
-  array_find-indexes_ ary "x"       ; assertFalse    array_find-indexes_.5  "$?"
+  array_find-indexes_ ary "x"       ; assertFalse   array_find-indexes_.5  "$?"
                                       assertEquals  array_find-indexes_.6  '()'                 "$( declare -p __a | cut -d= -f2- )"
 }
 
@@ -178,13 +178,13 @@ test_hash_merge() {
   declare -A h2=([a]=5 [c]="6 p")
   hash_merge h1 h2
   declare -A exp_h=([a]="5" [b]="2\"'x" [c]="6 p" [e]="3" )
-  stdout="$( declare -p h1 )"        ; assertEquals  hash_merge.1       "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*h1=/}"
-  
+  hash_eq h1 exp_h                   ; assertTrue    hash_merge.1  $?
+
   declare -gA global_h=([a]=1 [b]="2\"'x" [e]=3)
   declare -A h2=()
   hash_merge global_h h2
   declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  stdout="$( declare -p global_h )"  ; assertEquals  hash_merge.2       "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h=/}"
+  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
 
   declare -A h1=()
   hash_merge h1 h2
@@ -193,13 +193,13 @@ test_hash_merge() {
   declare -gA h4=([a]="5 s" [c]="6 p")
   hash_merge h1 h4
   declare -A exp_h=([a]="5 s" [c]="6 p" )
-  stdout="$( declare -p h1 )"        ; assertEquals  hash_merge.4       "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*h1=/}"
+  hash_eq h1 exp_h                   ; assertTrue    hash_merge.1  $?
 }
 
 test_hash_merge-last() {
   local stdout
   declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  stdout="$( declare -p global_h )"  ; assertEquals  hash_merge-last.1  "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h=/}"
+  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
 }
 
 test_hash_copy() {
@@ -210,24 +210,25 @@ test_hash_copy() {
   
   hash_copy h1 h2
   declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  stdout="$( declare -p h2 )"        ; assertEquals  hash_copy.1      "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*h2=/}"
+  hash_eq h2 exp_h                   ; assertTrue    hash_merge.1  $?
 
   hash_copy h1 global_h
   declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  stdout="$( declare -p global_h )"  ; assertEquals  hash_copy.2      "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h=/}"
+  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
 
   declare -A h2=([a]=5 [c]="6 p")
   hash_copy h2 global_h2
   declare -A exp_h=([a]="5" [c]="6 p" )
-  stdout="$( declare -p global_h2 )" ; assertEquals  hash_copy.3      "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h2=/}"
+  hash_eq global_h2 exp_h            ; assertTrue    hash_merge.1  $?
 }
 
 test_hash_copy-last() {
   local stdout
   declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  stdout="$( declare -p global_h )"   ; assertEquals  hash_copy-last.1  "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h=/}"
+  hash_eq global_h exp_h              ; assertTrue    hash_merge.1  $?
+  
   declare -A exp_h=([a]="5" [c]="6 p" )
-  stdout="$( declare -p global_h2 )"  ; assertEquals  hash_copy-last.2  "$( declare -p exp_h | cut -d= -f2- )"  "${stdout/*global_h2=/}"
+  hash_eq global_h2 exp_h             ; assertTrue    hash_merge.1  $?
 }
 
 test_hash_find-value_() {
