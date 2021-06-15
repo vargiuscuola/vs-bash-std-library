@@ -117,7 +117,7 @@ alias module.import="module_import"
 # @description Return the path of the provided class.
 # @alias module.get-class-path_
 # @arg $1 String Class name
-# @return Path of the file where the class is defined (see the documentation of [module_import()](#module_import) for an explanation of the concept of class in this context).
+# @return Path of the file where the class is defined (see the [Overview](#overview) for an explanation of the concept of class in this context).
 # @example
 #   $ cd /var/cache
 #   $ module.abs-path_ "../lib"
