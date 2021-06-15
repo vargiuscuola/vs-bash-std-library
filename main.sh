@@ -18,8 +18,8 @@ module.import "args"
 #
 
 # @global-header Flags
-# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced? This flag is automatically set when module is loaded
-# @global _MAIN__FLAGS[SOURCED] Bool Is the current process running in an interactive shell? This flag is automatically set when module is loaded
+# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced? This flag is automatically set when the module is loaded
+# @global _MAIN__FLAGS[INTERACTIVE] Bool Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
 # @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
 # @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 
@@ -41,7 +41,7 @@ False=1
 # SETTINGS
 #
 
-# @setting _MAIN__KILL_PROCESS_WAIT_INTERVAL Number[0.1] Seconds to wait between checks whether a process has been successfully killed
+# @setting _MAIN__KILL_PROCESS_WAIT_INTERVAL Number[0.1] Seconds to wait between checks to test whether a process has been successfully killed
 [[ -v _MAIN__KILL_PROCESS_WAIT_INTERVAL ]] || _MAIN__KILL_PROCESS_WAIT_INTERVAL=0.1
 
 # @constant-header Terminal color codes

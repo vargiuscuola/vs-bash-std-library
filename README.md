@@ -12,9 +12,9 @@ Functions are organized in the following modules:
 * package.sh  
   Install a package of shell libraries contained in a git repository
 * module.sh  
-  Load a shell library module.  
-  A module can contain one or more classes, where a class is simply a set of homogeneous functions with names prefixed with the name of the class.  
-  For example, the module `main` (described later), contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (which is an alias for the related function).
+  Load a shell library module, which is simply a collection of functions.  
+  A module can contain one or more classes, where a class is a set of homogeneous functions with names prefixed with the name of the class.  
+  For example, the module `main` (described later) contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (which is an alias for the related function): see the naming conventions described below
 * main.sh  
   Generic functions for manipulating arrays, hashes, strings, coloured messages and more
 * trap.sh  
@@ -49,3 +49,35 @@ module.import "std-lib.bash/trap"
 * [trap.sh](REFERENCE-trap.md)
 * [args.sh](REFERENCE-args.md)
 
+## Guidelines and conventions
+
+### Return values
+
+Most of the functions returning a value provide it through a global variable which `__` for a scalar value, `__a` for an array and `__h` for an associative array or hash: it is useful to avoid the calling script having to get the value through a subshell as in `ret=$( func )`.
+
+The functions returning a value through a global variable end with an underscore `_`, such as in `array_find_`: see the [naming conventions](#naming-conventions) below.
+
+### Naming conventions
+
+A module can contain one or more classes, where a class is a set of homogeneous functions with names prefixed with the name of the class.
+For example, the module `main` contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_`, such as `array_find` and `array_include`.
+For a module containing only one class, the name of the class is the name of the module, as in the module `trap.sh` where all functions start with `trap_`.
+
+Usually for every function with a name `<class>_<function-name>` is defined an alias in the form `<class>.<function-name>`.
+
+A function name ends with an underscore `_` if it returns a value in a global variable (see the [Return values conventions](#return-values) above).
+Sometimes alongside a function returning a value in a global variable, is defined a corresponding function with the same name apart the ending `_` and returning the value through the standard output (see for example in `array_find_` and `array_find`).
+
+The function name con contain a dash character `-`, such as in `datetime_interval-to-sec_`: I don't know if it's a good idea but so it is (I used to add an ending
+`?` for the function returning a true/false value in the `ruby` style, but `bash` apparently ended supporting it).
+
+### Performance optimizations
+
+The libraries contained in this repository are performance wise: I would have preferred not to worry about it, and usually I don't do it with `bash` scripts, but I'm going to use them for a command completion library which needed to be responsive.
+
+The general rules I followed are:
+
+* return values in global variables if possible (see [Return values conventions](#return-values) above)) toi avoid the calling script having to get the value through a subshell
+* use `bash` builtins whenever possible, such as regular expression substitutions with `${var/search/replace}` instead of piping to `sed`
+
+I didn't test everything, but when I did it the aforementioned rules showed me a substantial improvement.
