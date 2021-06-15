@@ -2,7 +2,7 @@
 #github-action genshdoc
 
 # if already sourced, return
-[[ -v _MODULE__LOADED ]] && return || _MODULE__LOADED=True
+[ -v _MODULE__LOADED ] && return || _MODULE__LOADED=True
 
 # @file module.sh
 # @brief Include shell libraries modules
@@ -91,7 +91,7 @@ module_import() {
   else
     local loaded_module
     for loaded_module in "${_MODULE__IMPORTED_MODULES[@]}"; do
-      [[ "$loaded_module" == "$module_path" ]] && return 0
+      [ "$loaded_module" == "$module_path" ] && return 0
     done
   fi
 
@@ -160,3 +160,25 @@ module_list-classes() {
   printf "%s\n" "${_MAIN__CLASSES[@]}"
 }
 alias module.list-classes="module_list-classes"
+
+# @description Print the documentation for the provided function name.
+# @alias module.doc
+# @arg $1 String Function name
+# @stdout Print the documentation for the function
+module_doc() {
+  (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
+  package.get-path_ github.com/vargiuscuola/shdoc
+  local SHDOC_PATH="${__}/shdoc"
+  
+  # get the class and function name
+  local function_name="$1"
+  local class_name=${function_name//.*/}
+  [ "$class_name" = "$1" ] && class_name=${function_name//_*/}
+  [ -z "$class_name" ] && { errmsg "Cannot find the class of the function '$function_name'" ; return 1 ; }
+
+  # get the path of the class
+  module_get-class-path_ "$class_name"
+  [ -z "$__" ] && { errmsg "The class '$class_name' has not been loaded" ; return 1 ; }
+  ${SHDOC_PATH} < "$__" | sed -nE -e "/## ${function_name/./_}\(\)/,/^## /p" | head -n -1
+}
+alias module.doc="module_doc"

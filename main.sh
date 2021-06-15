@@ -3,10 +3,18 @@
 
 # if already sourced, return
 [[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
-declare -a _MAIN__CLASSES=(main array hash shopt datetime list process)
+declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process)
 
 # @file main.sh
-# @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.)
+# @brief Generic bash library functions (management of messages, traps, arrays, hashes, strings, etc.).
+#  It contains the following classes: main
+#    array
+#    hash
+#    shopt
+#    datetime
+#    list
+#    process
+#  Use the command `module.doc <function_name>` to see the documentation for a function.
 # @show-internal
 shopt -s expand_aliases
 

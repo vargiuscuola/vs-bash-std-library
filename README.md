@@ -53,7 +53,7 @@ module.import "std-lib.bash/trap"
 
 ### Return values
 
-Most of the functions returning a value provide it through a global variable which `__` for a scalar value, `__a` for an array and `__h` for an associative array or hash: it is useful to avoid the calling script having to get the value through a subshell as in `ret=$( func )`.
+Most of the functions returning a value provide it through a global variable which `__` for a scalar value, `__a` for an array and `__h` for an associative array or hash: it is useful to prevent the calling script having to get the value through a subshell as in `ret=$( func )`.
 
 The functions returning a value through a global variable end with an underscore `_`, such as in `array_find_`: see the [naming conventions](#naming-conventions) below.
 
@@ -63,10 +63,10 @@ A module can contain one or more classes, where a class is a set of homogeneous 
 For example, the module `main` contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_`, such as `array_find` and `array_include`.
 For a module containing only one class, the name of the class is the name of the module, as in the module `trap.sh` where all functions start with `trap_`.
 
-Usually for every function with a name `<class>_<function-name>` is defined an alias in the form `<class>.<function-name>`.
+Usually for every function with a name `<class>_<function-name>` is defined an alias in the form `<class>.<function-name>`: so you can use both `array_find_` and `array.find_`.
 
 A function name ends with an underscore `_` if it returns a value in a global variable (see the [Return values conventions](#return-values) above).
-Sometimes alongside a function returning a value in a global variable, is defined a corresponding function with the same name apart the ending `_` and returning the value through the standard output (see for example in `array_find_` and `array_find`).
+Sometimes alongside a function returning a value in a global variable, is defined a corresponding function with the same name apart the ending `_` and returning the value through the standard output (see for example `array_find_` and `array_find`).
 
 The function name con contain a dash character `-`, such as in `datetime_interval-to-sec_`: I don't know if it's a good idea but so it is (I used to add an ending
 `?` for the function returning a true/false value in the `ruby` style, but `bash` apparently ended supporting it).
@@ -77,7 +77,70 @@ The libraries contained in this repository are performance wise: I would have pr
 
 The general rules I followed are:
 
-* return values in global variables if possible (see [Return values conventions](#return-values) above)) toi avoid the calling script having to get the value through a subshell
+* return values in global variables if possible (see [Return values conventions](#return-values) above) to prevent the calling script having to get the value through a subshell
 * use `bash` builtins whenever possible, such as regular expression substitutions with `${var/search/replace}` instead of piping to `sed`
 
 I didn't test everything, but when I did it the aforementioned rules showed me a substantial improvement.
+
+## Examples
+
+Let's start loading the `main` module:
+
+```bash
+$ source "/lib/sh/std-lib.bash/module.sh"
+$ module.import "std-lib.bash/main"
+$ module.import "std-lib.bash/trap"
+```
+
+To see which classes are contained in a module:
+
+```bash
+$ module.list-classes main
+main
+array
+hash
+shopt
+datetime
+list
+process
+```
+
+To list the functions included in a class:
+```bash
+$ module.list-class-functions hash
+# Functions
+hash_copy
+hash_defined
+hash_eq
+hash_find-value_
+hash_has-key
+hash_init
+hash_merge
+# Aliases
+hash.copy
+hash.defined
+hash.find-value_
+hash.has-key
+hash.init
+hash.merge
+hash.to_s
+```
+
+We want to see the documentation of a function, so we need to load the package `vargiuscuola/shdoc` from github:
+
+```bash
+$ module.list-class-functions hash
+package.load github.com/vargiuscuola/shdoc
+```
+
+which clone the repository to `/lib/sh/github.com/vargiuscuola/shdoc`.
+
+Then we can see the documentation for every function (only function names, not aliases, I'm sorry):
+
+```bash
+$ module.doc hash_find-value_
+## hash_find-value_()
+
+Return the key of the hash which have the provided value.
+[...]
+```
