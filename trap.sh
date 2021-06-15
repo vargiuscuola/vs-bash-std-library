@@ -5,7 +5,14 @@
 [[ -v _TRAP__LOADED ]] && return || _TRAP__LOADED=True
 
 # @file trap.sh
-# @brief Manage shell traps
+# @brief Manage shell traps and provide stack trace functionalities.
+# @description It provide two features: the management of trap handlers (with the support of multiple handlers per signal) and stack trace funtionalities for debugging purposes.  
+#   The stack trace allow to set which functions to trace, giving an extensive report of the code execution including:
+#   * current and previous line number
+#   * current and previous command
+#   * current function
+#   * function stack
+#   Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
 
@@ -199,15 +206,15 @@ trap_suspend-trace() { : trap_suspend-trace ; }
 :trap_handler-helper() {
   args_check-number 1
   local current_command="$BASH_COMMAND" exitcode="$?"
-  local __backup="$__"                                                # backup of global variable $__
+  local __backup="$__" # backup of global variable $__
   local sig="${1^^}" idx label code input
-  while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&        # if it's a DEBUG signal and trace is enabled and
+  while [[ "$sig" = DEBUG && "$_TRAP__TEMP_LINENO" != 1 && "$_TRAP__IS_COMMAND_TRACE_ENABLED" = $True &&          # if it's a DEBUG signal and trace is enabled and
     ( "$_TRAP__LAST_LINENO" != "$_TRAP__TEMP_LINENO" || "$_TRAP__CURRENT_COMMAND" != "$current_command"  ) ]] &&  # if current command or line number is changed and
-    ! list.include :trap_handler-helper "${FUNCNAME[@]:1}"; do                            # if the stack trace, apart the current function, doesn't include :trap_handler-helper
-                                                            # then provice tracing functionality...
+    ! list.include :trap_handler-helper "${FUNCNAME[@]:1}"; do                # if the stack trace, apart the current function, doesn't include :trap_handler-helper
+                                                                              # then provice tracing functionality...
     array.find-indexes_ FUNCNAME :trap_handler-helper
     local new_current_funcname="${FUNCNAME[1]}"
-    # if trap.suspend-trace is called, enable the trace suspension keeping track of the current function name and his index in the stack trace 
+    # if trap.suspend-trace is called, enable the trace suspension keeping track of the current function name and his index in the stack trace
     if [[ -z "$_TRAP__SUSPEND_COMMAND_TRACE" && ( "$current_command" = ": trap_suspend-trace" || "$current_command" = ": trap.suspend-trace" ) ]]; then
       _TRAP__SUSPEND_COMMAND_TRACE=$new_current_funcname
       _TRAP__SUSPEND_COMMAND_TRACE_IDX="$(( 1-${#FUNCNAME[@]} ))"

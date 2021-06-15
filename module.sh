@@ -6,6 +6,13 @@
 
 # @file module.sh
 # @brief Include shell libraries modules
+# @description Allow loading of libraries modules which simply are script files containing libraries of functions organized in classes.  
+#   A module can contain one or more classes, where a class is a set of homogeneous functions with names prefixed with the name of the class.  
+#   For example, the module [main](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-main.md) contains classes as `array`, `hash` etc.,
+#   with functions of class `array` starting with the prefix `array_`.  
+#   For a module containing only one class, the name of the class is the name of the module, as in the module [trap](https://github.com/vargiuscuola/std-lib.bash/blob/master/REFERENCE-trap.md)
+#   where all functions start with `trap_`.
+#   Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
 source "$(dirname "${BASH_SOURCE[0]}")/package.sh"

@@ -4,8 +4,6 @@
   <a href="https://github.com/vargiuscuola/std-lib.bash"><img alt="vs-bash-std-library Actions Status" src="https://github.com/vargiuscuola/vs-bash-std-library/workflows/CI%20Workflow/badge.svg"></a>
 </p>
 
-**These libraries are incomplete and still not intended for use**
-
 Some bash libraries to manage and manipulate traps, locks, arguments, arrays, hashes, strings and others.
 Functions are organized in the following modules:
 
@@ -40,8 +38,6 @@ module.import "std-lib.bash/trap"
 ```
 
 ## Reference
-
-**Documentation is still incomplete and in progress**
 
 * [main.sh](REFERENCE-main.md)
 * [package.sh](REFERENCE-package.md)
