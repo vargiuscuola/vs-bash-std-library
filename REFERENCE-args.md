@@ -5,8 +5,11 @@ Provide argument parsing functionalities
 
 # Overview
 
-Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+Basic argument parsing functionalities
+The code and functionalities of the functon `args_parse` is a mix of the following two github projects:
+* [reconquest/args](https://github.com/reconquest/args)
+* [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
+Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Global Variables
 

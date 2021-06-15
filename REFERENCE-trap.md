@@ -1,11 +1,17 @@
 # trap.sh
 
-Manage shell traps
+Manage shell traps and provide stack trace functionalities.
 
 
 # Overview
 
-Test whether a trap with provided label for the provided signal is defined.
+It provide two features: the management of trap handlers (with the support of multiple handlers per signal) and stack trace funtionalities for debugging purposes.  
+The stack trace allow to set which functions to trace, giving an extensive report of the code execution including:
+* current and previous line number
+* current and previous command
+* current function
+* function stack
+Use the command `module.doc <function_name>` to see the documentation for a function (see documentation [here](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Global Variables
 

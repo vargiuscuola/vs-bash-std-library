@@ -94,7 +94,6 @@ Use the command `module.doc <function_name>` to see the documentation for a func
 * [process_kill()](#process_kill)
 * [env_PATH_append-item()](#env_path_append-item)
 * [env_PATH_prepend-item()](#env_path_prepend-item)
-* [get_ext_color()](#get_ext_color)
 
 
 ## main_dereference-alias_()
@@ -951,30 +950,5 @@ _Function has no arguments._
 ### Arguments
 
 * **$1** (String): Path to prepend
-
-## get_ext_color()
-
-### Arguments
-
-* **$1** (number): Foreground color
-
-### Arguments
-
-* **$2** (number): Background color
-
-### Example
-
-```bash
-get_ext_color 208
-  => \e[38;5;208m
-```
-
-### Exit codes
-
-* n.a.
-
-### Output on stdout
-
-* Color code.
 
 
