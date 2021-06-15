@@ -15,6 +15,7 @@ It contains the following classes:
 * datetime
 * list
 * process
+* timer
 
 Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
