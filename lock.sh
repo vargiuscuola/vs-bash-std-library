@@ -9,7 +9,8 @@
 # @description Although different precautions are put into practice to avoid inconsistencies due to concurrency, some operations are not atomic so this library is not concurrency safe.
 #   Specifically, the lock creation is atomic, while the deletion or release mechanism is not.  
 #   More appropriate tools for locking couldn't be used because I wanted it to be cross platform, working on Git for Windows as well as in Linux.  
-#   Avoid to use it if your requirements expect a solid locking mechanism.  
+#   Avoid to use it if your requirements expect a solid locking mechanism.
+#   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases

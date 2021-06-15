@@ -12,6 +12,7 @@
 #   * current and previous command
 #   * current function
 #   * function stack
+#   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
