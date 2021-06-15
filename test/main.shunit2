@@ -112,9 +112,12 @@ test_array_init() {
 
 test_array_uniq_() {
   declare -a ary=(item1 item2 "item 3 x" item2 "item 3 x" "item 4 y" item1)
-  array_uniq_ "${ary[@]}"  ; assertEquals array_uniq_.1 '([0]="item 3 x" [1]="item 4 y" [2]="item1" [3]="item2")'  "$( declare -p __a | cut -d= -f2- )"
+  declare -a exp_ary=([0]="item 3 x" [1]="item 4 y" [2]="item1" [3]="item2")
+  set_eq ary exp_ary       ; assertTrue array_uniq_.1 $?
+  
   declare -a ary=(item1 item2 item3)
-  array_uniq_ "${ary[@]}"  ; assertEquals array_uniq_.1 '([0]="item1" [1]="item2" [2]="item3")'                    "$( declare -p __a | cut -d= -f2- )"
+  declare -a exp_ary=([0]="item1" [1]="item2" [2]="item3")
+  set_eq ary exp_ary       ; assertTrue array_uniq_.2 $?
 }
 
 

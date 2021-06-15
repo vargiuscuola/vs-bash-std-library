@@ -483,8 +483,8 @@ alias array.uniq="array_uniq"
 #   $ array.eq ary1 ary2
 #   # exitcode=0
 array_eq() {
-  declare -a _array_eq_ary1=$( array_to_s $1 )
-  declare -a _array_eq_ary2=$( array_to_s $2 )
+  declare -n _array_eq_ary1=$1
+  declare -n _array_eq_ary2=$2
   local i
   [ "${#_array_eq_ary1[@]}" != "${#_array_eq_ary2[@]}" ] && return 1
   for i in "${!_array_eq_ary1[@]}"; do
@@ -507,6 +507,40 @@ array_to_s() {
 }
 alias array.to_s="array_to_s"
 alias hash.to_s="array_to_s"
+
+############
+#
+# SET FUNCTIONS
+#
+############
+
+# @description Compare two sets (a set is an array where index associated to values are negligibles)
+# @alias set.eq
+# @arg $1 String First array name
+# @arg $2 String Second array name
+# @exitcodes 0 if the values of arrays are the same, 1 otherwise
+# @example
+#   $ declare -a ary1=(1 2 3 1 1)
+#   $ declare -a ary2=(3 2 1 2 2)
+#   $ set.eq ary1 ary2
+#   # exitcode=0
+set_eq() {
+  declare -A _set_eq_values1
+  declare -A _set_eq_values2
+  local v
+  # convert set n.1 to hash
+  declare -n _set_eq_ary=$1
+  for v in "${_set_eq_ary[@]}"; do
+    _set_eq_values1[$v]=1
+  done
+  # convert set n.2 to hash
+  declare -n _set_eq_ary=$2
+  for v in "${_set_eq_ary[@]}"; do
+    _set_eq_values2[$v]=1
+  done
+  hash_eq _set_eq_values1 _set_eq_values2
+}
+alias set.eq="set_eq"
 
 ############
 #
@@ -771,8 +805,8 @@ alias hash.find-value_="hash_find-value_"
 #   $ hash.eq h1 h2
 #   # exitcode=0
 hash_eq() {
-  declare -A _hash_eq_h1=$( array_to_s $1 )
-  declare -A _hash_eq_h2=$( array_to_s $2 )
+  declare -n _hash_eq_h1=$1
+  declare -n _hash_eq_h2=$2
   local i
   [ "${#_hash_eq_h1[@]}" != "${#_hash_eq_h2[@]}" ] && return 1
   for i in "${!_hash_eq_h1[@]}"; do
