@@ -13,6 +13,17 @@
 #   * current function
 #   * function stack
 #   
+#   For adding a couple of handlers to the `TERM` signal:
+#   ```sh
+#   trap.add-handler LABEL "echo TERM1" TERM
+#   trap.add-handler LABEL "echo TERM2" TERM
+#   ```
+#   
+#   You can enable a step trace and step into debugging functionalities to specific function with:
+#   ```sh
+#   trap.step-trace-add --step-over <func1> <func2> --step-into <func3>
+#   ```
+#   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
