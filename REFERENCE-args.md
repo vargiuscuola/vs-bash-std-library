@@ -38,7 +38,7 @@ Validate the number of arguments, writing an error message and exiting if the ch
 
 ### Exit codes
 
-* Standard (0 on success, 1 on fail)
+* Standard (0 on check passed, 1 otherwise)
 
 ### Output on stderr
 
