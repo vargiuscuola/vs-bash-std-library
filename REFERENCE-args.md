@@ -29,12 +29,11 @@ Basic argument parsing functionalities.
 ## args_check-number()
 
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-  This is actually an alias which point to `:args_check-number $#`.
+  This is actually an alias which resolve to `:args_check-number $#`, useful to get the number of arguments `$#` from the calling function.
 
 ### Arguments
 
-* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
-* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+* **$1** (Number): The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
 * **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 
 ### Exit codes
@@ -117,5 +116,10 @@ $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
   This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+
+### Arguments
+
+* **$2** (Number): The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
+* **$3** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 
 
