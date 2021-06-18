@@ -55,7 +55,7 @@ alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERRO
 # @alias args.check-number
 # @arg $1 Number The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
 # @arg $2 Number (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
-# @exitcodes Standard (0 on success, 1 on fail)
+# @exitcodes Standard (0 on check passed, 1 otherwise)
 # @stderr Print an error message in case of failed validation
 # @example
 #   $ args.check-number 2
