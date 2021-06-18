@@ -22,8 +22,37 @@ Basic argument parsing functionalities.
 
 
 # Functions
+* [args_check-number()](#args_check-number)
 * [args_parse()](#args_parse)
 
+
+## args_check-number()
+
+Validate the number of arguments, writing an error message and exiting if the check is not passed.  
+  This is actually an alias which point to `:args_check-number $#`.
+
+### Arguments
+
+* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
+* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+* **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
+
+### Exit codes
+
+* Standard (0 on success, 1 on fail)
+
+### Output on stderr
+
+* Print an error message in case of failed validation
+
+### Example
+
+```bash
+$ args.check-number 2
+$ alias alias2="alias1"
+$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
+# return __="func1"
+```
 
 ## args_parse()
 
@@ -81,35 +110,12 @@ $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 
 
 # Internal Functions
-* [args_check-number()](#args_check-number)
+* [:args_check-number()](#args_check-number)
 
 
-## args_check-number()
+## :args_check-number()
 
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-  This is actually an alias which point to `:args_check-number $#`.
-
-### Arguments
-
-* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
-* **$2** (Number): The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
-* **$2** (Number): (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
-
-### Exit codes
-
-* Standard (0 on success, 1 on fail)
-
-### Output on stderr
-
-* Print an error message in case of failed validation
-
-### Example
-
-```bash
-$ args.check-number 2
-$ alias alias2="alias1"
-$ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
-# return __="func1"
-```
+  This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
 
 

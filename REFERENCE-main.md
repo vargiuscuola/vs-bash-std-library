@@ -10,9 +10,9 @@ Contains functions to manipulate different data types (strings, array and associ
     * main
     * array
     * hash
-    * shopt
-    * datetime
     * list
+    * datetime
+    * shopt
     * process
     * timer
   
