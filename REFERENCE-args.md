@@ -31,6 +31,10 @@ Basic argument parsing functionalities.
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
   This is actually an alias which resolve to `:args_check-number $#`, useful to get the number of arguments `$#` from the calling function.
 
+### Aliases
+
+* **args.check-number**
+
 ### Arguments
 
 * **$1** (Number): The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
@@ -61,6 +65,10 @@ Parse the command line options.
   The code and functionalities is a mix of the following two github projects:
   * [reconquest/args](https://github.com/reconquest/args)
   * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
+
+### Aliases
+
+* **args.parse**
 
 ### Arguments
 
@@ -116,6 +124,10 @@ $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
   This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+
+### Arguments
+
+* **$1** (Number): The number of arguments to be validated against the number provided in $2, or the interval $2..$3
 
 ### Arguments
 

@@ -2,7 +2,6 @@
 **Library Files**
 * [package.sh](REFERENCE-package.md)
 * [args.sh](REFERENCE-args.md)
-* [info.sh](REFERENCE-info.md)
 * [module.sh](REFERENCE-module.md)
 * [main.sh](REFERENCE-main.md)
 * [lock.sh](REFERENCE-lock.md)

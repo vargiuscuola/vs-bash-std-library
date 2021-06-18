@@ -67,6 +67,7 @@ Contains functions to manipulate different data types (strings, array and associ
 * [timer_elapsed()](#timer_elapsed)
 * [array_find-indexes_()](#array_find-indexes_)
 * [array_find_()](#array_find_)
+* [array_find()](#array_find)
 * [array_include()](#array_include)
 * [array_intersection_()](#array_intersection_)
 * [array_remove-at()](#array_remove-at)
@@ -102,6 +103,10 @@ Contains functions to manipulate different data types (strings, array and associ
 
 Dereference shell aliases: return the name of the function to which an alias point to, resolving it recursively if needed
 
+### Aliases
+
+* **main.dereference-alias_**
+
 ### Arguments
 
 * **$1** (String): Name of alias to dereference
@@ -124,6 +129,10 @@ $ main.dereference-alias_ alias2
 Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
 
+### Exit codes
+
+* Standard (0 for true, 1 for false)
+
 ### Aliases
 
 * **main.is-windows**
@@ -141,6 +150,10 @@ $ main.is-windows
 
 Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
 
+### Aliases
+
+* **main.is-chroot**
+
 ### Exit codes
 
 * Standard (0 for true, 1 for false)
@@ -155,6 +168,10 @@ main.is-chroot
 
 Set the current script path and the current script directory to the global variables `_MAIN__SCRIPTPATH` and `_MAIN__SCRIPTDIR`.
 
+### Aliases
+
+* **main.set-script-path-info**
+
 ### Example
 
 ```bash
@@ -168,6 +185,10 @@ _MAIN__SCRIPTDIR=/usr/local/src
 ## shopt_backup()
 
 Backup the provided shopt options.
+
+### Aliases
+
+* **shopt.backup**
 
 ### Arguments
 
@@ -190,6 +211,10 @@ shopt -s expand_aliases
 ## shopt_restore()
 
 Restore the provided shopt options backuped up by the previously called `shopt.backup` function.
+
+### Aliases
+
+* **shopt.restore**
 
 ### Arguments
 
@@ -214,6 +239,10 @@ shopt -s expand_aliases
 Convert the provided time interval to a seconds interval. The format of the time interval is the following:  
   [\<n\>d] [\<n\>h] [\<n\>m] [\<n\>s]
 
+### Aliases
+
+* **datetime.interval-to-sec_**
+
 ### Arguments
 
 * **...** (String): Any of the following time intervals: \<n\>d (\<n\> days), \<n\>h (\<n\> hours), \<n\>m (\<n\> minutes) and \<n\>s (\<n\> seconds)
@@ -229,6 +258,10 @@ $ datetime.interval-to-sec_ 1d 2h 3m 45s
 
 Start a timer
 
+### Aliases
+
+* **timer.start**
+
 ### Arguments
 
 * **$1** (String)[default: **\_**]: Name of timer
@@ -236,6 +269,10 @@ Start a timer
 ## timer_elapsed()
 
 Return the seconds elapsed for the provided timer
+
+### Aliases
+
+* **timer.elapsed**
 
 ### Arguments
 
@@ -257,6 +294,10 @@ $ timer.elapsed timer1
 ## array_find-indexes_()
 
 Return the list of array's indexes which have the provided value.
+
+### Aliases
+
+* **array.find-indexes_**
 
 ### Arguments
 
@@ -283,6 +324,10 @@ $ array.find-indexes_ ary "s 1"
 
 Return the index of the array containing the provided value, or -1 if not found.
 
+### Aliases
+
+* **array.find_**
+
 ### Arguments
 
 * **$1** (String): Array name
@@ -304,9 +349,26 @@ $ array.find_ ary "s 1"
 # return __=3
 ```
 
+## array_find()
+
+Print the index of the array containing the provided value, or -1 if not found.  
+  It have the same syntax as `array.find_` but print the index found on stdout instead of the global variable `$__`
+
+### Aliases
+
+* **array.find_()**
+
+#### See also
+
+* [array_find_()](#array_find_())
+
 ## array_include()
 
 Check whether an item is present in the provided array.
+
+### Aliases
+
+* **array.include**
 
 ### Arguments
 
@@ -328,6 +390,10 @@ $ array.include ary "s 1"
 ## array_intersection_()
 
 Return an array containing the intersection between two arrays.
+
+### Aliases
+
+* **array.intersection_**
 
 ### Arguments
 
@@ -355,6 +421,10 @@ $ array.intersection_ ary1 ary2
 
 Remove the item at the provided index from array.
 
+### Aliases
+
+* **array.remove-at**
+
 ### Arguments
 
 * **$1** (String): Array name
@@ -372,6 +442,10 @@ declare -a ary=([0]="a" [1]="b" [2]="d" [3]="e" [4]="f")
 ## array_remove()
 
 Remove the first instance of the provided item from array.
+
+### Aliases
+
+* **array.remove**
 
 ### Arguments
 
@@ -395,6 +469,10 @@ declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e" [4]="a")
 
 Remove any occurrence of the provided item from array.
 
+### Aliases
+
+* **array.remove-values**
+
 ### Arguments
 
 * **$1** (String): Array name
@@ -413,6 +491,10 @@ declare -a ary=([0]="b" [1]="c" [2]="d" [3]="e")
 
 Check whether an array with the provided name exists.
 
+### Aliases
+
+* **array.defined**
+
 ### Arguments
 
 * **$1** (String): Array name
@@ -425,6 +507,10 @@ Check whether an array with the provided name exists.
 
 Initialize an array (resetting it if already existing).
 
+### Aliases
+
+* **array.init**
+
 ### Arguments
 
 * **$1** (String): Array name
@@ -432,6 +518,10 @@ Initialize an array (resetting it if already existing).
 ## array_uniq_()
 
 Return an array with duplicates removed from the provided array.
+
+### Aliases
+
+* **array.uniq_**
 
 ### Arguments
 
@@ -453,6 +543,10 @@ declare -a __a=([0]="1" [1]="2" [2]="5" [3]="6" [4]="7")
 ## array_eq()
 
 Compare two arrays
+
+### Aliases
+
+* **array.eq**
 
 ### Arguments
 
@@ -478,6 +572,10 @@ Print a string with the definition of the provided array or hash (as shown in `d
 
 ### Aliases
 
+* **array.to_s**
+
+### Aliases
+
 * **hash.to_s**
 
 ### Arguments
@@ -495,6 +593,10 @@ $ array.to_s ary
 ## set_eq()
 
 Compare two sets (a set is an array where index associated to values are negligibles)
+
+### Aliases
+
+* **set.eq**
 
 ### Arguments
 
@@ -520,6 +622,10 @@ Return the index inside a list in which appear the provided searched item.
 
 ### Aliases
 
+* **list.find_**
+
+### Aliases
+
 * **list_include**
 * **list.include**
 
@@ -540,6 +646,10 @@ Return the index inside a list in which appear the provided searched item.
 
 Check whether an item is included in a list of values.
 
+### Aliases
+
+* **list.include**
+
 ### Arguments
 
 * **$1** (String): Item to find
@@ -553,6 +663,10 @@ Check whether an item is included in a list of values.
 
 Escape a string which have to be used as a search pattern in a bash parameter expansion as ${parameter/pattern/string}.
  The escaped characters are `%*[?/`
+
+### Aliases
+
+* **regexp.escape-bash-pattern_**
 
 ### Arguments
 
@@ -574,6 +688,10 @@ $ regexp.escape-bash-pattern_ 'a * x #'
 Escape a string which have to be used as a search pattern in a extended regexp in `sed` or `grep`.
   The escaped characters are the following: `{$.*[\^|]`.
 
+### Aliases
+
+* **regexp.escape-ext-regexp-pattern_**
+
 ### Arguments
 
 * **$1** (String): String to be escaped
@@ -594,6 +712,10 @@ $ regexp.escape-ext-regexp-pattern_ "[WW]"  "W"
 
 Escape a string which have to be used as a replace string on a `sed` command.
   The escaped characters are the separator character and the following characters: `/&`.
+
+### Aliases
+
+* **regexp.escape-ext-regexp-pattern_**
 
 ### Arguments
 
@@ -619,6 +741,10 @@ Append a string to the content of the provided variable, optionally prefixing it
 
 ### Aliases
 
+* **string.append**
+
+### Aliases
+
 * **string.concat**
 
 ### Arguments
@@ -639,6 +765,10 @@ Append a string to the content of the provided variable, optionally prefixing it
 
 Check whether an hash with the provided name exists.
 
+### Aliases
+
+* **hash.defined**
+
 ### Arguments
 
 * **$1** (String): Hash name
@@ -651,6 +781,10 @@ Check whether an hash with the provided name exists.
 
 Initialize an hash (resetting it if already existing).
 
+### Aliases
+
+* **hash.init**
+
 ### Arguments
 
 * **$1** (String): Hash name
@@ -658,6 +792,10 @@ Initialize an hash (resetting it if already existing).
 ## hash_has-key()
 
 Check whether a hash contains the provided key.
+
+### Aliases
+
+* **hash.has-key**
 
 ### Arguments
 
@@ -671,6 +809,10 @@ Check whether a hash contains the provided key.
 ## hash_merge()
 
 Merge two hashes.
+
+### Aliases
+
+* **hash.merge**
 
 ### Arguments
 
@@ -691,6 +833,10 @@ declare -A h1=([a]="5" [b]="2" [c]="6" [e]="3" )
 
 Copy an hash.
 
+### Aliases
+
+* **hash.copy**
+
 ### Arguments
 
 * **$1** (String): Variable name of the hash to copy from
@@ -709,6 +855,10 @@ declare -A h2=([a]="1" [b]="2" [e]="3")
 
 Return the key of the hash which have the provided value.
 
+### Aliases
+
+* **hash.find-value_**
+
 ### Arguments
 
 * **$1** (String): Hash name
@@ -726,6 +876,10 @@ b
 ## hash_eq()
 
 Compare two hashes
+
+### Aliases
+
+* **hash.eq**
 
 ### Arguments
 
@@ -749,6 +903,10 @@ $ hash.eq h1 h2
 
 Get the first file descriptor number available.
 
+### Aliases
+
+* **hfd.get_**
+
 _Function has no arguments._
 
 ### Return with global scalar $__, array $__a or hash $__h
@@ -758,6 +916,24 @@ _Function has no arguments._
 ## process_is-child()
 
 Test if process with provided PID is a child of the current process.
+
+Check if a process with provided PID exists.
+
+### Aliases
+
+* **process.exists**
+
+### Arguments
+
+* **$1** (Number): PID of the process
+
+### Exit codes
+
+* 0 if process exists, 1 otherwise
+
+### Aliases
+
+* **process.is-child**
 
 ### Arguments
 
@@ -770,6 +946,10 @@ Test if process with provided PID is a child of the current process.
 ## process_kill()
 
 Kill a process and wait for the process to actually terminate.
+
+### Aliases
+
+* **process.kill**
 
 ### Arguments
 
@@ -785,6 +965,10 @@ Kill a process and wait for the process to actually terminate.
 
 Append the provided path to the `PATH` environment variable.
 
+### Aliases
+
+* **env.PATH.append-item**
+
 ### Arguments
 
 * **$1** (String): Path to append
@@ -792,6 +976,10 @@ Append the provided path to the `PATH` environment variable.
 ## env_PATH_prepend-item()
 
 Prepend the provided path to the `PATH` environment variable.
+
+### Aliases
+
+* **env.PATH.prepend-item**
 
 ### Arguments
 

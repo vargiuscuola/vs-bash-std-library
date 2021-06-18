@@ -73,6 +73,10 @@ It provide two features: the management of trap handlers (with the support of mu
 
 Test whether a trap with provided label for the provided signal is defined.
 
+### Aliases
+
+* **trap.has-handler**
+
 ### Arguments
 
 * **$1** (String): Label of the handler
@@ -92,6 +96,10 @@ $ trap.has-handler LABEL TERM
 
 Add a trap handler.  
   It is possible to call this function multiple times for the same signal, which will generate an array of handlers for that signal stored in array `_TRAP__HOOKS_LIST_<signal>`.
+
+### Aliases
+
+* **trap.add-handler**
 
 ### Arguments
 
@@ -115,14 +123,26 @@ $ trap.add-handler LABEL "echo EXIT" TERM
 Enable command tracing by setting a null trap for signal `DEBUG` with the purpose of collecting the data related to the stack trace.  
   The actual management of the stack trace is done by [:trap_handler-helper()](#trap_handler-helper)
 
+### Aliases
+
+* **trap.enable-trace**
+
 ## trap_is-trace-enabled()
 
 Check whether the debug trace is enabled (see [trap_enable-trace](#trap_enable-trace)).
+
+### Aliases
+
+* **trap.is-trace-enabled**
 
 ## trap_add-error-handler()
 
 Set an handler for the EXIT signal useful for error management.  
   To be able to catch every error, the shell option `-e` is enabled. The ERR signal is not used instead because it doesn't allow to catch failing commands inside functions.
+
+### Aliases
+
+* **trap.add-error-handler**
 
 ### Arguments
 
@@ -140,6 +160,10 @@ $ trap.add-error-handler CHECKERR trap.show-stack-trace
 
 Remove a trap handler.
 
+### Aliases
+
+* **trap.remove-handler**
+
 ### Arguments
 
 * **$1** (String): Label of the trap handler to delete (as used in [trap_add-handler()](#trap_add-handler))
@@ -155,6 +179,10 @@ $ trap.remove-handler LABEL TERM
 
 Show all trap handlers.
 
+### Aliases
+
+* **trap.show-handlers**
+
 ### Output on stdout
 
 * List of trap handlers, with the following columns separated by tab: `signal`, `index`, `label`, `action code`
@@ -165,6 +193,10 @@ Suspend debug trace for the calling function and the inner ones.
   It must be called with the no-op bash built-in command, as in `: trap_suspend-trace` or `: trap.suspend-trace`: it means the function will not be actually called, but that syntax will be
   intercepted and treated by the debug trace manager. That allows to suspend the debug trace immediately, differently than calling a real `trap_suspend-trace` function which will fulfill that
   request too late (for the purpose of not tampering with the stack).
+
+### Aliases
+
+* **trap.suspend-trace**
 
 ### Example
 
@@ -180,6 +212,10 @@ func_not_to_be_traced() {
 
 Configure the step trace adding the provided functions to the list of step-trace enabled functions.  
    It's possible to specify two types of step trace for every provided function: `step into` will enable the step trace for every command in the function and will be inherited by the called functions; `step over` will enable the step trace for every command in the function, but the debug trace functionality will not be inherited by the called functions.
+
+### Aliases
+
+* **trap.step-trace-add**
 
 ### Arguments
 
@@ -201,9 +237,17 @@ $ trap.step-trace-add --step-over func1 func2 --step-into func3    # Add func1 a
 
 Reset the step trace function list.
 
+### Aliases
+
+* **trap.step-trace-reset**
+
 ## trap_step-trace-list()
 
 Show the list of functions for which is enabled the step trace.
+
+### Aliases
+
+* **trap.step-trace-list**
 
 ### Example
 
@@ -218,6 +262,10 @@ step-over|func3
 ## trap_step-trace-remove()
 
 Remove the provided functions from the list of functions for which is enabled the step trace (see [trap_step-trace-add()](#trap_step-trace-add)).
+
+### Aliases
+
+* **trap.step-trace-remove**
 
 ### Arguments
 
@@ -243,13 +291,25 @@ step-over|func2
 Enable the step trace, as configured by [trap_step-trace-add()](#trap_step-trace-add), [trap_step-trace-remove()](#trap_step-trace-remove) or [trap_step-trace-reset()](#trap_step-trace-reset).  
   The script will pause when reaching one of the traced functions, show a debug information and wait for user input.  
 
+### Aliases
+
+* **trap.step-trace-start**
+
 ## trap_step-trace-stop()
 
 Disable the step trace.
 
+### Aliases
+
+* **trap.step-trace-stop**
+
 ## trap_show-stack-trace()
 
 Show error information.
+
+### Aliases
+
+* **trap.show-stack-trace**
 
 ### Arguments
 
@@ -271,6 +331,10 @@ trap.add-error-handler CHECKERR trap.show-stack-trace
 
 Trap handler helper.  
   It's used as the action in `trap` built-in bash command, and take care of dispatching the signals to the users' handlers set by [trap_add-handler](#trap_add-error-handler) or [trap_add-error-handler](#trap_add-handler).
+
+### Aliases
+
+* **trap.handler-helper**
 
 ### Arguments
 

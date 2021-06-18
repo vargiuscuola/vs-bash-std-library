@@ -17,6 +17,7 @@ Allow loading of libraries modules which simply are script files containing libr
 # Global Variables
 
 * **\_MODULE__CLASS_TO_PATH** (Hash): Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function or his alias `module.import`
+* **\_MODULE__SHDOC_DIR** (String): Cache the path of the package github.com/vargiuscuola/shdoc (used by the function `module_doc` and his alias `module.doc`
 * **\_MODULE__IMPORTED_MODULES** (Array): Imported modules
 
 
@@ -41,6 +42,10 @@ Import a module, i.e. a shell library path which is sourced by the current funct
   For example, the module `github/vargiuscuola/std-lib.bash/args`, which doesn't declare the variable `_ARGS_CLASSES`, is supposed to define only one class named `args`.  
   The concept of class in this context refers to an homogeneous set of functions all starting with the same prefix `<class name>_` as in `args_check-number` and `args_parse`.
 
+### Aliases
+
+* **module.import**
+
 ### Arguments
 
 * **$1** (String): Module path. Shell extension `.sh` can be omitted
@@ -64,6 +69,10 @@ $ module.import --force args
 
 Return the path of the provided class.
 
+### Aliases
+
+* **module.get-class-path_**
+
 ### Arguments
 
 * **$1** (String): Class name
@@ -83,6 +92,10 @@ $ module.abs-path_ "../lib"
 ## module_list-class-functions()
 
 List the functions of the provided class, which must be already loaded with `module.import` or at least `source`-ed.
+
+### Aliases
+
+* **module.list-class-functions**
 
 ### Arguments
 
@@ -106,6 +119,10 @@ args_to_str_
 ## module_list-classes()
 
 List the classes defined inside a module.
+
+### Aliases
+
+* **module.list-classes**
 
 ### Arguments
 
@@ -132,9 +149,13 @@ array
 
 Print the documentation for the provided function name.
 
+### Aliases
+
+* **module.doc**
+
 ### Arguments
 
-* **$1** (String): Function name
+* **$1** (String): Function or alias name
 
 ### Output on stdout
 
@@ -149,6 +170,10 @@ Print the documentation for the provided function name.
 ## :module_abs-path_()
 
 Return normalized absolute path.
+
+### Aliases
+
+* **module.abs-path_**
 
 ### Arguments
 

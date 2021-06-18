@@ -37,6 +37,10 @@ Although different precautions are put into practice to avoid inconsistencies du
 Remove lock and kill associated process if present.  
   **This function is not concurrent safe.**
 
+### Aliases
+
+* **lock.kill**
+
 ### Arguments
 
 * **$1** (String)[default: **Caller script name**]: An arbitrary lock name
@@ -51,6 +55,10 @@ Remove lock and kill associated process if present.
 
 Release lock if current process own it.  
   **This function is not concurrent safe.**
+
+### Aliases
+
+* **lock.release**
 
 ### Arguments
 
@@ -67,6 +75,10 @@ Release lock if current process own it.
 Check if a lock is currently active, i.e. if file lock is present and the process holding it is still running.
  If the process holding a lock is already terminated, the lock is released.
 
+### Aliases
+
+* **lock.is-active**
+
 ### Arguments
 
 * **$1** (String)[default: **Caller script name**]: Lock name
@@ -81,6 +93,10 @@ Check if a lock is currently active, i.e. if file lock is present and the proces
 
 All stale locks created by terminated processes are released.
 
+### Aliases
+
+* **lock.cleanup**
+
 ### Exit codes
 
 * **0**: One or more locks has been released
@@ -94,6 +110,10 @@ All stale locks created by terminated processes are released.
 
 Check if the current process is holding the provided lock.
 
+### Aliases
+
+* **lock.is-mine**
+
 ### Arguments
 
 * **$1** (String)[default: **Caller script name**]: Lock name
@@ -105,6 +125,10 @@ Check if the current process is holding the provided lock.
 ## lock_list_()
 
 List of locks owned by the current process of by the process with the provided pid.
+
+### Aliases
+
+* **lock.list_**
 
 ### Arguments
 
@@ -118,6 +142,10 @@ List of locks owned by the current process of by the process with the provided p
 
 Try to obtain a lock.  
   **This function is not concurrent safe.**
+
+### Aliases
+
+* **lock.new**
 
 ### Arguments
 
