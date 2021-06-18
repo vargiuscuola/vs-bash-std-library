@@ -2,12 +2,12 @@
 
 Load shell libraries packages as git repositories
 
-
 # Overview
 
 Allow loading of shell libraries packages provided in git repositories with a simple command as `package.load github.com/vargiuscuola/shdoc`.
+  
+  Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
-Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 # Settings
 
@@ -22,9 +22,7 @@ Use the command `module.doc <function_name>` to see the documentation for a func
 
 ## package_get-lib-dir_()
 
-### Aliases
-
-* **package.get-lib-dir_**
+Return the library base path.
 
 _Function has no arguments._
 
@@ -41,9 +39,7 @@ $ package.get-lib-dir_
 
 ## package_get-path_()
 
-### Aliases
-
-* **package.get-path_**
+Return the path of the provided package
 
 ### Arguments
 
@@ -62,9 +58,7 @@ $ package_get-path_ github.com/vargiuscuola/std-lib.bash
 
 ## package_load()
 
-### Aliases
-
-* **package.load**
+Load required package, cloning the git repository hosting it.
 
 ### Arguments
 
