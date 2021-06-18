@@ -22,6 +22,12 @@ It provide two features: the management of trap handlers (with the support of mu
   trap.step-trace-add --step-over <func1> <func2> --step-into <func3>
   ```
   
+  You can add an error handler in case an error is raised with the command `trap.add-error-handler <LABEL> <COMMAND>`.
+  In particular you can show the stack trace when an error is raised with:
+  ```sh
+  trap.add-error-handler CHECKERROR trap.show-stack-trace
+  ```
+  
   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 
