@@ -35,6 +35,9 @@ alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERRO
 # @internal
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
 #   This is an helper function: don't use it directly, use `args_check-number` or his alias `args.check-number` instead.
+# @arg $1 Number The number of arguments to be validated against the number provided in $2, or the interval $2..$3
+# @arg $2 Number The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
+# @arg $3 Number (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 :args_check-number() {
   : trap.suspend-trace
   local max="${3:-$2}"
@@ -48,10 +51,9 @@ alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERRO
 }
 
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-#   This is actually an alias which point to `:args_check-number $#`.
+#   This is actually an alias which resolve to `:args_check-number $#`, useful to get the number of arguments `$#` from the calling function.
 # @alias args.check-number
-# @arg $1 Number The number of arguments to be validated against the number provided in $2, or the interval $2..$3
-# @arg $2 Number The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
+# @arg $1 Number The minimum number of arguments (if $2 is provided), or the mandatory number or arguments (if $2 is not provided)
 # @arg $2 Number (Optional) Maximum number of arguments: can be `-` if there is no limit on the number of maximum arguments
 # @exitcodes Standard (0 on success, 1 on fail)
 # @stderr Print an error message in case of failed validation
