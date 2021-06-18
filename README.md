@@ -125,6 +125,7 @@ hash.to_s
 We want to see the documentation of a function, so we need to load the package `vargiuscuola/shdoc` from github:
 
 ```bash
+$ source "/lib/sh/std-lib.bash/package.sh"
 $ module.list-class-functions hash
 package.load github.com/vargiuscuola/shdoc
 ```

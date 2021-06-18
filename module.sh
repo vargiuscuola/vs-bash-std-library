@@ -20,9 +20,11 @@ source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 
 # @global _MODULE__CLASS_TO_PATH Hash Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function or his alias `module.import`
 declare -A _MODULE__CLASS_TO_PATH
+# @global _MODULE__SHDOC_DIR String Cache the path of the package github.com/vargiuscuola/shdoc (used by the function `module_doc` and his alias `module.doc`
+
 
 # alias for printing an error message
-alias errmsg='echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
+alias errmsg='>&2 echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
 
 # @internal
 # @description Return normalized absolute path.
@@ -171,22 +173,28 @@ alias module.list-classes="module_list-classes"
 
 # @description Print the documentation for the provided function name.
 # @alias module.doc
-# @arg $1 String Function name
+# @arg $1 String Function or alias name
 # @stdout Print the documentation for the function
 module_doc() {
   (( $# != 1 )) && { errmsg "Wrong number of arguments: $# instead of 1" ; return 1 ; }      # validate the number of arguments
-  package.get-path_ github.com/vargiuscuola/shdoc
-  local SHDOC_PATH="${__}/shdoc"
-  
+  if [ -z "$_MODULE__SHDOC_DIR" ]; then
+    package.load github.com/vargiuscuola/shdoc >/dev/null
+    package.get-path_ github.com/vargiuscuola/shdoc
+    _MODULE__SHDOC_DIR="$__"
+  fi
+
   # get the class and function name
-  local function_name="$1"
-  local class_name=${function_name//.*/}
-  [ "$class_name" = "$1" ] && class_name=${function_name//_*/}
+  local function_name="$1" p
+  # if provided name is an alias, recursively expand it to get the function name
+  while [[ "alias" = $(type -t -- $function_name) ]] && p=$(alias -- "$function_name" 2>&-); do
+    function_name=$(sed -re "s/alias "$function_name"='(\S+).*'$/\1/" <<< "$p")
+  done
+  local class_name=${function_name%%_*}
   [ -z "$class_name" ] && { errmsg "Cannot find the class of the function '$function_name'" ; return 1 ; }
 
   # get the path of the class
   module_get-class-path_ "$class_name"
   [ -z "$__" ] && { errmsg "The class '$class_name' has not been loaded" ; return 1 ; }
-  ${SHDOC_PATH} < "$__" | sed -nE -e "/## ${function_name/./_}\(\)/,/^## /p" | head -n -1
+  ${_MODULE__SHDOC_DIR}/shdoc < "$__" | sed -nE -e "/## ${function_name/./_}\(\)/,/^## /p" | head -n -1
 }
 alias module.doc="module_doc"

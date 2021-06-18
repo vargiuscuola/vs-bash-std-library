@@ -341,6 +341,11 @@ array_find_() {
   return 1
 }
 alias array.find_="array_find_"
+
+# @description Print the index of the array containing the provided value, or -1 if not found.  
+#   It have the same syntax as `array.find_` but print the index found on stdout instead of the global variable `$__`
+# @alias array.find_()
+# @see array_find_()
 array_find() { array_find_ "$@" ; local ret="$?" ; echo "$__" ; return "$ret" ; }
 alias array.find="array_find"
 

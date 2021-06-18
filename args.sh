@@ -27,7 +27,7 @@ _ARGS__COLOR_OFF='\e[0m'
 _ARGS__ERROR_CODE=99
 
 # alias to print a coloured error message
-alias errmsg='echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
+alias errmsg='>&2 echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
 
 # raise an error, returning if interactive shell or exiting otherwise
 alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERROR_CODE || exit $_ARGS__ERROR_CODE'
@@ -107,8 +107,8 @@ alias args.check-number=':args_check-number $#'
 #   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
   # check the first two arguments (variable name for options and arguments)
-  (( $# < 1 )) && { errmsg "First argument should be name of the variable to store the parsed options to" ; raise ; } >&2
-  (( $# < 2 )) && { errmsg "Second argument should be name of the variable to store the positional arguments to" ; raise ; } >&2
+  (( $# < 1 )) && { errmsg "First argument should be name of the variable to store the parsed options to" ; raise ; }
+  (( $# < 2 )) && { errmsg "Second argument should be name of the variable to store the positional arguments to" ; raise ; }
   local opts_varname="$1"
   if [[ "$opts_varname" = - ]]; then
     declare -A _opts
@@ -127,7 +127,7 @@ args_parse() {
     shift
     [[ "$1" != -- ]] && { max_args="$1" ; shift ; }
   fi
-  [[ "$1" != -- ]] && { errmsg "-- must be present before the options definition" ; return 2 ; } >&2
+  [[ "$1" != -- ]] && { errmsg "-- must be present before the options definition" ; return 2 ; }
   shift
   
   local -a short_opts
@@ -177,7 +177,7 @@ args_parse() {
     shift
   done >&2
   
-  [[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; } >&2
+  [[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; }
   shift
 
   _opts=()
