@@ -13,9 +13,9 @@ declare -ga _MAIN__CLASSES=(main array hash shopt datetime list process timer)
 #     * main
 #     * array
 #     * hash
-#     * shopt
-#     * datetime
 #     * list
+#     * datetime
+#     * shopt
 #     * process
 #     * timer
 #   
