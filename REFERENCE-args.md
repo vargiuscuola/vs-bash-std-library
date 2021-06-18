@@ -87,7 +87,7 @@ $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 ## args_check-number()
 
 Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-  This is actually an alias defined as `:args_check-number $#`.
+  This is actually an alias which point to `:args_check-number $#`.
 
 ### Arguments
 

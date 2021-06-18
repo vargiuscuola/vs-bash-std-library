@@ -59,7 +59,6 @@ It provide two features: the management of trap handlers (with the support of mu
 * [trap_add-error-handler()](#trap_add-error-handler)
 * [trap_remove-handler()](#trap_remove-handler)
 * [trap_show-handlers()](#trap_show-handlers)
-* [func_not_to_be_traced()](#func_not_to_be_traced)
 * [trap_suspend-trace()](#trap_suspend-trace)
 * [trap_step-trace-add()](#trap_step-trace-add)
 * [trap_step-trace-reset()](#trap_step-trace-reset)
@@ -160,7 +159,7 @@ Show all trap handlers.
 
 * List of trap handlers, with the following columns separated by tab: `signal`, `index`, `label`, `action code`
 
-## func_not_to_be_traced()
+## trap_suspend-trace()
 
 Suspend debug trace for the calling function and the inner ones.  
   It must be called with the no-op bash built-in command, as in `: trap_suspend-trace` or `: trap.suspend-trace`: it means the function will not be actually called, but that syntax will be
@@ -171,8 +170,6 @@ Suspend debug trace for the calling function and the inner ones.
 
 ```bash
 func_not_to_be_traced() {
-## trap_suspend-trace()
-
   : trap_suspend-trace
   # the following commands and functions are not traced 
   func2
