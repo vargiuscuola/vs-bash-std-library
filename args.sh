@@ -48,7 +48,7 @@ alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERRO
 }
 
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
-#   This is actually an alias defined as `:args_check-number $#`.
+#   This is actually an alias which point to `:args_check-number $#`.
 # @alias args.check-number
 # @arg $1 Number The number of arguments to be validated against the number provided in $2, or the interval $2..$3
 # @arg $2 Number The minimum number of arguments (if $3 is provided), or the mandatory number or arguments (if $3 is not provided)
