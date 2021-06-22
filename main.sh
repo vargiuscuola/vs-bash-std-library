@@ -438,7 +438,7 @@ alias var.assign="var_assign"
 # @alias flag.set
 # @arg $1 String Flag name
 # @arg $2 String "on", "yes" or $True are interpreted as $True, $False otherwise
-flag.set() {
+flag_set() {
   [[ "$2" = on || "$2" = yes || "$2" = $True ]] && _MAIN__FLAGS[$1]=$True || _MAIN__FLAGS[$1]=$False
 }
 alias flag.set="flag_set"
@@ -447,7 +447,7 @@ alias flag.set="flag_set"
 # @alias flag.get_
 # @arg $1 String Flag name
 # @return The flag's value ($True or $False)
-flag.get_() {
+flag_get_() {
   declare -g __="${_MAIN__FLAGS[$1]}"
 }
 alias flag.get_="flag_get_"
