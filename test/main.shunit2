@@ -7,312 +7,6 @@ module.import "main"
 
 ############
 #
-# DATETIME
-#
-############
-
-test_datetime_interval-to-sec_() {
-  datetime_interval-to-sec_ 37        ; assertEquals datetime_interval-to-sec_.1  "$__"  37
-  datetime_interval-to-sec_ 2m 11s    ; assertEquals datetime_interval-to-sec_.2  "$__"  $(( 2*60+11 ))
-  datetime_interval-to-sec_ 3h 4m 17s ; assertEquals datetime_interval-to-sec_.3  "$__"  $(( 3*60*60+4*60+17 )) 
-  datetime_interval-to-sec_ 5d 2m     ; assertEquals datetime_interval-to-sec_.4  "$__"  $(( 5*60*60*24+2*60 ))
-  datetime_interval-to-sec_ 3h 17     ; assertEquals datetime_interval-to-sec_.5  "$__"  $(( 3*60*60 ))
-}
-
-
-############
-#
-# ARRAY
-#
-############
-
-test_array_find-indexes_() {
-  declare -a ary=(ab "c\"'d" ef "g h i" l "c\"'d")
-  array_find-indexes_ ary "c\"'d"   ; assertTrue    array_find-indexes_.1  "$?"
-                                      assertEquals  array_find-indexes_.2  '([0]="1" [1]="5")'  "$( declare -p __a | cut -d= -f2- )"
-  array_find-indexes_ ary "ab"      ; assertTrue    array_find-indexes_.3  "$?"
-                                      assertEquals  array_find-indexes_.4  '([0]="0")'          "$( declare -p __a | cut -d= -f2- )"
-  array_find-indexes_ ary "x"       ; assertFalse   array_find-indexes_.5  "$?"
-                                      assertEquals  array_find-indexes_.6  '()'                 "$( declare -p __a | cut -d= -f2- )"
-}
-
-test_array_find_() {
-  declare -a ary=(ab "c\"'d" ef "g h i" l "c\"'d")
-  array_find_ ary "c\"'d" ; assertTrue    array_find_.1  "$?"
-                            assertEquals  array_find_.2  1  "$__"
-  array_find_ ary x       ; assertFalse    array_find_.3  "$?"
-                            assertEquals  array_find_.4  -1  "$__"
-  array_find_ ary2 a      ; assertFalse    array_find_.5  "$?"
-                            assertEquals  array_find_.6  -1  "$__"
-}
-
-test_array_include() {
-  declare -a ary=(ab "c\"'d" ef "g h i" l "c\"'d")
-  array_include ary "c\"'d" ; assertTrue    array_include.1  "$?"
-  array_include ary x       ; assertFalse    array_include.3  "$?"
-  array_include ary2 a      ; assertFalse    array_include.5  "$?"
-}
-
-test_array_intersection_() {
-  declare -a ary1=(a b "c d" 3 7 "8\"'9")
-  declare -a ary2=("8\"'9" 1 3 a 9)
-  array_intersection_ ary1 ary2 ; assertTrue    array_intersection_.2  "$?"
-                                  assertEquals  array_intersection_.1  '([0]="a" [1]="3" [2]="8\"'"'"'9")'  "$( declare -p __a | cut -d= -f2- )"
-
-  declare -a ary2=(8 9 1 bx xa " c d")
-  array_intersection_ ary1 ary2 ; assertFalse    array_intersection_.4  "$?"
-                                  assertEquals  array_intersection_.3  '()'  "$( declare -p __a | cut -d= -f2- )"
-}
-
-test_array_remove-at() {
-  declare -a ary=(a "c d" 7 x "8 9")
-  array_remove-at ary 0        ; assertEquals  array_remove-at.1    '([0]="c d" [1]="7" [2]="x" [3]="8 9")'  "$( declare -p ary | cut -d= -f2- )"
-  array_remove-at ary 3        ; assertEquals  array_remove-at.2    '([0]="c d" [1]="7" [2]="x")'            "$( declare -p ary | cut -d= -f2- )"
-  array_remove-at ary 1        ; assertEquals  array_remove-at.3    '([0]="c d" [1]="x")'                    "$( declare -p ary | cut -d= -f2- )"
-  array_remove-at ary 5        ; assertEquals  array_remove-at.4    '([0]="c d" [1]="x")'                    "$( declare -p ary | cut -d= -f2- )"
-  declare -a ary=()
-  array_remove-at ary 0        ; assertEquals  array_remove-at.5    '()'                                     "$( declare -p ary | cut -d= -f2- )"
-}
-
-test_array_remove() {
-  declare -a ary=(a x "c d" a "e\"'f")
-  array_remove ary a       ; assertTrue    array_remove.1      "$?"
-                             assertEquals  array_remove.2      '([0]="x" [1]="c d" [2]="a" [3]="e\"'"'"'f")'  "$( declare -p ary | cut -d= -f2- )"
-  array_remove ary "e\"'f" ; assertTrue    array_remove.3      "$?"
-                             assertEquals  array_remove.4      '([0]="x" [1]="c d" [2]="a")'                  "$( declare -p ary | cut -d= -f2- )"
-  array_remove ary "y"     ; assertFalse    array_remove.5      "$?"
-                             assertEquals  array_remove.6      '([0]="x" [1]="c d" [2]="a")'                  "$( declare -p ary | cut -d= -f2- )"
-}
-
-test_array_remove-values() {
-  declare -a ary=(a x "c d" a "e\"'f")
-  array_remove-values ary a       ; assertTrue    array_remove-values.1    "$?"
-                                    assertEquals  array_remove-values.2    '([0]="x" [1]="c d" [2]="e\"'"'"'f")'  "$( declare -p ary | cut -d= -f2- )"
-  array_remove-values ary "e\"'f" ; assertTrue    array_remove-values.3    "$?"
-                                    assertEquals  array_remove-values.4    '([0]="x" [1]="c d")'                  "$( declare -p ary | cut -d= -f2- )"
-  array_remove-values ary "y"     ; assertFalse    array_remove-values.5    "$?"
-                                    assertEquals  array_remove-values.6    '([0]="x" [1]="c d")'                  "$( declare -p ary | cut -d= -f2- )"
-}
-
-test_array_defined() {
-  declare -a ary=()
-  declare -A h=()
-  local var
-  array_defined ary        ; assertTrue    array_defined.1      "$?"
-  array_defined h          ; assertFalse    array_defined.2      "$?"
-  array_defined var        ; assertFalse    array_defined.3      "$?"
-  array_defined x          ; assertFalse    array_defined.4      "$?"
-}
-
-test_array_init() {
-  array_init ary            ; assertEquals  array_init.1    'declare -a ary=()'    "$( declare -p ary )"
-  declare -a ary=(x)
-  array_init ary            ; assertEquals  array_init.2    'declare -a ary=()'    "$( declare -p ary )"
-}
-
-test_array_uniq_() {
-  declare -a ary=(item1 item2 "item 3 x" item2 "item 3 x" "item 4 y" item1)
-  declare -a exp_ary=([0]="item 3 x" [1]="item 4 y" [2]="item1" [3]="item2")
-  set_eq ary exp_ary       ; assertTrue array_uniq_.1 $?
-  
-  declare -a ary=(item1 item2 item3)
-  declare -a exp_ary=([0]="item1" [1]="item2" [2]="item3")
-  set_eq ary exp_ary       ; assertTrue array_uniq_.2 $?
-}
-
-
-############
-#
-# LIST
-#
-############
-
-test_list_find_() {
-  declare -a ary=(ab "c\"'d" ef "g h i" l "c d")
-  list_find_ "c\"'d" "${ary[@]}" ; assertTrue    list_find_.1  "$?"
-                                   assertEquals  list_find_.2  1  "$__"
-  list_find_ x  "${ary[@]}"      ; assertFalse    list_find_.3  "$?"
-                                   assertEquals  list_find_.4  -1  "$__"
-  list_find_ a                   ; assertFalse    list_find_.5  "$?"
-                                   assertEquals  list_find_.6  -1  "$__"
-}
-
-test_list_include() {
-  declare -a ary=(ab "c\"'d" ef "g h i" l "c d")
-  list_include "c\"'d" "${ary[@]}" ; assertTrue    list_find_.1  "$?"
-  list_include x  "${ary[@]}"      ; assertFalse    list_find_.3  "$?"
-  list_include a                   ; assertFalse    list_find_.5  "$?"
-}
-
-############
-#
-# HASH
-#
-############
-
-test_hash_defined() {
-  declare -a ary=()
-  declare -A h=()
-  local var
-  hash_defined ary          ; assertFalse    hash_defined.1      "$?"
-  hash_defined h            ; assertTrue     hash_defined.2      "$?"
-  hash_defined var          ; assertFalse    hash_defined.3      "$?"
-  hash_defined x            ; assertFalse    hash_defined.4      "$?"
-}
-
-test_hash_init() {
-  hash_init h              ; assertEquals  hash_init.1    'declare -A h=()'    "$( declare -p h )"
-  declare -A h=([x]=1)
-  hash_init h              ; assertEquals  hash_init.2    'declare -A h=()'    "$( declare -p h )"
-}
-
-test_hash_has-key() {
-  declare -A h=([x]="" ["y\"'w"]=2)
-  hash_has-key h x          ; assertTrue    hash_has-key.1  $?
-  hash_has-key h "y\"'w"    ; assertTrue    hash_has-key.2  $?
-  hash_has-key h z          ; assertFalse   hash_has-key.3  $?
-  hash_has-key h 2          ; assertFalse   hash_has-key.4  $?
-}
-
-test_hash_merge() {
-  local stdout
-  
-  declare -A h1=([a]=1 [b]="2\"'x" [e]=3)
-  declare -A h2=([a]=5 [c]="6 p")
-  hash_merge h1 h2
-  declare -A exp_h=([a]="5" [b]="2\"'x" [c]="6 p" [e]="3" )
-  hash_eq h1 exp_h                   ; assertTrue    hash_merge.1  $?
-
-  declare -gA global_h=([a]=1 [b]="2\"'x" [e]=3)
-  declare -A h2=()
-  hash_merge global_h h2
-  declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
-
-  declare -A h1=()
-  hash_merge h1 h2
-  stdout="$( declare -p h1 )"        ; assertEquals  hash_merge.3       '()'                                    "${stdout/*h1=/}"
-
-  declare -gA h4=([a]="5 s" [c]="6 p")
-  hash_merge h1 h4
-  declare -A exp_h=([a]="5 s" [c]="6 p" )
-  hash_eq h1 exp_h                   ; assertTrue    hash_merge.1  $?
-}
-
-test_hash_merge-last() {
-  local stdout
-  declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
-}
-
-test_hash_copy() {
-  local stdout
-  declare -A h1=([a]=1 [b]="2\"'x" [e]=3)
-  declare -A h2=([a]=5 [c]="6 p")
-  declare -gA global_h=([a]=5 [c]="6 p")
-  
-  hash_copy h1 h2
-  declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  hash_eq h2 exp_h                   ; assertTrue    hash_merge.1  $?
-
-  hash_copy h1 global_h
-  declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  hash_eq global_h exp_h             ; assertTrue    hash_merge.1  $?
-
-  declare -A h2=([a]=5 [c]="6 p")
-  hash_copy h2 global_h2
-  declare -A exp_h=([a]="5" [c]="6 p" )
-  hash_eq global_h2 exp_h            ; assertTrue    hash_merge.1  $?
-}
-
-test_hash_copy-last() {
-  local stdout
-  declare -A exp_h=([a]="1" [b]="2\"'x" [e]="3" )
-  hash_eq global_h exp_h              ; assertTrue    hash_merge.1  $?
-  
-  declare -A exp_h=([a]="5" [c]="6 p" )
-  hash_eq global_h2 exp_h             ; assertTrue    hash_merge.1  $?
-}
-
-test_hash_find-value_() {
-  declare -A h1=([a]=1 [b]="2\"'x" ["e\"'g"]=3)
-  
-  hash_find-value_ h1 2        ; assertFalse   hash_find-value_.1  $?
-  hash_find-value_ h1 a        ; assertFalse   hash_find-value_.2  $?
-  hash_find-value_ h1 1        ; assertTrue    hash_find-value_.3  $?
-                                 assertEquals  hash_find-value_.4  "a"      "$__"
-  hash_find-value_ h1 3        ; assertTrue    hash_find-value_.5  $?
-                                 assertEquals  hash_find-value_.6  "e\"'g"    "$__"
-  hash_find-value_ h1 "2\"'x"  ; assertTrue    hash_find-value_.7  $?
-                                 assertEquals  hash_find-value_.8  "b"      "$__"
-}
-
-
-############
-#
-# REGEXP
-#
-############
-
-test_regexp_escape-bash-pattern_() {
-  regexp_escape-bash-pattern_ 'a b'      ; assertEquals  regexp_escape-bash-pattern_.1  'a b'      "$__"
-  regexp_escape-bash-pattern_ 'a * b'    ; assertEquals  regexp_escape-bash-pattern_.2  'a \* b'    "$__"
-  regexp_escape-bash-pattern_ '* a b'    ; assertEquals  regexp_escape-bash-pattern_.3  '\* a b'    "$__"
-  regexp_escape-bash-pattern_ '[#*'      ; assertEquals  regexp_escape-bash-pattern_.4  '\[\#\*'    "$__"
-  regexp_escape-bash-pattern_ '? ? * *'  ; assertEquals  regexp_escape-bash-pattern_.5  '\? \? \* \*'  "$__"
-  regexp_escape-bash-pattern_ '**##'     ; assertEquals  regexp_escape-bash-pattern_.6  '\*\*\#\#'    "$__"
-}
-
-test_regexp_escape-ext-regexp-pattern() {
-  local literal sep escaped stdout idx
-  declare -a ary_literal=(".*/" "[x]\\/" "[WW]" "[^y]" "]|S" "$]x" "^..." "\\|E")
-  declare -a     ary_sep=(""    "/"      "W"    "y"    "^"   "]"   "|"    ".")
-  for idx in "${!ary_literal[@]}"; do
-    literal="${ary_literal[$idx]}" sep="${ary_sep[$idx]}"
-    regexp_escape-ext-regexp-pattern_ "${literal}" "${sep}"
-    escaped="$__"
-    stdout="$( <<<"_START_${literal}_END_" sed -E "s${sep:-/}${escaped}${sep:-/}x${sep:-/}" )"
-    assertEquals  regexp_escape-ext-regexp-pattern_.$idx  '_START_x_END_'   "$stdout"
-  done
-}
-
-test_regexp_escape-regexp-replace_() {
-  local search=x replace_str sep idx escaped_replace
-  declare -a replace_ary=("y/l" "z*&/_" "_/}[&W" "kyiy" "_}.*^" "]]" ".<|" "...")
-  declare -a     ary_sep=(""    "/"     "W"      "y"    "^"     "]"  "|"   ".")
-  for idx in "${!replace_ary[@]}"; do
-    replace_str="${replace_ary[$idx]}" sep="${ary_sep[$idx]}"
-    regexp_escape-regexp-replace_ "${replace_str}" "${sep}"
-    escaped_replace="$__"
-    stdout="$( <<<"_START_${search}_END_" sed -E "s${sep:-/}${search}${sep:-/}${escaped_replace}${sep:-/}" )"
-    assertEquals regexp_escape-regexp-replace_.$idx "_START_${replace_str}_END_"   "$stdout"
-  done
-   
-}
-
-############
-#
-# STRING
-#
-############
-
-test_string_append() {
-  local var=""
-  string_append var x              ; assertEquals  string_append.1        'x'                  "$var"
-  string_append var y              ; assertEquals  string_append.2        'x y'                "$var"
-  string_append var "y *" '['      ; assertEquals  string_append.3        'x y[y *'            "$var"
-  string_append var '#' '**'       ; assertEquals  string_append.4        'x y[y ***#'         "$var"
-  string_append var '  ' '| ?'     ; assertEquals  string_append.5        'x y[y ***#| ?  '    "$var"
-  
-  var="l1"$'\n'$'\n'"l3"
-  string_append var x                       ; assertEquals  string_append.6        "l1"$'\n'$'\n'"l3 x"               "$var"
-  string_append -m var '* [' '#'            ; assertEquals  string_append.7        'l1#* ['$'\n''* ['$'\n''l3 x#* ['  "$var"
-  var="l1"$'\n'$'\n'"l3"
-  string_append --multi-line var "'" '# "'  ; assertEquals  string_append.8        'l1# "'"'"$'\n'"'"$'\n''l3# "'"'"  "$var"
-}
-
-############
-#
 # SHOPT
 #
 ############
@@ -392,6 +86,30 @@ test_process_class() {
 
   process_kill "$pid"       ; assertTrue  process_kill.2   $?
   process_exists "$pid"     ; assertFalse process_exists.3 $?
+}
+
+
+test_file_class() {
+  file_mkfifo_
+  [ -p "$__" ]              ; assertTrue file_mkfifo.1     $?
+}
+
+test_var_class() {
+  local var
+  var_assign var echo -n ""                        ; assertEquals var_assign.1  ""      "$var"
+  var_assign var echo "ok x"                       ; assertEquals var_assign.2  "ok x"  "$var"
+  declare -g var__gvar
+  var_assign var__gvar echo -e "linea1\nlinea2"    ; assertEquals var_assign.3  linea1  "$var__gvar"
+  var_assign var true                              ; assertTrue   var_assign.4  "$?"
+  var_assign var false                             ; assertFalse  var_assign.5  "$?"
+}
+
+test_command_class() {
+  command_stdout_ echo -n ""                  ; assertEquals command_stdout_.1  ""      "$__"
+  command_stdout_ echo "ok x"                 ; assertEquals command_stdout_.2  "ok x"  "$__"
+  command_stdout_ echo -e "linea1\nlinea2"    ; assertEquals command_stdout_.3  linea1  "$__"
+  command_stdout_ true                        ; assertTrue   command_stdout_.4  "$?"
+  command_stdout_ false                       ; assertFalse  command_stdout_.5  "$?"
 }
 
 source /opt/shunit2/shunit2

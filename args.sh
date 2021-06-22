@@ -74,8 +74,8 @@ alias args.check-number=':args_check-number $#'
 #   * [reconquest/args](https://github.com/reconquest/args)
 #   * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
 # @alias args.parse
-# @arg $1 Hashname Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed in stdout
-# @arg $2 Arrayname (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments
+# @arg $1 Hashname Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed to stdout
+# @arg $2 Arrayname (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments. If not provided, the arguments are printed to stdout
 # @arg $3 Number (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
 # @arg $4 Number (Optional) Maximum number of arguments
 # @arg $5 String Literal `--`: used as a separator for the following arguments
@@ -233,8 +233,9 @@ args_parse() {
   # set the arguments
   _args=("$@")
   
-  if [[ "$opts_varname" = - ]]; then
-    echo -e "${_ARGS__CYAN}### ${FUNCNAME[0]}${_ARGS__COLOR_OFF}\n\e[0;33m# Options:${_ARGS__COLOR_OFF}"
+  # print the options and arguments to stdout if variable names are not provided
+  if [ "$opts_varname" = - ]; then
+    echo -e "\e[0;33m# Options:${_ARGS__COLOR_OFF}"
     paste -d' ' <(printf '%s\n' "${!_opts[@]}") <(printf '%q\n' "${_opts[@]}")
     if (( "${#_args[@]}" )); then
       echo -e "${_ARGS__YELLOW}# Arguments:${_ARGS__COLOR_OFF}"
@@ -242,7 +243,6 @@ args_parse() {
     else
       echo -e "${_ARGS__YELLOW}# No Arguments${_ARGS__COLOR_OFF}"
     fi
-    echo -e "${_ARGS__CYAN}#- ${FUNCNAME[0]}${_ARGS__COLOR_OFF}"
   fi
   
   # validate the number of arguments
