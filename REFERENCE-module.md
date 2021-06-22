@@ -23,6 +23,7 @@ Allow loading of libraries modules which simply are script files containing libr
 
 # Functions
 * [module_import()](#module_import)
+* [module_is-imported()](#module_is-imported)
 * [module_get-class-path_()](#module_get-class-path_)
 * [module_list-class-functions()](#module_list-class-functions)
 * [module_list-classes()](#module_list-classes)
@@ -64,6 +65,22 @@ Import a module, i.e. a shell library path which is sourced by the current funct
 $ module.import github/vargiuscuola/std-lib.bash/main
 $ module.import --force args
 ```
+
+## module_is-imported()
+
+Check whether a module has been imported.
+
+### Aliases
+
+* **module.is-imported**
+
+### Arguments
+
+* **$1** (String): Module name
+
+### Exit codes
+
+* 0 if module is imported, 1 otherwise.
 
 ## module_get-class-path_()
 

@@ -5,4 +5,5 @@
 * [module.sh](REFERENCE-module.md)
 * [main.sh](REFERENCE-main.md)
 * [lock.sh](REFERENCE-lock.md)
+* [datatypes.sh](REFERENCE-datatypes.md)
 * [trap.sh](REFERENCE-trap.md)
