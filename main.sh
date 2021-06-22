@@ -438,39 +438,51 @@ alias var.assign="var_assign"
 # @alias flag.set
 # @arg $1 String Flag name
 # @arg $2 String "on", "yes" or $True are interpreted as $True, $False otherwise
-flag.set() { [[ "$2" = on || "$2" = yes || "$2" = $True ]] && _MAIN__FLAGS[$1]=$True || _MAIN__FLAGS[$1]=$False ; }
+flag.set() {
+  [[ "$2" = on || "$2" = yes || "$2" = $True ]] && _MAIN__FLAGS[$1]=$True || _MAIN__FLAGS[$1]=$False
+}
 alias flag.set="flag_set"
 
 # @description Return the flag value.
 # @alias flag.get_
 # @arg $1 String Flag name
 # @return The flag's value ($True or $False)
-flag.get_() { declare -g __="${_MAIN__FLAGS[$1]}" ; }
+flag.get_() {
+  declare -g __="${_MAIN__FLAGS[$1]}"
+}
 alias flag.get_="flag_get_"
 
 # @description Check whether the specified flag is enabled.
 # @alias flag.is-set
 # @arg $1 String Flag name
 # @exitcodes 0 if flag is $True, 1 otherwise
-flag_is-set() { [ "${_MAIN__FLAGS[$1]}" = $True ] ; }
+flag_is-set() {
+  [ "${_MAIN__FLAGS[$1]}" = $True ]
+}
 alias flag.is-set="flag_is-set"
 
 # @description Check whether the specified flag is disabled.
 # @alias flag.is-disabled
 # @arg $1 String Flag name
 # @exitcodes 0 if flag is $False, 0 otherwise
-flag_is-disabled() { [ "${_MAIN__FLAGS[$1]}" = $False ] ; }
+flag_is-disabled() {
+  [ "${_MAIN__FLAGS[$1]}" = $False ]
+}
 alias flag.is-disabled="flag_is-disabled"
 
 # @description Enable the specified flag, i.e. set it to $True.
 # @alias flag.enable
 # @arg $1 String Flag name
-flag_enable() { _MAIN__FLAGS[$1]=$True ; }
+flag_enable() {
+  _MAIN__FLAGS[$1]=$True
+}
 alias flag.enable="flag_enable"
 
 # @description Disable the specified flag, i.e. set it to $False.
 # @alias flag.disable
 # @arg $1 String Flag name
-flag_disable() { _MAIN__FLAGS[$1]=$False ; }
+flag_disable() {
+  _MAIN__FLAGS[$1]=$False
+}
 alias flag.disable="flag_disable"
 
