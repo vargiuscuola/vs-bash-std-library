@@ -70,6 +70,8 @@ Contains common usage functions, such as some process, shopt, file descriptor an
 * [file_mkfifo_()](#file_mkfifo_)
 * [command_stdout_()](#command_stdout_)
 * [var_assign()](#var_assign)
+* [flag_set()](#flag_set)
+* [flag_get_()](#flag_get_)
 * [flag_is-set()](#flag_is-set)
 * [flag_is-disabled()](#flag_is-disabled)
 * [flag_enable()](#flag_enable)
@@ -385,11 +387,7 @@ Execute a command and store the first line of his standard output (or an empty s
 
 * The status code of the executed command
 
-## flag_is-set()
-
-Check whether the specified flag is enabled.
-
-Return the flag value.
+## flag_set()
 
 Set a flag with the provided boolean value.
 
@@ -402,6 +400,10 @@ Set a flag with the provided boolean value.
 * **$1** (String): Flag name
 * **$2** (String): "on", "yes" or $True are interpreted as $True, $False otherwise
 
+## flag_get_()
+
+Return the flag value.
+
 ### Aliases
 
 * **flag.get_**
@@ -413,6 +415,10 @@ Set a flag with the provided boolean value.
 ### Return with global scalar $__, array $__a or hash $__h
 
 * The flag's value ($True or $False)
+
+## flag_is-set()
+
+Check whether the specified flag is enabled.
 
 ### Aliases
 
