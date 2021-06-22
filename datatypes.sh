@@ -7,15 +7,15 @@ declare -ga _DATATYPES__CLASSES=(string array list hash set regexp datetime)
 
 # @file datatypes.sh
 # @brief Data types functions.
-# @description Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.
-#   It contains the following classes:
-#     * string
-#     * array
-#     * hash
-#     * list
-#     * set
-#     * regexp
-#     * datetime
+# @description Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.  
+#   It contains the following classes:  
+#     * string  
+#     * array  
+#     * hash  
+#     * list  
+#     * set  
+#     * regexp  
+#     * datetime  
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
