@@ -21,6 +21,7 @@ declare -ga _DATATYPES__CLASSES=(string array list hash set regexp datetime)
 # @show-internal
 shopt -s expand_aliases
 
+module.import "main"
 module.import "args"
 
 
