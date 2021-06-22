@@ -4,15 +4,15 @@ Data types functions.
 
 # Overview
 
-Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.
-  It contains the following classes:
-    * string
-    * array
-    * hash
-    * list
-    * set
-    * regexp
-    * datetime
+Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.  
+  It contains the following classes:  
+    * string  
+    * array  
+    * hash  
+    * list  
+    * set  
+    * regexp  
+    * datetime  
   
   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
