@@ -35,6 +35,7 @@
 shopt -s expand_aliases
 
 module.import "main"
+module.import "datatypes"
 module.import "args"
 
 ############
