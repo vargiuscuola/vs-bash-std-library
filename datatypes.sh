@@ -42,15 +42,15 @@ module.import "args"
 string_append() {
   [[ "$1" = -m || "$1" = --multi-line ]] && { local multi=1 ; shift ; } || local multi
   declare -n var_ref="$1"
-  if [[ -n "$multi" ]]; then
-    regexp.escape-bash-pattern_ "${3:- }$2" ; local esc_search="$__"
+  if [ -n "$multi" ]; then
+    regexp_escape-bash-pattern_ "${3:- }$2" ; local esc_search="$__"
     var_ref=$'\n'"${var_ref}"$'\n'
     var_ref="${var_ref//$'\n'/${3:- }$2$'\n'}"
     var_ref="${var_ref//$'\n'${esc_search}$'\n'/$'\n'$2$'\n'}"
     var_ref="${var_ref#*$'\n'}"
     var_ref="${var_ref%$'\n'}"
   else
-    [[ -z "$var_ref" ]] && var_ref="$2" || var_ref="${var_ref}${3:- }$2"
+    [ -z "$var_ref" ] && var_ref="$2" || var_ref="${var_ref}${3:- }$2"
   fi
 }
 alias string.append="string_append"

@@ -115,6 +115,14 @@ module_import() {
 }
 alias module.import="module_import"
 
+# @description Check whether a module has been imported.
+# @alias module.is-imported
+# @arg $1 String Module name
+# @exitcodes 0 if module is imported, 1 otherwise.
+module_is-imported() {
+  [ -v _${1^^}__LOADED ]
+}
+alias module.is-imported="module_is-imported"
 
 # @description Return the path of the provided class.
 # @alias module.get-class-path_
