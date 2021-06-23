@@ -7,15 +7,15 @@ declare -ga _MAIN__CLASSES=(main shopt process env fd timer)
 
 # @file main.sh
 # @brief Generic bash library functions for managing shell options (`shopt`), timers, processes and file descriptors.
-# @description Contains common usage functions, such as some process, shopt, file descriptor and timer management.
+# @description Contains common usage functions, such as some process, shopt, file descriptor and timer management.  
 #   It contains the following classes:
-#     * main
-#     * shopt
-#     * process
-#     * env
-#     * fd
-#     * timer
-#     * flag
+#   * main
+#   * shopt
+#   * process
+#   * env
+#   * fd
+#   * timer
+#   * flag
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
