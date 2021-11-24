@@ -49,7 +49,6 @@ module.import "std-lib.bash/trap"
 * [trap.sh](REFERENCE-trap.md)
 * [args.sh](REFERENCE-args.md)
 * [main.sh](REFERENCE-main.md)
-* [info.sh](REFERENCE-info.md)
 * [lock.sh](REFERENCE-lock.md)
 
 ## Guidelines and conventions
