@@ -15,12 +15,12 @@ Functions are organized in the following modules:
   For example, the module `datatypes` (described later) contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (the latter is used for aliases of `array_<function-name>` functions): see the naming conventions described below
 * datatypes.sh  
   Functions to manipulate strings, arrays, hashes, lists, sets, regexps and datetimes  
-* lock.sh  
-  Provide locking functionalities
-* main.sh  
-  Generic bash library functions for managing shell options (shopt), timers, processes and file descriptors
 * trap.sh  
   Provide support for managing hooks functions to signals and debugger trace functionalities
+* main.sh  
+  Generic bash library functions for managing shell options (shopt), timers, processes and file descriptors
+* lock.sh  
+  Provide locking functionalities
 * args.sh  
   A parser of command line options and arguments
 
