@@ -43,14 +43,14 @@ module.import "std-lib.bash/trap"
 
 ## Reference
 
-* [main.sh](REFERENCE-main.md)
 * [package.sh](REFERENCE-package.md)
 * [module.sh](REFERENCE-module.md)
 * [datatypes.sh](REFERENCE-datatypes.md)
-* [lock.sh](REFERENCE-lock.md)
-* [info.sh](REFERENCE-info.md)
 * [trap.sh](REFERENCE-trap.md)
 * [args.sh](REFERENCE-args.md)
+* [main.sh](REFERENCE-main.md)
+* [info.sh](REFERENCE-info.md)
+* [lock.sh](REFERENCE-lock.md)
 
 ## Guidelines and conventions
 
