@@ -13,8 +13,12 @@ Functions are organized in the following modules:
   Load a shell library module, which is simply a collection of functions.  
   A module can contain one or more classes, where a class is a set of homogeneous functions with names prefixed with the name of the class.  
   For example, the module `main` (described later) contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (the latter is used for aliases of `array_<function-name>` functions): see the naming conventions described below
+* datatypes.sh  
+  Functions to manipulate strings, arrays, hashes, lists, sets, regexps and datetimes  
+* lock.sh  
+  Provide locking functionalities
 * main.sh  
-  Generic functions for manipulating arrays, hashes, strings, coloured messages and more
+  Generic bash library functions for managing shell options (shopt), timers, processes and file descriptors
 * trap.sh  
   Provide support for managing hooks functions to signals and debugger trace functionalities
 * args.sh  
@@ -43,7 +47,6 @@ module.import "std-lib.bash/trap"
 * [package.sh](REFERENCE-package.md)
 * [module.sh](REFERENCE-module.md)
 * [datatypes.sh](REFERENCE-datatypes.md)
-* [std-lib.sh](REFERENCE-std-lib.md)
 * [lock.sh](REFERENCE-lock.md)
 * [info.sh](REFERENCE-info.md)
 * [trap.sh](REFERENCE-trap.md)
