@@ -12,7 +12,7 @@ Functions are organized in the following modules:
 * module.sh  
   Load a shell library module, which is simply a collection of functions.  
   A module can contain one or more classes, where a class is a set of homogeneous functions with names prefixed with the name of the class.  
-  For example, the module `main` (described later) contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (the latter is used for aliases of `array_<function-name>` functions): see the naming conventions described below
+  For example, the module `datatypes` (described later) contains classes as `array`, `hash` etc., with functions of class `array` starting with the prefix `array_` and `array.` (the latter is used for aliases of `array_<function-name>` functions): see the naming conventions described below
 * datatypes.sh  
   Functions to manipulate strings, arrays, hashes, lists, sets, regexps and datetimes  
 * lock.sh  
