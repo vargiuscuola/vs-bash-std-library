@@ -55,7 +55,7 @@ module.import "std-lib.bash/trap"
 
 ### Return values
 
-Most of the functions returning a value provide it through a global variable which `__` for a scalar value, `__a` for an array and `__h` for an associative array or hash: it is useful to prevent the calling script having to get the value through a subshell as in `ret=$( func )`.
+Most of the functions returning a value provide it through a global variable which is `__` for a scalar value, `__a` for an array and `__h` for an associative array or hash: it is useful to prevent the calling script having to get the value through a subshell as in `ret=$( func )`.
 
 The functions returning a value through a global variable end with an underscore `_`, such as in `array_find_`: see the [naming conventions](#naming-conventions) below.
 
@@ -75,7 +75,7 @@ The function name con contain a dash character `-`, such as in `datetime_interva
 
 ### Performance optimizations
 
-The libraries contained in this repository are performance wise: I would have preferred not to worry about it, and usually I don't do it with `bash` scripts, but I'm going to use them for a command completion library which needed to be responsive.
+The libraries contained in this repository are performance wise: I would have preferred not to worry about it, and usually I don't do it with `bash` scripts, but I'm going to use them for a real-time command completion library which needed to be responsive.
 
 The general rules I followed are:
 
