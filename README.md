@@ -30,7 +30,7 @@ Functions are organized in the following modules:
 Clone the repository:
 
 ```bash
-git clone git@github.com:vargiuscuola/std-lib.bash.git /lib/sh/std-lib.bash
+git clone https://github.com/vargiuscuola/std-lib.bash /lib/sh/std-lib.bash
 ```
 
 and from your script load the library for managing modules `module.sh` and then import the required modules:
