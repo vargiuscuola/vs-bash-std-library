@@ -17,7 +17,9 @@ alias errmsg='>&2 echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0
 
 # @setting _PACKAGE__LIB_DIR string[/lib/sh in Linux or /c/linux-lib/sh in Windows] shell libraries base path
 if [ -z "$_PACKAGE__LIB_DIR" ]; then
-  [[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
+  # _PACKAGE__LIB_DIR is equal to the current path with the last 2 components removed (the current file + the std-lib directory)
+  _PACKAGE__LIB_DIR="${BASH_SOURCE[0]%/*/${BASH_SOURCE[0]##*/}}"
+  #[[ "$( uname -a  )" =~ ^MINGW ]] && _PACKAGE__LIB_DIR=/c/linux-lib/sh || _PACKAGE__LIB_DIR=/lib/sh
 fi
 
 # @description Return the library base path.

@@ -15,13 +15,26 @@
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
+
 shopt -s expand_aliases
 source "$(dirname "${BASH_SOURCE[0]}")/package.sh"
 
+
+############
+#
+# GLOBALS
+#
+
 # @global _MODULE__CLASS_TO_PATH Hash Associate each class defined in modules to the script's path containing it: it is set by the `module_import` function or his alias `module.import`
-declare -A _MODULE__CLASS_TO_PATH
+declare -gA _MODULE__CLASS_TO_PATH
 # @global _MODULE__SHDOC_DIR String Cache the path of the package github.com/vargiuscuola/shdoc (used by the function `module_doc` and his alias `module.doc`
 
+
+############
+#
+# MODULE FUNCTIONS
+#
+############
 
 # alias for printing an error message
 alias errmsg='>&2 echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0m#"'
@@ -51,9 +64,9 @@ alias errmsg='>&2 echo -e "\\e[1;31m[ERROR]\\e[0m \\e[0;33m${FUNCNAME[0]}()\\e[0
 alias :module.abs-path_=":module_abs-path_"
 
 # @global _MODULE__IMPORTED_MODULES Array Imported modules
+declare -ga _MODULE__IMPORTED_MODULES
 :module.abs-path_ "${BASH_SOURCE[0]}" && _MODULE__IMPORTED_MODULES=("$__")
 :module.abs-path_ "${BASH_SOURCE[-1]}" && _MODULE__IMPORTED_MODULES+=("$__")
-
 
 # @description Import a module, i.e. a shell library path which is sourced by the current function.  
 #   The provided library path can be relative or absolute. If it's relative, the library will be searched in the following paths:

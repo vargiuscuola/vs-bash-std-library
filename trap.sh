@@ -70,6 +70,18 @@ declare -ga _TRAP__STEP_INTO_FUNCTIONS=()
 # @global _TRAP__STEP_OVER_FUNCTIONS String The name of the function inside which activate a debugging trace with a step over logic (set by the functions `trap.step-trace-add`, `trap.step-trace-remove` and `trap.step-trace-reset`)
 declare -ga _TRAP__STEP_OVER_FUNCTIONS=()
 
+
+############
+#
+# SETTINGS
+#
+
+# @constant _TRAP__YELLOW String Yellow terminal color code
+_TRAP__YELLOW='\e[0;33m'
+# @constant _TRAP__COLOR_OFF String Terminal code to turn off color
+_TRAP__COLOR_OFF='\e[0m'
+
+
 ############
 #
 # FUNCTIONS
@@ -270,7 +282,7 @@ trap_suspend-trace() { : trap_suspend-trace ; }
         opt_step=$'\n'\
 "    [i] Step into \"${_TRAP__CURRENT_COMMAND/ */}\""$'\n'\
 "    [o] Step over \"${_TRAP__CURRENT_COMMAND/ */}\""
-      echo -ne "${Yellow}#== Debugger Trace${Color_Off}
+      echo -ne "${_TRAP__YELLOW}#== Debugger Trace${_TRAP__COLOR_OFF}
 ### Line number           $_TRAP__LINENO
 ### Previous line number  $_TRAP__LAST_LINENO
 ### Current command       $_TRAP__CURRENT_COMMAND
@@ -328,7 +340,7 @@ trap_step-trace-add() {
       --step-over) type_trace=over ; shift ;;
       --step-into) type_trace=into ; shift ;;
       *)
-        main_dereference-alias_ "$1" ; local func_to_add="$__"
+        main.dereference-alias_ "$1" ; local func_to_add="$__"
         [[ "$type_trace" = into ]] && declare -n ary_ref=_TRAP__STEP_INTO_FUNCTIONS || declare -n ary_ref=_TRAP__STEP_OVER_FUNCTIONS
         array.find_ ary_ref "$func_to_add" || ary_ref+=( "$func_to_add" )
         shift 1
@@ -434,7 +446,7 @@ trap_show-stack-trace(){
     ]] && { found_source_file="$file" ; break ; }
   done
   [[ -n "$found_source_file" ]] && local file_name_line=$'\n'"    File name: ${found_source_file##*/}"
-  echo -e "${Yellow}### Stack Trace${Color_Off}
+  echo -e "${_TRAP__YELLOW}### Stack Trace${_TRAP__COLOR_OFF}
     Command: $_TRAP__CURRENT_COMMAND${file_name_line}
     Function: $_TRAP__CURRENT_FUNCTION
     Line number: $_TRAP__LINENO

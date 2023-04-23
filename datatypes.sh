@@ -3,11 +3,11 @@
 
 # if already sourced, return
 [[ -v _DATATYPES__LOADED ]] && return || _DATATYPES__LOADED=True
-declare -ga _DATATYPES__CLASSES=(string array list hash set regexp datetime)
+declare -ga _DATATYPES__CLASSES=(string array list hash set regexp datetime settings)
 
 # @file datatypes.sh
 # @brief Data types functions.
-# @description Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.  
+# @description Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps, datetime and settings.  
 #   It contains the following classes:  
 #     * string  
 #     * array  
@@ -16,6 +16,7 @@ declare -ga _DATATYPES__CLASSES=(string array list hash set regexp datetime)
 #     * set  
 #     * regexp  
 #     * datetime  
+#     * settings
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
@@ -23,6 +24,15 @@ shopt -s expand_aliases
 
 module.import "main"
 module.import "args"
+
+
+############
+#
+# GLOBALS
+#
+
+# @global _SETTINGS__HASH Hash Contains the global settings
+declare -gA _SETTINGS__HASH
 
 
 ############
@@ -596,3 +606,84 @@ datetime_interval-to-sec_() {
 }
 alias datetime.interval-to-sec_="datetime_interval-to-sec_"
 
+
+############
+#
+# SETTINGS FUNCTIONS
+#
+############
+
+# @description Return true if the provided setting is enabled
+# @alias settings.is-enabled
+# @arg $1 String The setting name to check
+# @exitcodes Standard (0 for true, 1 for false)
+# @example
+#   $ settings.is-enabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-enabled TEST && echo ENABLED
+#   ENABLED
+settings_is-enabled() { [ "${_SETTINGS__HASH[$1]}" = $True ] ; }
+alias settings.is-enabled="settings_is-enabled"
+
+# @description Return true if the provided setting is disabled.
+#   The function only test if the setting has been explicitly disabled: testing a setting not being defined will return false.
+# @alias settings.is-disabled
+# @arg $1 String The setting name to check
+# @exitcodes Standard (0 for true, 1 for false)
+# @example
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.disable TEST
+#   $ settings.is-disabled TEST && echo DISABLED
+#   DISABLED
+settings_is-disabled() { [ "${_SETTINGS__HASH[$1]}" = $False ] ; }
+alias settings.is-disabled="settings_is-disabled"
+
+# @description Enable the provided setting.
+# @alias settings.enable
+# @arg $1 String The setting to enable
+# @example
+#   $ settings.is-enabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-enabled TEST && echo ENABLED
+#   ENABLED
+settings_enable() { _SETTINGS__HASH[$1]=$True ; }
+alias settings.enable="settings_enable"
+
+# @description Disable the provided setting.
+# @alias settings.disable
+# @arg $1 String The setting to disable
+# @example
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.disable TEST
+#   $ settings.is-disabled TEST && echo DISABLED
+#   DISABLED
+settings_disable() { _SETTINGS__HASH[$1]=$False ; }
+alias settings.disable="settings_disable"
+
+# @description Set the value of a setting.
+# @alias settings.set
+# @arg $1 String The setting to set
+# @arg $2 String The value to set
+# @example
+#   $ settings.set COLOR Red
+#   $ settings.get_ COLOR
+#   # return __="Red"
+settings_set() { _SETTINGS__HASH[$1]="$2" ; }
+alias settings.set="settings_set"
+
+# @description Get the value of a setting.
+# @alias settings.get_
+# @arg $1 String The setting from which to retrieve the value
+# @example
+#   $ settings.set COLOR Red
+#   $ settings.get_ COLOR
+#   # return __="Red"
+settings_get_() { declare -g __="${_SETTINGS__HASH[$1]}" ; }
+alias settings.get_="settings_get_"

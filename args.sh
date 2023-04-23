@@ -15,16 +15,36 @@
 # @show-internal
 shopt -s expand_aliases
 
-# @global _ARGS__BRED String Red terminal color code
-_ARGS__BRED='\e[1;31m'
-# @global _ARGS__YELLOW String Yellow terminal color code
-_ARGS__YELLOW='\e[0;33m'
-# @global _ARGS__CYAN String Cyan terminal color code
-_ARGS__CYAN='\e[0;36m'
-# @global _ARGS__COLOR_OFF String Terminal code to turn off color
-_ARGS__COLOR_OFF='\e[0m'
+
+############
+#
+# GLOBALS
+#
+
 # @global _ARGS__ERROR_CODE Number Error code returned when validation of arguments fail
-_ARGS__ERROR_CODE=99
+declare -g _ARGS__ERROR_CODE=99
+
+
+############
+#
+# SETTINGS
+#
+
+# @constant _ARGS__BRED String Red terminal color code
+_ARGS__BRED='\e[1;31m'
+# @constant _ARGS__YELLOW String Yellow terminal color code
+_ARGS__YELLOW='\e[0;33m'
+# @constant _ARGS__CYAN String Cyan terminal color code
+_ARGS__CYAN='\e[0;36m'
+# @constant _ARGS__COLOR_OFF String Terminal code to turn off color
+_ARGS__COLOR_OFF='\e[0m'
+
+
+############
+#
+# ARGS FUNCTIONS
+#
+############
 
 # alias to print a coloured error message
 alias errmsg='>&2 echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
@@ -69,6 +89,7 @@ alias args.check-number=':args_check-number $#'
 
 # @description Parse the command line options.
 #   It store the parsed options and remaining arguments to the provided variables.
+#   The standard wasy to call it is `declare -A opts ; declare -a args ; args.parse opts args -- <option-definition>... -- "$@"`
 #   In addition to getopt syntax, the form `-n:,--name` is allowed, which means that the same option can be interchangebly provided in the form `-n <value>` and `--name <value>`.
 #   The code and functionalities is a mix of the following two github projects:
 #   * [reconquest/args](https://github.com/reconquest/args)
@@ -135,39 +156,51 @@ args_parse() {
   local -a variants
   local -A values
   local -A aliases
+  local -A tags
+  local opt alias value tag key
   
   # parse options configuration
   while (( $# > 0 )); do
     opt=${1%%,*}
-
+    tag=
     case "$1" in
       --)
         break
         ;;
-      -*:*) 
-        values[${opt%:}]=true
+
+      -*{*)
+        tag="${opt%\}}"
+        tag="${tag#*{}"
+        opt="${opt%{*}"
         ;;&
-      -*,-*)
-        IFS="," read -ra variants <<< "${1#*,}"
 
-        for alias in "${variants[@]}"; do
-          aliases[$alias]=${opt%:}
+      -*:*)
+        values[${opt%:}]=true
+        opt="${opt%:}"
+        ;;&
 
-          if ${values[${opt%:}]:-false}; then
+      -*)
+        IFS="," read -ra variants <<< "$1"
+
+        for alias in $opt ${variants[@]:1}; do
+          # if a tag is provided, then it will set in the `tags` hash
+          if [ -n "$tag" ]; then
+            tags[$alias]=$tag
+          # otherwise the aliases will reference the main (first) option
+          elif [ "$alias" != "$opt" ]; then
+            aliases[$alias]="$opt"
+          fi
+
+          if [[ ${values[$opt]+x} ]]; then
             values[${alias}]=true
             alias+=":"
           fi
           
-          [[ "${alias}" =~ ^-- ]] && long_opts+=(${alias#--*}) || short_opts+=(${alias#-*})~~
+          [[ "${alias}" =~ ^-- ]] && long_opts+=(${alias#--*}) || short_opts+=(${alias#-*})
         done
 
-        ;;&
-      --*)
-        long_opts+=(${opt#--*})
         ;;
-      -*)
-        short_opts+=(${opt#-*})
-        ;;
+
       *)
         echo "error: unexpected argument: '$opt'"
         return 2
@@ -176,7 +209,7 @@ args_parse() {
 
     shift
   done >&2
-  
+
   [[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; }
   shift
 
@@ -192,28 +225,42 @@ args_parse() {
       -- "${@}"
   )
   (( $? != 0 )) && return 1
-  
+
   # set the options
-  local opt alias value
   while (( $# )); do
     case "$1" in
       --)
         shift
         break
         ;;
+
       -*)
         opt=$1
 
-        if ! ${values[$opt]:-false}; then
-          _opts[$opt]=$(( ${_opts[$opt]:-0}+1 ))
+        # set the key for the option value to: 1) the tag if existing, otherwise to the option itself
+        if [[ ${tags[$opt]+x} ]]; then 
+          key="${tags[${opt}]}"
         else
+          key="${opt}"
+          key="${opt#-}"
+          key="${key#-}"
+        fi
+        # if the option expect an argument
+        if [[ ${values[$opt]+x} ]]; then
           shift
-          _opts[$opt]=$1
+          _opts[$key]=$1
+        # otherwise the value of the option get incremented
+        else
+          _opts[$key]=$(( ${_opts[$key]:-0}+1 ))
         fi
         ;;
     esac
     value="${_opts[$opt]:-}"
+    shift
 
+    # if the options is associated to a tag, then skip to the next option
+    [[ ${tags[${opt}]+x} ]] && continue
+    
     # if current option is an alias, find and set the original option
     if [[ "${aliases[$opt]:-}" ]]; then
       opt="${aliases[$opt]:-}"
@@ -222,12 +269,12 @@ args_parse() {
     
     # set all aliases
     for alias in "${!aliases[@]}"; do
-      if [[ "${aliases[$alias]}" == "$opt" ]]; then
+
+      if [[ "${aliases[$alias]}" = "$opt" ]]; then
         _opts[$alias]=${_opts[$opt]}
       fi
     done
 
-    shift
   done
   
   # set the arguments

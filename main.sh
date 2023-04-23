@@ -3,7 +3,7 @@
 
 # if already sourced, return
 [[ -v _MAIN__LOADED ]] && return || _MAIN__LOADED=True
-declare -ga _MAIN__CLASSES=(main shopt process env fd timer)
+declare -ga _MAIN__CLASSES=(main shopt process env fd timer flag msg)
 
 # @file main.sh
 # @brief Generic bash library functions for managing shell options (`shopt`), timers, processes and file descriptors.
@@ -16,12 +16,14 @@ declare -ga _MAIN__CLASSES=(main shopt process env fd timer)
 #   * fd
 #   * timer
 #   * flag
+#   * msg
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
 shopt -s expand_aliases
 
 module.import "args"
+
 
 ############
 #
@@ -30,6 +32,7 @@ module.import "args"
 
 # @global-header Flags - Associative array used to store boolean values
 # @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced? This flag is automatically set when the module is loaded
+# @global _MAIN__FLAGS[PIPED] Bool Is current file piped to another command? This flag is automatically set when the module is loaded
 # @global _MAIN__FLAGS[INTERACTIVE] Bool Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
 # @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
 # @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
@@ -47,6 +50,7 @@ False=1
 # @global _MAIN__SCRIPTDIR String Absolute path where reside the calling script, after any possible link resolution
 # @global _MAIN__GIT_PATH String Root path of Git for Windows environment: it's set when calling `main.is-windows()`
 
+
 ############
 #
 # SETTINGS
@@ -55,24 +59,6 @@ False=1
 # @setting _MAIN__KILL_PROCESS_WAIT_INTERVAL Number[0.1] Seconds to wait between checks to test whether a process has been successfully killed
 [[ -v _MAIN__KILL_PROCESS_WAIT_INTERVAL ]] || _MAIN__KILL_PROCESS_WAIT_INTERVAL=0.1
 
-# @constant-header Terminal color codes
-# @constant Color_Off Disable color
-Color_Off='\e[0m'
-# @constant Black,Red,Green,Yellow,Blue,Purple,Cyan,Orange                                   Regular Colors
-Black='\e[0;30m' Red='\e[0;31m' Green='\e[0;32m' Yellow='\e[0;33m' Blue='\e[0;34m' Purple='\e[0;35m' Cyan='\e[0;36m' White='\e[0;37m' Orange=$'\e''[38;5;208m'
-# @constant BBlack,BRed,BGreen,BYellow,BBlue,BPurple,BCyan,BWhite                            Bold Colors
-BBlack='\e[1;30m' BRed='\e[1;31m' BGreen='\e[1;32m' BYellow='\e[1;33m' BBlue='\e[1;34m' BPurple='\e[1;35m' BCyan='\e[1;36m' BWhite='\e[1;37m'
-# @constant UBlack,URed,UGreen,UYellow,UBlue,UPurple,UCyan,UWhite                            Underlined Colors
-UBlack='\e[4;30m' URed='\e[4;31m' UGreen='\e[4;32m' UYellow='\e[4;33m' UBlue='\e[4;34m' UPurple='\e[4;35m' UCyan='\e[4;36m' UWhite='\e[4;37m'
-# @constant On_Black,On_Red,On_Green,On_Yellow,On_Blue,On_Purple,On_Cyan,On_White            Background Colors
-On_Black='\e[40m' On_Red='\e[41m' On_Green='\e[42m' On_Yellow='\e[43m' On_Blue='\e[44m' On_Purple='\e[45m' On_Cyan='\e[46m' On_White='\e[47m'
-# @constant IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite                            High Intensty Colors
-IBlack='\e[0;90m' IRed='\e[0;91m' IGreen='\e[0;92m' IYellow='\e[0;93m' IBlue='\e[0;94m' IPurple='\e[0;95m' ICyan='\e[0;96m' IWhite='\e[0;97m'
-# @constant BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite                    Bold High Intensity Colors
-BIBlack='\e[1;90m' BIRed='\e[1;91m' BIGreen='\e[1;92m' BIYellow='\e[1;93m' BIBlue='\e[1;94m' BIPurple='\e[1;95m' BICyan='\e[1;96m' BIWhite='\e[1;97m'
-# @constant On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite    High Intensty Background Colors
-On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0;103m' On_IBlue='\e[0;104m' On_IPurple='\e[10;95m' On_ICyan='\e[0;106m' On_IWhite='\e[0;107m'
-
 
 ############
 #
@@ -80,6 +66,7 @@ On_IBlack='\e[0;100m' On_IRed='\e[0;101m' On_IGreen='\e[0;102m' On_IYellow='\e[0
 #
 
 declare -gA _MAIN__FLAGS=([SOURCED]=$False)
+[ -t 1 ] && _MAIN__FLAGS[PIPED]=$False || _MAIN__FLAGS[PIPED]=$True
 declare -gA _MAIN__TIMER=()
 
 # test if file is sourced or executed
@@ -93,7 +80,6 @@ fi
 
 test -L "${_MAIN__RAW_SCRIPTNAME}" && _MAIN__SCRIPTPATH="$( readlink "${_MAIN__RAW_SCRIPTNAME}" )" || _MAIN__SCRIPTPATH="${_MAIN__RAW_SCRIPTNAME}"
 _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
-
 
 
 ############
@@ -166,6 +152,13 @@ main_set-script-path-info() {
   _MAIN__SCRIPTDIR="${_MAIN__SCRIPTPATH%/*}"
 }
 alias main.set-script-path-info="main_set-script-path-info"
+
+
+# @description Check if the script is piped.
+# @alias main.is-piped
+# @exitcodes Standard (0 for true, 1 for false)
+main_is-piped() { [ -t 1 ] && return 1 || return 0 ; }
+alias main.is-piped="main_is-piped"
 
 
 ############
@@ -485,4 +478,5 @@ flag_disable() {
   _MAIN__FLAGS[$1]=$False
 }
 alias flag.disable="flag_disable"
+
 
