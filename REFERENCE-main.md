@@ -17,19 +17,6 @@ Contains common usage functions, such as some process, shopt, file descriptor an
   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 
-# Constants
-
-## Terminal color codes
-* **Color_Off**: Disable color
-* **Black,Red,Green,Yellow,Blue,Purple,Cyan,Orange**: Regular Colors
-* **BBlack,BRed,BGreen,BYellow,BBlue,BPurple,BCyan,BWhite**: Bold Colors
-* **UBlack,URed,UGreen,UYellow,UBlue,UPurple,UCyan,UWhite**: Underlined Colors
-* **On_Black,On_Red,On_Green,On_Yellow,On_Blue,On_Purple,On_Cyan,On_White**: Background Colors
-* **IBlack,IRed,IGreen,IYellow,IBlue,IPurple,ICyan,IWhite**: High Intensty Colors
-* **BIBlack,BIRed,BIGreen,BIYellow,BIBlue,BIPurple,BICyan,BIWhite**: Bold High Intensity Colors
-* **On_IBlack,On_IRed,On_IGreen,On_IYellow,On_IBlue,On_IPurple,On_ICyan,On_IWhite**: High Intensty Background Colors
-
-
 # Settings
 
 * **\_MAIN__KILL_PROCESS_WAIT_INTERVAL** (Number)[default: **0.1**]: Seconds to wait between checks to test whether a process has been successfully killed
@@ -37,11 +24,12 @@ Contains common usage functions, such as some process, shopt, file descriptor an
 
 # Global Variables
 
-## Flags - Associative array used to store boolean values
-* **\_MAIN__FLAGS\[SOURCED\]** (Bool): Is current file sourced? This flag is automatically set when the module is loaded
-* **\_MAIN__FLAGS\[INTERACTIVE\]** (Bool): Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
-* **\_MAIN__FLAGS\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot()`
-* **\_MAIN__FLAGS\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows()`
+## _SETTINGS__HASH - Associative array used to store boolean values
+* **\_SETTINGS__HASH\[SOURCED\]** (Bool): Is current file sourced? This flag is automatically set when the module is loaded
+* **\_SETTINGS__HASH\[PIPED\]** (Bool): Is current file piped to another command? This flag is automatically set when the module is loaded
+* **\_SETTINGS__HASH\[INTERACTIVE\]** (Bool): Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
+* **\_SETTINGS__HASH\[CHROOTED\]** (Bool): Is current process chrooted? This flag is set when calling `main.is-chroot()`
+* **\_SETTINGS__HASH\[WINDOWS\]** (Bool): Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 ## Boolean Values
 * True 0
 * False 1
@@ -58,6 +46,7 @@ Contains common usage functions, such as some process, shopt, file descriptor an
 * [main_is-windows()](#main_is-windows)
 * [main_is-chroot()](#main_is-chroot)
 * [main_set-script-path-info()](#main_set-script-path-info)
+* [main_is-piped()](#main_is-piped)
 * [shopt_backup()](#shopt_backup)
 * [shopt_restore()](#shopt_restore)
 * [timer_start()](#timer_start)
@@ -70,12 +59,12 @@ Contains common usage functions, such as some process, shopt, file descriptor an
 * [file_mkfifo_()](#file_mkfifo_)
 * [command_stdout_()](#command_stdout_)
 * [var_assign()](#var_assign)
-* [flag_set()](#flag_set)
-* [flag_get_()](#flag_get_)
-* [flag_is-set()](#flag_is-set)
-* [flag_is-disabled()](#flag_is-disabled)
-* [flag_enable()](#flag_enable)
-* [flag_disable()](#flag_disable)
+* [settings_is-enabled()](#settings_is-enabled)
+* [settings_is-disabled()](#settings_is-disabled)
+* [settings_enable()](#settings_enable)
+* [settings_disable()](#settings_disable)
+* [settings_set()](#settings_set)
+* [settings_get_()](#settings_get_)
 
 
 ## main_dereference-alias_()
@@ -106,7 +95,7 @@ $ main.dereference-alias_ alias2
 ## main_is-windows()
 
 Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
-  Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
+  Store the result $True or $False in the flag _SETTINGS__HASH[WINDOWS].
 
 ### Exit codes
 
@@ -127,7 +116,7 @@ $ main.is-windows
 
 ## main_is-chroot()
 
-Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
+Check whether the script is chroot'ed, and store the value $True or $False in flag $_SETTINGS__HASH[CHROOTED].
 
 ### Aliases
 
@@ -160,6 +149,18 @@ _MAIN__SCRIPTPATH=/usr/local/src/script.sh
 $ echo _MAIN__SCRIPTDIR=$_MAIN__SCRIPTDIR
 _MAIN__SCRIPTDIR=/usr/local/src
 ```
+
+## main_is-piped()
+
+Check if the script is piped.
+
+### Aliases
+
+* **main.is-piped**
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
 
 ## shopt_backup()
 
@@ -387,89 +388,145 @@ Execute a command and store the first line of his standard output (or an empty s
 
 * The status code of the executed command
 
-## flag_set()
+## settings_is-enabled()
 
-Set a flag with the provided boolean value.
-
-### Aliases
-
-* **flag.set**
-
-### Arguments
-
-* **$1** (String): Flag name
-* **$2** (String): "on", "yes" or $True are interpreted as $True, $False otherwise
-
-## flag_get_()
-
-Return the flag value.
+Return true if the provided setting is enabled
 
 ### Aliases
 
-* **flag.get_**
+* **settings.is-enabled**
 
 ### Arguments
 
-* **$1** (String): Flag name
-
-### Return with global scalar $__, array $__a or hash $__h
-
-* The flag's value ($True or $False)
-
-## flag_is-set()
-
-Check whether the specified flag is enabled.
-
-### Aliases
-
-* **flag.is-set**
-
-### Arguments
-
-* **$1** (String): Flag name
+* **$1** (String): The setting name to check
 
 ### Exit codes
 
-* 0 if flag is $True, 1 otherwise
+* Standard (0 for true, 1 for false)
 
-## flag_is-disabled()
+### Example
 
-Check whether the specified flag is disabled.
+```bash
+$ settings.is-enabled TEST
+# exitcode=1
+$ settings.enable TEST
+$ settings.is-enabled TEST && echo ENABLED
+ENABLED
+```
+
+## settings_is-disabled()
+
+Return true if the provided setting is disabled.
+  The function only test if the setting has been explicitly disabled: testing a setting not being defined will return false.
 
 ### Aliases
 
-* **flag.is-disabled**
+* **settings.is-disabled**
 
 ### Arguments
 
-* **$1** (String): Flag name
+* **$1** (String): The setting name to check
 
 ### Exit codes
 
-* 0 if flag is $False, 0 otherwise
+* Standard (0 for true, 1 for false)
 
-## flag_enable()
+### Example
 
-Enable the specified flag, i.e. set it to $True.
+```bash
+$ settings.is-disabled TEST
+# exitcode=1
+$ settings.enable TEST
+$ settings.is-disabled TEST
+# exitcode=1
+$ settings.disable TEST
+$ settings.is-disabled TEST && echo DISABLED
+DISABLED
+```
+
+## settings_enable()
+
+Enable the provided setting.
 
 ### Aliases
 
-* **flag.enable**
+* **settings.enable**
 
 ### Arguments
 
-* **$1** (String): Flag name
+* **$1** (String): The setting to enable
 
-## flag_disable()
+### Example
 
-Disable the specified flag, i.e. set it to $False.
+```bash
+$ settings.is-enabled TEST
+# exitcode=1
+$ settings.enable TEST
+$ settings.is-enabled TEST && echo ENABLED
+ENABLED
+```
+
+## settings_disable()
+
+Disable the provided setting.
 
 ### Aliases
 
-* **flag.disable**
+* **settings.disable**
 
 ### Arguments
 
-* **$1** (String): Flag name
+* **$1** (String): The setting to disable
+
+### Example
+
+```bash
+$ settings.is-disabled TEST
+# exitcode=1
+$ settings.disable TEST
+$ settings.is-disabled TEST && echo DISABLED
+DISABLED
+```
+
+## settings_set()
+
+Set the value of a setting.
+
+### Aliases
+
+* **settings.set**
+
+### Arguments
+
+* **$1** (String): The setting to set
+* **$2** (String): The value to set
+
+### Example
+
+```bash
+$ settings.set COLOR Red
+$ settings.get_ COLOR
+# return __="Red"
+```
+
+## settings_get_()
+
+Get the value of a setting.
+
+### Aliases
+
+* **settings.get_**
+
+### Arguments
+
+* **$1** (String): The setting from which to retrieve the value
+
+### Example
+
+```bash
+$ settings.set COLOR Red
+$ settings.get_ COLOR
+# return __="Red"
+```
 
 

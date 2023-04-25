@@ -4,7 +4,7 @@ Data types functions.
 
 # Overview
 
-Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps and datetime.  
+Contains functions to manipulate different data types such as strings, arrays, associative arrays (hashes), lists, sets, regexps, datetime and settings.  
   It contains the following classes:  
     * string  
     * array  

@@ -1,5 +1,6 @@
 # Reference
 **Library Files**
+* [console.sh](REFERENCE-console.md)
 * [package.sh](REFERENCE-package.md)
 * [args.sh](REFERENCE-args.md)
 * [module.sh](REFERENCE-module.md)

@@ -31,6 +31,12 @@ It provide two features: the management of trap handlers (with the support of mu
   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 
+# Constants
+
+* **\_TRAP__YELLOW**: String Yellow terminal color code
+* **\_TRAP__COLOR_OFF**: String Terminal code to turn off color
+
+
 # Global Variables
 
 * **\_TRAP__HOOKS_LIST_\<signal\>** (Array): List of hooks for signal \<signal\>

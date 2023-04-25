@@ -12,12 +12,16 @@ Basic argument parsing functionalities.
   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 
 
+# Constants
+
+* **\_ARGS__BRED**: String Red terminal color code
+* **\_ARGS__YELLOW**: String Yellow terminal color code
+* **\_ARGS__CYAN**: String Cyan terminal color code
+* **\_ARGS__COLOR_OFF**: String Terminal code to turn off color
+
+
 # Global Variables
 
-* **\_ARGS__BRED** (String): Red terminal color code
-* **\_ARGS__YELLOW** (String): Yellow terminal color code
-* **\_ARGS__CYAN** (String): Cyan terminal color code
-* **\_ARGS__COLOR_OFF** (String): Terminal code to turn off color
 * **\_ARGS__ERROR_CODE** (Number): Error code returned when validation of arguments fail
 
 
@@ -61,6 +65,7 @@ $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 
 Parse the command line options.
   It store the parsed options and remaining arguments to the provided variables.
+  The standard wasy to call it is `declare -A opts ; declare -a args ; args.parse opts args -- <option-definition>... -- "$@"`
   In addition to getopt syntax, the form `-n:,--name` is allowed, which means that the same option can be interchangebly provided in the form `-n <value>` and `--name <value>`.
   The code and functionalities is a mix of the following two github projects:
   * [reconquest/args](https://github.com/reconquest/args)
