@@ -14,7 +14,7 @@ declare -ga _CONSOLE__CLASSES=(console)
 # @show-internal
 shopt -s expand_aliases
 
-module.import "datatypes"
+module.import "trap"
 module.import "main"
 module.import "args"
 
@@ -152,24 +152,24 @@ console_msg() {
   local type msg color exit_code is_stderr function_info
 
   # if --show-function option, then add the function name to the message
-  [ -v "__opts[show-function]" ] && function_info="${FUNCNAME[1]}()# "
+  [[ ${__opts[show-function]+x} ]] && function_info="${FUNCNAME[1]}()# "
 
   type="${__args[0]}"
   exit_code=${__opts[exit]}
-  [ -v "__opts[n]" ] && add_args+=(-n)
-  [ -v "__opts[e]" ] && add_args+=(-e)
+  [[ ${__opts[n]+x} ]] && add_args+=(-n)
+  [[ ${__opts[e]+x} ]] && add_args+=(-e)
   color=${__opts[color]}
   [ -z "$color" ] && color="${_CONSOLE__MSG_COLOR_TABLE[$type]}"
 
   # check if message should be sent to stderr
-  [[ ( "$type" = ERROR || -v "__opts[stderr]" ) && ! -v "__opts[stdout]" ]] && is_stderr=1
+  [[ ( "$type" = ERROR || ${__opts[stderr]+x} ) && ! ${__opts[stdout]+x} ]] && is_stderr=1
   
   # if tty or stderr option...  
-  if [[ -v "__opts[tty]" || "$is_stderr" = 1 ]]; then
+  if [[ ${__opts[tty]+x} || "$is_stderr" = 1 ]]; then
     
     fd.get_ ; local fd_stdout="$__"
     
-    if [ -v "__opts[tty]" ]; then
+    if [[ ${__opts[tty]+x} ]]; then
       eval "exec $fd_stdout>&1 >/dev/tty"
     elif [ "$is_stderr" = 1 ]; then
       eval "exec $fd_stdout>&1 >&2"
@@ -178,7 +178,7 @@ console_msg() {
   fi
   
   # add indentation if `--indent` parameter is set
-  [ -v "__opts[indent]" ] && console.print-indent
+  [[ ${__opts[indent]+x} ]] && console.print-indent
   
   # add message type with color or not depending on the `COLORIZE_OUTPUT` setting and/or the current script/function is piped
   if settings.is_enabled COLORIZE_OUTPUT || [ -t 1 ]; then
@@ -189,7 +189,7 @@ console_msg() {
   echo ${add_arg[@]} "${function_info}""${__args[@]:1}"
 
   # restore the stdout and stderr if needed
-  [[ "$is_stderr" = 1 || -v "__opts[tty]" ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
+  [[ "$is_stderr" = 1 || ${__opts[tty]+x} ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
   
   # if exit code is set, then exit
   [ -n "$exit_code" ] && exit "$exit_code" || return 0
@@ -219,3 +219,60 @@ console_printf() {
   fi
 }
 alias console.printf="console_printf"
+
+# @description Used to restore the IFS and stty for non-blocking `console.readkeys` function.
+#   You need to call it after you finished to use the `console.readkeys` function.
+# @alias console.finalize-readkeys
+console_finalize-readkeys() {
+  [ -n "$_CONSOLE__IFS" ] && IFS="$_CONSOLE__IFS"
+  [ -n "$_CONSOLE__OLDSTTY" ] && { stty "$_CONSOLE__OLDSTTY" ; } </dev/tty
+}
+alias console.finalize-readkeys="console_finalize-readkeys"
+
+# @description Needed to initialize the stty before using the `console.readkeys` function.
+# @alias console.init-readkeys
+console_init-readkeys() {
+  local char
+  trap.add-handler FINALIZE_READKEYS console_finalize-readkeys EXIT
+  {
+    declare -g _CONSOLE__OLDSTTY=`stty -g`
+    stty -icanon -echo
+    declare -g _CONSOLE__IFS="$IFS"
+    IFS=$'\0'
+    while read -t 0 -N 0; do
+      read -N 1 char
+    done
+    IFS="$_CONSOLE__IFS"
+  } </dev/tty
+}
+alias console.init-readkeys="console_init-readkeys"
+
+# @description Read the pressed keys in non-blocking manner: it will return the keys pressed in the buffer.
+#   Before using this function you need to call the `console.init-readkeys` function and when done, you need to call the `console.finalize-readkeys` function.
+# @alias console.readkeys
+# @return The pressed key(s)
+# @example
+#   while true; do
+#     echo -n .
+#     console.readkeys && { echo "pressed key=$__" ; break ; }
+#     sleep 1
+#   done
+#   console.finalize-readkeys
+console_readkeys() {
+  local char ret=1
+  [ -z "$_CONSOLE__IFS" ] && declare -g _CONSOLE__IFS="$IFS"
+  IFS=$'\0'
+  {
+    if read -t 0 -N 0; then
+      declare -g __=""
+      while read -t 0 -N 0; do
+        read -N 1 -r char
+        __="$__$char"
+      done
+      ret=0
+    fi
+  } </dev/tty
+  IFS="$_CONSOLE__IFS"
+  return $ret
+}
+alias console.readkeys="console_readkeys"

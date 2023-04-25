@@ -51,20 +51,20 @@ test_args_parse() {
                           assertEquals args_parse.1.3      arg2         "${args[1]}"
                           
                           assertEquals args_parse.1.4      4            "${#opts[@]}"
-                          assertEquals args_parse.1.5      1            "${opts[-v]}"
-                          assertEquals args_parse.1.6      2            "${opts[-a]}"
-                          assertEquals args_parse.1.7      "some name"  "${opts[-n]}"
-                          assertEquals args_parse.1.8      "some name"  "${opts[--name]}"
+                          assertEquals args_parse.1.5      1            "${opts[v]}"
+                          assertEquals args_parse.1.6      2            "${opts[a]}"
+                          assertEquals args_parse.1.7      "some name"  "${opts[n]}"
+                          assertEquals args_parse.1.8      "some name"  "${opts[name]}"
 
   args_parse opts args -- -av -b: -n:,--name -- -b "v 1" -va -vv -n"v 2"
-                          assertEquals  args_parse.2.1     0            "${#args[@]}"
+                          assertEquals args_parse.2.1      0            "${#args[@]}"
                           
                           assertEquals args_parse.2.2      5            "${#opts[@]}"
-                          assertEquals args_parse.2.3      3            "${opts[-v]}"
-                          assertEquals args_parse.2.4      1            "${opts[-a]}"
-                          assertEquals args_parse.2.5      "v 2"        "${opts[-n]}"
-                          assertEquals args_parse.2.6      "v 2"        "${opts[--name]}"
-                          assertEquals args_parse.2.7      "v 1"        "${opts[-b]}"
+                          assertEquals args_parse.2.3      3            "${opts[v]}"
+                          assertEquals args_parse.2.4      1            "${opts[a]}"
+                          assertEquals args_parse.2.5      "v 2"        "${opts[n]}"
+                          assertEquals args_parse.2.6      "v 2"        "${opts[name]}"
+                          assertEquals args_parse.2.7      "v 1"        "${opts[b]}"
 
 
   ( args_parse - 0 -- -av -b: -n:,--name -- -aav --name="some name" ) &>/dev/null               ; assertTrue  args_parse.3.1    $?

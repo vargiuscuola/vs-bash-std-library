@@ -16,7 +16,6 @@ declare -ga _MAIN__CLASSES=(main shopt process env fd timer flag msg)
 #   * fd
 #   * timer
 #   * flag
-#   * msg
 #   
 #   Use the command `module.doc <function_name>` to see the documentation for a function (see an [example](https://github.com/vargiuscuola/std-lib.bash#examples))
 # @show-internal
@@ -30,12 +29,14 @@ module.import "args"
 # GLOBALS
 #
 
-# @global-header Flags - Associative array used to store boolean values
-# @global _MAIN__FLAGS[SOURCED] Bool Is current file sourced? This flag is automatically set when the module is loaded
-# @global _MAIN__FLAGS[PIPED] Bool Is current file piped to another command? This flag is automatically set when the module is loaded
-# @global _MAIN__FLAGS[INTERACTIVE] Bool Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
-# @global _MAIN__FLAGS[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
-# @global _MAIN__FLAGS[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
+# @global-header _SETTINGS__HASH - Associative array used to store boolean values
+declare -gA _SETTINGS__HASH
+
+# @global _SETTINGS__HASH[SOURCED] Bool Is current file sourced? This flag is automatically set when the module is loaded
+# @global _SETTINGS__HASH[PIPED] Bool Is current file piped to another command? This flag is automatically set when the module is loaded
+# @global _SETTINGS__HASH[INTERACTIVE] Bool Is the current process running in an interactive shell? This flag is automatically set when the module is loaded
+# @global _SETTINGS__HASH[CHROOTED] Bool Is current process chrooted? This flag is set when calling `main.is-chroot()`
+# @global _SETTINGS__HASH[WINDOWS] Bool Is current O.S. Windows? This flag is set when calling `main.is-windows()`
 
 # @global-header Boolean Values
 # @global True 0
@@ -65,18 +66,18 @@ False=1
 # INITIALITAZION
 #
 
-declare -gA _MAIN__FLAGS=([SOURCED]=$False)
-[ -t 1 ] && _MAIN__FLAGS[PIPED]=$False || _MAIN__FLAGS[PIPED]=$True
+declare -gA _SETTINGS__HASH=([SOURCED]=$False)
+[ -t 1 ] && _SETTINGS__HASH[PIPED]=$False || _SETTINGS__HASH[PIPED]=$True
 declare -gA _MAIN__TIMER=()
 
 # test if file is sourced or executed
 if [ "${BASH_SOURCE[1]}" != "${0}" ]; then
   _MAIN__RAW_SCRIPTNAME="${BASH_SOURCE[-1]}"
-  _MAIN__FLAGS[SOURCED]=$True
+  _SETTINGS__HASH[SOURCED]=$True
 else
   _MAIN__RAW_SCRIPTNAME="$0"
 fi
-[ -z "${-//*i*/}" ] && _MAIN__FLAGS[INTERACTIVE]=$True || _MAIN__FLAGS[INTERACTIVE]=$False
+[ -z "${-//*i*/}" ] && _SETTINGS__HASH[INTERACTIVE]=$True || _SETTINGS__HASH[INTERACTIVE]=$False
 
 test -L "${_MAIN__RAW_SCRIPTNAME}" && _MAIN__SCRIPTPATH="$( readlink "${_MAIN__RAW_SCRIPTNAME}" )" || _MAIN__SCRIPTPATH="${_MAIN__RAW_SCRIPTNAME}"
 _MAIN__SCRIPTNAME="${_MAIN__SCRIPTPATH##*/}"
@@ -110,7 +111,7 @@ main_dereference-alias_() {
 alias main.dereference-alias_="main_dereference-alias_"
 
 # @description Check whether the current environment is Windows, testing if `uname -a` return a string starting with `MINGW`.  
-#   Store the result $True or $False in the flag _MAIN__FLAGS[WINDOWS].
+#   Store the result $True or $False in the flag _SETTINGS__HASH[WINDOWS].
 # @exitcodes Standard (0 for true, 1 for false)
 # @alias main.is-windows
 # @example
@@ -119,23 +120,23 @@ alias main.dereference-alias_="main_dereference-alias_"
 #   $ main.is-windows
 #   # statuscode = 0
 main_is-windows() {
-  if [[ -z "${_MAIN__FLAGS[WINDOWS]}" ]]; then
-    [[ "$( uname -a  )" =~ ^MINGW ]] && _MAIN__FLAGS[WINDOWS]=$True || _MAIN__FLAGS[WINDOWS]=$False
+  if [[ -z "${_SETTINGS__HASH[WINDOWS]}" ]]; then
+    [[ "$( uname -a  )" =~ ^MINGW ]] && _SETTINGS__HASH[WINDOWS]=$True || _SETTINGS__HASH[WINDOWS]=$False
   fi
-  return "${_MAIN__FLAGS[WINDOWS]}"
+  return "${_SETTINGS__HASH[WINDOWS]}"
 }
 alias main.is-windows="main_is-windows"
 
-# @description Check whether the script is chroot'ed, and store the value $True or $False in flag $_MAIN__FLAGS[CHROOTED].
+# @description Check whether the script is chroot'ed, and store the value $True or $False in flag $_SETTINGS__HASH[CHROOTED].
 # @alias main.is-chroot
 # @exitcodes Standard (0 for true, 1 for false)
 # @example
 #   main.is-chroot
 main_is-chroot() {
-  if [ -z "${_MAIN__FLAGS[CHROOTED]}" ]; then
-    [ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _MAIN__FLAGS[CHROOTED]=$True || _MAIN__FLAGS[CHROOTED]=$False
+  if [ -z "${_SETTINGS__HASH[CHROOTED]}" ]; then
+    [ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/. 2>/dev/null)" ] && _SETTINGS__HASH[CHROOTED]=$True || _SETTINGS__HASH[CHROOTED]=$False
   fi
-  return "${_MAIN__FLAGS[CHROOTED]}"
+  return "${_SETTINGS__HASH[CHROOTED]}"
 }
 alias main.is-chroot="main_is-chroot"
 
@@ -421,62 +422,84 @@ var_assign() {
 }
 alias var.assign="var_assign"
 
+
 ############
 #
-# FLAG FUNCTIONS
+# SETTINGS FUNCTIONS
 #
 ############
 
-# @description Set a flag with the provided boolean value.
-# @alias flag.set
-# @arg $1 String Flag name
-# @arg $2 String "on", "yes" or $True are interpreted as $True, $False otherwise
-flag_set() {
-  [[ "$2" = on || "$2" = yes || "$2" = $True ]] && _MAIN__FLAGS[$1]=$True || _MAIN__FLAGS[$1]=$False
-}
-alias flag.set="flag_set"
+# @description Return true if the provided setting is enabled
+# @alias settings.is-enabled
+# @arg $1 String The setting name to check
+# @exitcodes Standard (0 for true, 1 for false)
+# @example
+#   $ settings.is-enabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-enabled TEST && echo ENABLED
+#   ENABLED
+settings_is-enabled() { [ "${_SETTINGS__HASH[$1]}" = $True ] ; }
+alias settings.is-enabled="settings_is-enabled"
 
-# @description Return the flag value.
-# @alias flag.get_
-# @arg $1 String Flag name
-# @return The flag's value ($True or $False)
-flag_get_() {
-  declare -g __="${_MAIN__FLAGS[$1]}"
-}
-alias flag.get_="flag_get_"
+# @description Return true if the provided setting is disabled.
+#   The function only test if the setting has been explicitly disabled: testing a setting not being defined will return false.
+# @alias settings.is-disabled
+# @arg $1 String The setting name to check
+# @exitcodes Standard (0 for true, 1 for false)
+# @example
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.disable TEST
+#   $ settings.is-disabled TEST && echo DISABLED
+#   DISABLED
+settings_is-disabled() { [ "${_SETTINGS__HASH[$1]}" = $False ] ; }
+alias settings.is-disabled="settings_is-disabled"
 
-# @description Check whether the specified flag is enabled.
-# @alias flag.is-set
-# @arg $1 String Flag name
-# @exitcodes 0 if flag is $True, 1 otherwise
-flag_is-set() {
-  [ "${_MAIN__FLAGS[$1]}" = $True ]
-}
-alias flag.is-set="flag_is-set"
+# @description Enable the provided setting.
+# @alias settings.enable
+# @arg $1 String The setting to enable
+# @example
+#   $ settings.is-enabled TEST
+#   # exitcode=1
+#   $ settings.enable TEST
+#   $ settings.is-enabled TEST && echo ENABLED
+#   ENABLED
+settings_enable() { _SETTINGS__HASH[$1]=$True ; }
+alias settings.enable="settings_enable"
 
-# @description Check whether the specified flag is disabled.
-# @alias flag.is-disabled
-# @arg $1 String Flag name
-# @exitcodes 0 if flag is $False, 0 otherwise
-flag_is-disabled() {
-  [ "${_MAIN__FLAGS[$1]}" = $False ]
-}
-alias flag.is-disabled="flag_is-disabled"
+# @description Disable the provided setting.
+# @alias settings.disable
+# @arg $1 String The setting to disable
+# @example
+#   $ settings.is-disabled TEST
+#   # exitcode=1
+#   $ settings.disable TEST
+#   $ settings.is-disabled TEST && echo DISABLED
+#   DISABLED
+settings_disable() { _SETTINGS__HASH[$1]=$False ; }
+alias settings.disable="settings_disable"
 
-# @description Enable the specified flag, i.e. set it to $True.
-# @alias flag.enable
-# @arg $1 String Flag name
-flag_enable() {
-  _MAIN__FLAGS[$1]=$True
-}
-alias flag.enable="flag_enable"
+# @description Set the value of a setting.
+# @alias settings.set
+# @arg $1 String The setting to set
+# @arg $2 String The value to set
+# @example
+#   $ settings.set COLOR Red
+#   $ settings.get_ COLOR
+#   # return __="Red"
+settings_set() { _SETTINGS__HASH[$1]="$2" ; }
+alias settings.set="settings_set"
 
-# @description Disable the specified flag, i.e. set it to $False.
-# @alias flag.disable
-# @arg $1 String Flag name
-flag_disable() {
-  _MAIN__FLAGS[$1]=$False
-}
-alias flag.disable="flag_disable"
-
-
+# @description Get the value of a setting.
+# @alias settings.get_
+# @arg $1 String The setting from which to retrieve the value
+# @example
+#   $ settings.set COLOR Red
+#   $ settings.get_ COLOR
+#   # return __="Red"
+settings_get_() { declare -g __="${_SETTINGS__HASH[$1]}" ; }
+alias settings.get_="settings_get_"

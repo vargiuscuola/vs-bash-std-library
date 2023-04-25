@@ -50,7 +50,7 @@ _ARGS__COLOR_OFF='\e[0m'
 alias errmsg='>&2 echo -e "${_ARGS__BRED}[ERROR]${_ARGS__COLOR_OFF} ${_ARGS__YELLOW}${FUNCNAME[0]}()${_ARGS__COLOR_OFF}#"'
 
 # raise an error, returning if interactive shell or exiting otherwise
-alias raise='[ "${_MAIN__FLAGS[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERROR_CODE || exit $_ARGS__ERROR_CODE'
+alias raise='[ "${_SETTINGS__HASH[INTERACTIVE]}" = "$True" ] && return $_ARGS__ERROR_CODE || exit $_ARGS__ERROR_CODE'
 
 # @internal
 # @description Validate the number of arguments, writing an error message and exiting if the check is not passed.  
@@ -153,15 +153,19 @@ args_parse() {
   
   local -a short_opts
   local -a long_opts
-  local -a variants
+  local -a variants ary
   local -A values
   local -A aliases
   local -A tags
-  local opt alias value tag key
-  
-  # parse options configuration
+  local arg opt alias value tag key len
+
+  #
+  # Parse configuration options
+  #
   while (( $# > 0 )); do
-    opt=${1%%,*}
+    arg=${1%%,*}
+    [[ "$arg" =~ -*(.*)$ ]] && opt="${BASH_REMATCH[1]}" # remove the leading dash characters
+    
     tag=
     case "$1" in
       --)
@@ -175,19 +179,50 @@ args_parse() {
         ;;&
 
       -*:*)
-        values[${opt%:}]=true
         opt="${opt%:}"
+        values[$opt]=true
         ;;&
 
       -*)
-        IFS="," read -ra variants <<< "$1"
 
-        for alias in $opt ${variants[@]:1}; do
+        IFS="," read -ra variants <<< "$1" # split the argument with coma character
+        
+        ary=() # array containing the list of short options provided with the syntax `-avp`
+
+        [[ $arg =~ ^-- ]] &&
+          
+          # if option start with double dash, just assign variants found until now
+          variants=("$opt" "${variants[@]:1}") ||
+          
+          # if option start with single dash, split by each character (example format `-av`)
+          {
+            [[ "$opt" =~ ${opt//?/(.)} ]]   # match every character
+            ary=( "${BASH_REMATCH[@]:1}" )  # store to array
+            
+            # the number of variants is equal to the size of array variants minus 1 (the first option itself)
+            if [[ "${#ary[@]}" > 1 ]]; then
+              
+              [[ "${#variants[@]}" > 1 ]] && { errmsg "You can't both use the multiple short-option format (\`-avp\`) together with the aliases format (\`-h,--help\`) as in \`-hx,--help\`" ; return 3 ; }
+              [ -n "$tag" ] && { errmsg "You can't provide a tag when using the multiple short-option format (\`-avp\`)" ; return 4 ; }
+              [ "${values[$opt]}" = true ] && { errmsg "You can't provide the : modifier (required argument for option) when using the multiple short-option format (\`-avp\`)" ; return 5 ; }
+        
+            fi
+
+            variants=("${ary[@]}" "${variants[@]:1}")
+            opt="${ary[0]}"
+          }
+
+        # for each variant
+        for alias in ${variants[@]}; do
+        
+          [[ "$alias" =~ -*(.*)$ ]] && alias="${BASH_REMATCH[1]}" # remove the leading dash characters
+          len="${#alias}" # length of option (useful for determining if it's a short or long option)
+
           # if a tag is provided, then it will set in the `tags` hash
           if [ -n "$tag" ]; then
             tags[$alias]=$tag
-          # otherwise the aliases will reference the main (first) option
-          elif [ "$alias" != "$opt" ]; then
+          # otherwise, if the multi short-option format is used, the aliases will reference the main (first) option
+          elif [[ "${#ary[@]}" = 1 && "$alias" != "$opt" ]]; then
             aliases[$alias]="$opt"
           fi
 
@@ -196,7 +231,8 @@ args_parse() {
             alias+=":"
           fi
           
-          [[ "${alias}" =~ ^-- ]] && long_opts+=(${alias#--*}) || short_opts+=(${alias#-*})
+          [[ "$len" > 1 ]] && long_opts+=("$alias") || short_opts+=("$alias")
+
         done
 
         ;;
@@ -210,6 +246,7 @@ args_parse() {
     shift
   done >&2
 
+  # expecting the `--` separator: return with an error if not found
   [[ "$1" != "--" ]] && { errmsg "-- must be present and delimit options definition from incoming args string" ; return 2 ; }
   shift
 
@@ -226,7 +263,9 @@ args_parse() {
   )
   (( $? != 0 )) && return 1
 
-  # set the options
+  #
+  # Parse options
+  #
   while (( $# )); do
     case "$1" in
       --)
@@ -245,8 +284,9 @@ args_parse() {
           key="${opt#-}"
           key="${key#-}"
         fi
+
         # if the option expect an argument
-        if [[ ${values[$opt]+x} ]]; then
+        if [[ ${values[$key]+x} ]]; then
           shift
           _opts[$key]=$1
         # otherwise the value of the option get incremented
@@ -255,24 +295,23 @@ args_parse() {
         fi
         ;;
     esac
-    value="${_opts[$opt]:-}"
+    value="${_opts[$key]:-}"
     shift
 
     # if the options is associated to a tag, then skip to the next option
     [[ ${tags[${opt}]+x} ]] && continue
     
     # if current option is an alias, find and set the original option
-    if [[ "${aliases[$opt]:-}" ]]; then
-      opt="${aliases[$opt]:-}"
-      _opts[$opt]="$value"
-    fi
+    opt="${aliases[$key]:-}"
+    [[ "${opt:-}" ]] && _opts[$opt]="$value"
     
     # set all aliases
     for alias in "${!aliases[@]}"; do
 
-      if [[ "${aliases[$alias]}" = "$opt" ]]; then
-        _opts[$alias]=${_opts[$opt]}
+      if [[ "${aliases[$alias]}" = "$key" ]]; then
+        _opts[$alias]="$value"
       fi
+      
     done
 
   done

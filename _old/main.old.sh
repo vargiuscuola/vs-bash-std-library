@@ -47,55 +47,6 @@ prefix_date() {
   awk "{ print strftime(\"$_common__format\"), \$0; fflush() }"
 }
 
-printf_color() {
-  [[ "${__OPTS[COLOR]}" = 1  || "${_MAIN__FLAGS[IS_PIPED]}" != 1 ]] && printf "$@" || ( printf "$@" | sed -r "s/\x1B\[([0-9]{1,3};){0,2}[0-9]{0,3}[mGK]//g" )
-}
-
-show_msg() {
-  local type="$1" && shift
-  local add_arg="" color exit_code is_stderr is_tty is_indent function_info
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --) shift ; break ;;
-      --show-function) [[ "${FUNCNAME[1]}" =~ _msg ]] && function_info="${FUNCNAME[2]}()# " || function_info="${FUNCNAME[1]}()# " ; shift ;;
-      --exit) exit_code="$2" ; shift 2 ;;
-      -n) shift ; str_concat add_arg "-n" ;;
-      -e) shift ; str_concat add_arg "-e" ;;
-      --color) color="$2" ; shift 2 ;;
-      --stderr) is_stderr=1 ; shift ;;
-      --stdout) is_stderr=0 ; shift ;;
-      --tty) is_tty=1 ; shift ;;
-      --indent) is_indent=1 ; shift ;;
-      *) break ;;
-    esac
-  done
-  [[ "$type" = ERROR && -z "$is_stderr" ]] && is_stderr=1
-  if [ -z "$color" ]; then
-    declare -A color_table=([ERROR]="$Red" [OK]="$BGreen" [WARNING]="$Yellow" [INFO]="$Cyan" [INPUT]="$Yellow")
-    color="${color_table[$type]}"
-  fi
-  if [[ "$is_tty" = 1 || "$is_stderr" = 1 ]]; then
-    get_fd_ ; local fd_stdout=$__
-    if [ "$is_tty" = 1 ]; then
-      eval "exec $fd_stdout>&1 >/dev/tty"
-    elif [ "$is_stderr" = 1 ]; then
-      eval "exec $fd_stdout>&1 >&2"
-    fi
-  fi
-  [ "$is_indent" = 1 ] && print_indent
-  ( parseargs_is_optarg COLOR || [ -t 1 ] ) && { echo -ne "$color"[$type]"$Color_Off " ; echo $add_arg "${function_info}""$@" ; } || echo $add_arg [$type] "$${function_info}""$@"
-  [[ "$is_stderr" = 1 || "$is_tty" = 1 ]] && eval "exec >&$fd_stdout $fd_stdout>&-" || true
-  [ -n "$exit_code" ] && exit "$exit_code" || return 0
-}
-error_msg() { show_msg ERROR --color $BRed "$@" ; } # ERROR in rosso
-ok_msg() { show_msg OK --color $Green "$@" ; } # OK in verde
-warn_msg() { show_msg WARNING --color $Yellow "$@" ; } # WARNING in giallo
-info_msg() { show_msg INFO --color $Cyan "$@" ; } # INFO in ciano
-input_msg() { show_msg INPUT --tty --color $( get_ext_color 141 ) -n "$@" ; } # INPUT in viola
-test_msg() { show_msg TEST --color $Orange "$@" ; } # TEST in arancione
-debug_msg() { show_msg DEBUG --color $Orange "$@" ; } # DEBUG in arancione
-
-
 ####
 #
 # avvio comandi multipli
@@ -176,30 +127,6 @@ run_cmd() {
   fi
 }
 
-
-####
-#
-# gestione identazione
-#
-__INDENT_N=0
-__INDENT_NCH=4
-add_ident() { add_indent "$@" ; }
-sub_ident() { sub_indent "$@" ; }
-set_ident() { set_indent "$@" ; }
-
-add_indent() { (( __INDENT_N += 1 )) ; }
-sub_indent() { [ "$__INDENT_N" -gt 0 ] && (( __INDENT_N -= 1 )) ; }
-set_indent() { __INDENT_N=$1 ; }
-set_indent_nchars() { __INDENT_NCH=$1 ; }
-print_indent() {
-  local i indent_str
-  for ((i=1 ; i<=$__INDENT_NCH; i++)); do
-    indent_str="${indent_str} "
-  done
-  for ((i=1 ; i<=$__INDENT_N; i++)); do
-    echo -n "$indent_str"
-  done
-}
 
 
 ####
@@ -296,50 +223,6 @@ is_set() { eval "[ \${$1+x} ]" ; }
 
 ####
 #
-# gestione input da console
-#
-
-function finalize_read_keys() {
-  [ -n "$__IFS" ] && IFS="$__IFS"
-  [ -n "$__OLDSTTY" ] && { stty "$__OLDSTTY" ; } </dev/tty
-}
-
-function init_read_keys() {
-  local char
-  add_trap_handler finalize_read_keys "" EXIT
-  {
-    declare -g __OLDSTTY=`stty -g`
-    stty -icanon -echo
-    __IFS="$IFS"
-    IFS=$'\0'
-    while read -t 0 -N 0; do
-      read -N 1 char
-    done
-    IFS="$__IFS"
-  } </dev/tty
-}
-
-function read_key_() {
-  local char ret=1
-  [ -z "$__IFS" ] && __IFS="$IFS"
-  IFS=$'\0'
-  {
-    if read -t 0 -N 0; then
-      __=""
-      while read -t 0 -N 0; do
-        read -N 1 -r char
-        __="$__$char"
-      done
-      ret=0
-    fi
-  } </dev/tty
-  IFS="$__IFS"
-  return $ret
-}
-
-
-####
-#
 # varie
 #
 
@@ -347,20 +230,6 @@ define(){ IFS='\n' read -r -d '' ${1} || true; }
 is_piped() { [ -t 1 ] && return 1 || return 0 ; }
 is_piped && enable_flag IS_PIPED || disable_flag IS_PIPED
 is_word_in_string() { [[ "$2" =~ (^| )$1( |$) ]] ; }
-
-# @description Get extended terminal color codes
-#
-# @arg $1 number Foreground color
-# @arg $2 number Background color
-#
-# @example
-#   get_ext_color 208
-#     => \e[38;5;208m
-#
-# @exitcode n.a.
-#
-# @stdout Color code.
-function get_ext_color() { local color ; [ -n "$1" ] && color="38;5;$1" ; [ -n "$2" ] && str_concat color "48;5;$1" ';' ; echo -ne "\e[${color}m"; }
 
 # consente di eseguire lo script mentre lo si edita: utile in caso di aggiornamenti git o simili che possono disturbare l'esecuzione dello script
 # basta eseguire la funzione all'inizio dello script
