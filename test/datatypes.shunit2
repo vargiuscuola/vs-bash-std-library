@@ -40,17 +40,17 @@ test_array_find_() {
   declare -a ary=(ab "c\"'d" ef "g h i" l "c\"'d")
   array_find_ ary "c\"'d" ; assertTrue    array_find_.1  "$?"
                             assertEquals  array_find_.2  1  "$__"
-  array_find_ ary x       ; assertFalse    array_find_.3  "$?"
+  array_find_ ary x       ; assertFalse   array_find_.3  "$?"
                             assertEquals  array_find_.4  -1  "$__"
-  array_find_ ary2 a      ; assertFalse    array_find_.5  "$?"
+  array_find_ ary2 a      ; assertFalse   array_find_.5  "$?"
                             assertEquals  array_find_.6  -1  "$__"
 }
 
 test_array_include() {
   declare -a ary=(ab "c\"'d" ef "g h i" l "c\"'d")
   array_include ary "c\"'d" ; assertTrue    array_include.1  "$?"
-  array_include ary x       ; assertFalse    array_include.3  "$?"
-  array_include ary2 a      ; assertFalse    array_include.5  "$?"
+  array_include ary x       ; assertFalse   array_include.3  "$?"
+  array_include ary2 a      ; assertFalse   array_include.5  "$?"
 }
 
 test_array_intersection_() {
@@ -60,7 +60,7 @@ test_array_intersection_() {
                                   assertEquals  array_intersection_.1  '([0]="a" [1]="3" [2]="8\"'"'"'9")'  "$( declare -p __a | cut -d= -f2- )"
 
   declare -a ary2=(8 9 1 bx xa " c d")
-  array_intersection_ ary1 ary2 ; assertFalse    array_intersection_.4  "$?"
+  array_intersection_ ary1 ary2 ; assertFalse   array_intersection_.4  "$?"
                                   assertEquals  array_intersection_.3  '()'  "$( declare -p __a | cut -d= -f2- )"
 }
 
@@ -80,7 +80,7 @@ test_array_remove() {
                              assertEquals  array_remove.2      '([0]="x" [1]="c d" [2]="a" [3]="e\"'"'"'f")'  "$( declare -p ary | cut -d= -f2- )"
   array_remove ary "e\"'f" ; assertTrue    array_remove.3      "$?"
                              assertEquals  array_remove.4      '([0]="x" [1]="c d" [2]="a")'                  "$( declare -p ary | cut -d= -f2- )"
-  array_remove ary "y"     ; assertFalse    array_remove.5      "$?"
+  array_remove ary "y"     ; assertFalse   array_remove.5      "$?"
                              assertEquals  array_remove.6      '([0]="x" [1]="c d" [2]="a")'                  "$( declare -p ary | cut -d= -f2- )"
 }
 
@@ -90,7 +90,7 @@ test_array_remove-values() {
                                     assertEquals  array_remove-values.2    '([0]="x" [1]="c d" [2]="e\"'"'"'f")'  "$( declare -p ary | cut -d= -f2- )"
   array_remove-values ary "e\"'f" ; assertTrue    array_remove-values.3    "$?"
                                     assertEquals  array_remove-values.4    '([0]="x" [1]="c d")'                  "$( declare -p ary | cut -d= -f2- )"
-  array_remove-values ary "y"     ; assertFalse    array_remove-values.5    "$?"
+  array_remove-values ary "y"     ; assertFalse   array_remove-values.5    "$?"
                                     assertEquals  array_remove-values.6    '([0]="x" [1]="c d")'                  "$( declare -p ary | cut -d= -f2- )"
 }
 
@@ -309,6 +309,34 @@ test_string_append() {
   string_append -m var '* [' '#'            ; assertEquals  string_append.7        'l1#* ['$'\n''* ['$'\n''l3 x#* ['  "$var"
   var="l1"$'\n'$'\n'"l3"
   string_append --multi-line var "'" '# "'  ; assertEquals  string_append.8        'l1# "'"'"$'\n'"'"$'\n''l3# "'"'"  "$var"
+}
+
+test_string_split() {
+  local str="a.b c.d"
+  
+  string_split "$str" ary " "
+  declare -a ary2=("a.b" "c.d" )
+  array.eq ary ary2                ; assertTrue string_split.1      "$?"
+  
+  string_split "$str" ary .
+  declare -a ary2=(a "b c" d)
+  array.eq ary ary2                ; assertTrue string_split.2      "$?"
+  
+  string_split "$str" ary ""
+  declare -a ary2=(a . b " " c . d)
+  array.eq ary ary2                ; assertTrue string_split.3      "$?"
+  
+  string_split_ "$str" " "
+  declare -a ary2=("a.b" "c.d" )
+  array.eq __a ary2                ; assertTrue string_split_.1      "$?"
+  
+  string_split_ "$str" .
+  declare -a ary2=(a "b c" d)
+  array.eq __a ary2                ; assertTrue string_split_.2      "$?"
+  
+  string_split_ "$str" ""
+  declare -a ary2=(a . b " " c . d)
+  array.eq __a ary2                ; assertTrue string_split_.3      "$?"
 }
 
 source /opt/shunit2/shunit2

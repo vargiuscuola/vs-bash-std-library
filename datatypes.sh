@@ -56,6 +56,42 @@ string_append() {
 alias string.append="string_append"
 alias string.concat="string_append"
 
+# @description Split a string based on a separator and put the resulting components into the provided array.
+# @alias string.split
+# @arg $1 String The string to split
+# @arg $2 String The array name
+# @arg $3 String[ ] Separator (can be an empty string, in which case the string will be split into its component characters)
+string_split() {
+  local str="$1" aryname="$2" sep="${3- }"
+  declare -ga "$aryname"
+  declare -n __string_split_ary="$aryname"
+  
+  if [ -z "$sep" ]; then
+  
+    # ${opt//?/(.)} => convert every caharcter of the string into `(.)`, then store every match (i.e. every character) into ary
+    [[ "$str" =~ ${str//?/(.)} ]] && __string_split_ary=( "${BASH_REMATCH[@]:1}" )
+
+  else
+    
+    local IFS="$ch"
+    readarray -t __string_split_ary <<<"${str//$sep/
+}"
+
+  fi
+}
+alias string.split="string_split"
+
+# @description Split a string based on a separator and return the array containing its elements.
+# @alias string.split_
+# @arg $1 String The string to split
+# @arg $2 String[ ] Separator (can be an empty string, in which case the string will be split into its component characters)
+# @return An array containing the elements composing the string
+string_split_() {
+  string_split "$1" __a "$2"
+}
+alias string.split_="string_split_"
+
+
 
 ############
 #

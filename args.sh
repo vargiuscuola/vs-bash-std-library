@@ -196,8 +196,8 @@ args_parse() {
           
           # if option start with single dash, split by each character (example format `-av`)
           {
-            [[ "$opt" =~ ${opt//?/(.)} ]]   # match every character
-            ary=( "${BASH_REMATCH[@]:1}" )  # store to array
+            # ${opt//?/(.)} => convert every caharcter of the string into `(.)`, then store every match (i.e. every character) into ary
+            [[ "$opt" =~ ${opt//?/(.)} ]] && ary=( "${BASH_REMATCH[@]:1}" )
             
             # the number of variants is equal to the size of array variants minus 1 (the first option itself)
             if [[ "${#ary[@]}" > 1 ]]; then
