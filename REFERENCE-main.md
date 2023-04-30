@@ -60,6 +60,7 @@ Contains common usage functions, such as some process, shopt, file descriptor an
 * [file_mkfifo_()](#file_mkfifo_)
 * [command_stdout_()](#command_stdout_)
 * [var_assign()](#var_assign)
+* [var_is-set()](#var_is-set)
 * [settings_is-enabled()](#settings_is-enabled)
 * [settings_is-disabled()](#settings_is-disabled)
 * [settings_enable()](#settings_enable)
@@ -388,6 +389,22 @@ Execute a command and store the first line of his standard output (or an empty s
 ### Exit codes
 
 * The status code of the executed command
+
+## var_is-set()
+
+Check if the provided variable is defined (regardless if it contains a null string or not)
+
+### Aliases
+
+* **var.is-set**
+
+### Arguments
+
+* **$1** (String): Variable name to check
+
+### Exit codes
+
+* Standard (0 for true, 1 for false)
 
 ## settings_is-enabled()
 

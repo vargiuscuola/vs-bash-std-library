@@ -89,7 +89,7 @@ Split a string based on a separator and put the resulting components into the pr
 
 * **$1** (String): The string to split
 * **$2** (String): The array name
-* **$3** (String)[default: ** **]: Separator (can be an empty string, in which case the string will be split into its component characters)
+* **$3** (String)[default: **space**]: Separator (can be an empty string, in which case the string will be split into its component characters)
 
 ## string_split_()
 
@@ -102,7 +102,7 @@ Split a string based on a separator and return the array containing its elements
 ### Arguments
 
 * **$1** (String): The string to split
-* **$2** (String)[default: ** **]: Separator (can be an empty string, in which case the string will be split into its component characters)
+* **$2** (String)[default: **space**]: Separator (can be an empty string, in which case the string will be split into its component characters)
 
 ### Return with global scalar $__, array $__a or hash $__h
 
@@ -419,7 +419,7 @@ Join the elements of the provided array into a string, using a provided string a
 
 * **$1** (String): Array name, whose elements will be joined into the string
 * **$2** (String): Variable name for the output
-* **$3** (String)[default: ** **]: A separator
+* **$3** (String)[default: **space**]: A separator
 
 ## list_find_()
 
