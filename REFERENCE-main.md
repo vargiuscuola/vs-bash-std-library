@@ -11,6 +11,7 @@ Contains common usage functions, such as some process, shopt, file descriptor an
   * process
   * env
   * fd
+  * var
   * timer
   * flag
   
