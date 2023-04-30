@@ -34,6 +34,7 @@ Contains functions to manipulate different data types such as strings, arrays, a
 * [array_uniq_()](#array_uniq_)
 * [array_eq()](#array_eq)
 * [array_to_s()](#array_to_s)
+* [array_join()](#array_join)
 * [list_find_()](#list_find_)
 * [list_include()](#list_include)
 * [hash_defined()](#hash_defined)
@@ -405,6 +406,20 @@ $ declare -a ary=(1 2 3)
 $ array.to_s ary
 ([0]="1" [1]="2" [2]="3")
 ```
+
+## array_join()
+
+Join the elements of the provided array into a string, using a provided string as a separator.
+
+### Aliases
+
+* **array.join**
+
+### Arguments
+
+* **$1** (String): Array name, whose elements will be joined into the string
+* **$2** (String): Variable name for the output
+* **$3** (String)[default: ** **]: A separator
 
 ## list_find_()
 
