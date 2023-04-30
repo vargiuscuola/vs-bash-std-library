@@ -60,7 +60,7 @@ alias string.concat="string_append"
 # @alias string.split
 # @arg $1 String The string to split
 # @arg $2 String The array name
-# @arg $3 String[ ] Separator (can be an empty string, in which case the string will be split into its component characters)
+# @arg $3 String[space] Separator (can be an empty string, in which case the string will be split into its component characters)
 string_split() {
   local str="$1" aryname="$2" sep="${3- }"
   declare -ga "$aryname"
@@ -69,7 +69,7 @@ string_split() {
   if [ -z "$sep" ]; then
   
     # ${opt//?/(.)} => convert every caharcter of the string into `(.)`, then store every match (i.e. every character) into ary
-    [[ "$str" =~ ${str//?/(.)} ]] && __string_split_ary=( "${BASH_REMATCH[@]:1}" )
+    [[ "$str" =~ ${str//?/(.)} ]] && __string_split_ary=( "${BASH_REMATCH[@]:1}" ) # CAREFUL: a dependant command to the regular expression match is needed, as it is not parsed otherwise
 
   else
     
@@ -84,7 +84,7 @@ alias string.split="string_split"
 # @description Split a string based on a separator and return the array containing its elements.
 # @alias string.split_
 # @arg $1 String The string to split
-# @arg $2 String[ ] Separator (can be an empty string, in which case the string will be split into its component characters)
+# @arg $2 String[space] Separator (can be an empty string, in which case the string will be split into its component characters)
 # @return An array containing the elements composing the string
 string_split_() {
   string_split "$1" __a "$2"
@@ -335,7 +335,7 @@ alias hash.to_s="array_to_s"
 # @alias array.join
 # @arg $1 String Array name, whose elements will be joined into the string
 # @arg $2 String Variable name for the output
-# @arg $3 String[ ] A separator
+# @arg $3 String[space] A separator
 array_join() {
   local aryname="$1[*]" varname="$2" sep="${3- }"
   declare -g "$varname"
@@ -637,6 +637,7 @@ datetime_interval-to-sec_() {
   args.check-number 1 - || return $?
   local args="$@"
   declare -g __=0
+  # CAREFUL: in the following lines, a dependant command to the regular expression match is needed (as is done with `&&`), as they are not parsed otherwise
   [[ "$args" =~ ^([[:digit:]]*)$ ]] && { (( __+=${BASH_REMATCH[1]} )) ; return ; }
   [[ "$args" =~ ([[:digit:]]+)d ]] && (( __+=${BASH_REMATCH[1]}*60*60*24 ))
   [[ "$args" =~ ([[:digit:]]*)h ]] && (( __+=${BASH_REMATCH[1]}*60*60 ))

@@ -423,6 +423,15 @@ var_assign() {
 }
 alias var.assign="var_assign"
 
+# @description Check if the provided variable is defined (regardless if it contains a null string or not)
+# @alias var.is-set
+# @arg $1 String Variable name to check
+# @exitcodes Standard (0 for true, 1 for false)
+var_is-set() {
+  eval "[ \${$1+x} ]"
+}
+alias var.is-set="var_is-set"
+
 
 ############
 #

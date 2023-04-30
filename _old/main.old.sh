@@ -129,18 +129,7 @@ run_cmd() {
 
 
 
-####
-#
-# array
-#
 
-# split_string
-split_string() {
-  local str="$1" aryname="$2" ch="${3- }"
-  local IFS="$ch"
-  readarray -t $aryname <<<"${str//$ch/
-}"
-}
 
 # split_string_to_h
 split_string_to_h() {
@@ -158,20 +147,7 @@ split_string_to_h() {
 }"
 }
 
-# join_array
-join_array() {
-  local aryname="$1[*]" varname="$2" sep="${3- }"
-  local IFS="" ; local res="${!aryname/#/$sep}"
-  eval "$varname=\"\${res:\${#sep}}\""
-}
 
-# in_array($find, $el1, ...)
-# restituisce true (0) se $find si trova nella lista degli elementi successivi
-in_array() {
-  local e
-  for e in "${@:2}"; do [ "$e" == "$1" ] && return 0; done
-  return 1
-}
 
 
 

@@ -164,7 +164,8 @@ args_parse() {
   #
   while (( $# > 0 )); do
     arg=${1%%,*}
-    [[ "$arg" =~ -*(.*)$ ]] && opt="${BASH_REMATCH[1]}" # remove the leading dash characters
+    # remove the leading dash characters
+    [[ "$arg" =~ -*(.*)$ ]] && opt="${BASH_REMATCH[1]}" # CAREFUL: a dependant command to the regular expression match is needed, as it is not parsed otherwise
     
     tag=
     case "$1" in
@@ -197,7 +198,7 @@ args_parse() {
           # if option start with single dash, split by each character (example format `-av`)
           {
             # ${opt//?/(.)} => convert every caharcter of the string into `(.)`, then store every match (i.e. every character) into ary
-            [[ "$opt" =~ ${opt//?/(.)} ]] && ary=( "${BASH_REMATCH[@]:1}" )
+            [[ "$opt" =~ ${opt//?/(.)} ]] && ary=( "${BASH_REMATCH[@]:1}" ) # CAREFUL: a dependant command to the regular expression match is needed, as it is not parsed otherwise
             
             # the number of variants is equal to the size of array variants minus 1 (the first option itself)
             if [[ "${#ary[@]}" > 1 ]]; then
@@ -215,7 +216,8 @@ args_parse() {
         # for each variant
         for alias in ${variants[@]}; do
         
-          [[ "$alias" =~ -*(.*)$ ]] && alias="${BASH_REMATCH[1]}" # remove the leading dash characters
+          # remove the leading dash characters
+          [[ "$alias" =~ -*(.*)$ ]] && alias="${BASH_REMATCH[1]}" # CAREFUL: a dependant command to the regular expression match is needed, as it is not parsed otherwise
           len="${#alias}" # length of option (useful for determining if it's a short or long option)
 
           # if a tag is provided, then it will set in the `tags` hash

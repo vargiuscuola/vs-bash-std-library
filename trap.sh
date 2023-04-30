@@ -434,7 +434,7 @@ trap_show-stack-trace(){
   # find which file contain the last executed command (stored in $_TRAP__CURRENT_COMMAND) between the executed script and all the sourced files with module.import command
   for file in "${_MODULE__IMPORTED_MODULES[@]}"; do
     str="$( tail -n+$_TRAP__LINENO "$file" | head -n1 | sed -E 's/^[[:space:]]+//' )"
-    [[ "$str" =~ ^[a-zA-Z_:?.\-]+ ]] || true
+    [[ "$str" =~ ^[a-zA-Z_:?.\-]+ ]] || true # `true`, or any dependant command, is needed as the regular expression is not parsed otherwise
     if [[ -n "${BASH_REMATCH[0]}" ]]; then
       alias="${BASH_REMATCH[0]}"
       main.dereference-alias_ "${BASH_REMATCH[0]}"
