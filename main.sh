@@ -14,6 +14,7 @@ declare -ga _MAIN__CLASSES=(main shopt process env fd timer flag msg)
 #   * process
 #   * env
 #   * fd
+#   * var
 #   * timer
 #   * flag
 #   
@@ -376,17 +377,17 @@ file_mkfifo_() {
 command_stdout_() {
   file_mkfifo_ ; local __command_stdout__fifo_path="$__"
   fd_get_ ; local __command_stdout__fd="$__"
-  eval "exec ${__command_stdout__fd}<> $__command_stdout__fifo_path"
-  unlink "$__command_stdout__fifo_path"
-  eval "\"\$@\" 1>&${__command_stdout__fd}"
+  eval "exec ${__command_stdout__fd}<> $__command_stdout__fifo_path"  # open file descriptior `__command_stdout__fd` for read-write access to the fifo
+  unlink "$__command_stdout__fifo_path" # unlink the fifo, which will be actually deleted when no process is using it
+  eval "\"\$@\" 1>&${__command_stdout__fd}" # exec the command and send the output to the fd `__command_stdout__fd` (which is connected to the fifo)
   local __command_stdout__ret=$?
   declare -g __
   if read -u${__command_stdout__fd} -t 0; then
-    read -u${__command_stdout__fd} __
+    read -u${__command_stdout__fd} __ # read the output (first line only) from the fifo
   else
     __=""
   fi
-  eval "exec ${__command_stdout__fd}>&-"
+  eval "exec ${__command_stdout__fd}>&-" # close the temporary fd
   return $__command_stdout__ret
 }
 alias command.stdout_="command_stdout_"
@@ -407,10 +408,10 @@ var_assign() {
   declare -n __var_assign__var=$1
   file_mkfifo_ ; local __var_assign__fifo_path="$__"
   fd_get_ ; local __var_assign__fd="$__"
-  eval "exec ${__var_assign__fd}<> $__var_assign__fifo_path"
-  unlink "$__var_assign__fifo_path"
+  eval "exec ${__var_assign__fd}<> $__var_assign__fifo_path" # open file descriptior `__command_stdout__fd` for read-write access to the fifo
+  unlink "$__var_assign__fifo_path" # unlink the fifo, which will be actually deleted when no process is using it
   shift
-  eval "\"\$@\" 1>&${__var_assign__fd}"
+  eval "\"\$@\" 1>&${__var_assign__fd}" # exec the command and send the output to the fd `__command_stdout__fd` (which is connected to the fifo)
   local __var_assign__ret=$?
   if read -u${__var_assign__fd} -t 0; then
     read -u${__var_assign__fd} __var_assign__var

@@ -112,4 +112,19 @@ test_command_class() {
   command_stdout_ false                       ; assertFalse  command_stdout_.5  "$?"
 }
 
+test_settings_class() {
+  settings.is-enabled  settingx                ; assertFalse  settings_is-enabled.1  "$?"
+  settings_is-disabled settingx                ; assertFalse  settings_is-disabled.1 "$?"
+  settings.enable      settingx
+  settings.is-enabled  settingx                ; assertTrue   settings_is-enabled.2  "$?"
+  settings_is-disabled settingx                ; assertFalse  settings_is-disabled.2 "$?"
+  settings.disable     settingx
+  settings.is-enabled  settingx                ; assertFalse  settings_is-enabled.3  "$?"
+  settings_is-disabled settingx                ; assertTrue   settings_is-disabled.3 "$?"
+  settings.set         settingx valx
+  settings.get_        settingx                ; assertEquals settings_get_.1        "$__" valx
+  settings.is-enabled  settingx                ; assertFalse  settings_is-enabled.4  "$?"
+  settings_is-disabled settingx                ; assertFalse  settings_is-disabled.4 "$?"
+}
+
 source /opt/shunit2/shunit2
