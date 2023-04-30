@@ -120,6 +120,12 @@ test_array_uniq_() {
   set_eq ary exp_ary       ; assertTrue array_uniq_.2 $?
 }
 
+test_array_join() {
+  declare -a ary=(a b "c d" e)
+  array_join ary str ""            ; assertEquals  string_join.1        "$str"            'abc de'
+  array_join ary str ":"           ; assertEquals  string_join.2        "$str"            'a:b:c d:e'
+  array_join ary str "##"          ; assertEquals  string_join.3        "$str"            'a##b##c d##e'
+}
 
 ############
 #

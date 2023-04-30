@@ -331,6 +331,19 @@ array_to_s() {
 alias array.to_s="array_to_s"
 alias hash.to_s="array_to_s"
 
+# @description Join the elements of the provided array into a string, using a provided string as a separator.
+# @alias array.join
+# @arg $1 String Array name, whose elements will be joined into the string
+# @arg $2 String Variable name for the output
+# @arg $3 String[ ] A separator
+array_join() {
+  local aryname="$1[*]" varname="$2" sep="${3- }"
+  declare -g "$varname"
+  local IFS="" ; local res="${!aryname/#/$sep}"
+  eval "$varname=\"\${res:\${#sep}}\""
+}
+alias array.join="array_join"
+
 
 ############
 #
