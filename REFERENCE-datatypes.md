@@ -19,6 +19,8 @@ Contains functions to manipulate different data types such as strings, arrays, a
 
 # Functions
 * [string_append()](#string_append)
+* [string_split()](#string_split)
+* [string_split_()](#string_split_)
 * [array_find-indexes_()](#array_find-indexes_)
 * [array_find_()](#array_find_)
 * [array_find()](#array_find)
@@ -73,6 +75,37 @@ Append a string to the content of the provided variable, optionally prefixing it
 ### Return with global scalar $__, array $__a or hash $__h
 
 * Concatenation of the two strings, optionally separated by the provided separator
+
+## string_split()
+
+Split a string based on a separator and put the resulting components into the provided array.
+
+### Aliases
+
+* **string.split**
+
+### Arguments
+
+* **$1** (String): The string to split
+* **$2** (String): The array name
+* **$3** (String)[default: ** **]: Separator (can be an empty string, in which case the string will be split into its component characters)
+
+## string_split_()
+
+Split a string based on a separator and return the array containing its elements.
+
+### Aliases
+
+* **string.split_**
+
+### Arguments
+
+* **$1** (String): The string to split
+* **$2** (String)[default: ** **]: Separator (can be an empty string, in which case the string will be split into its component characters)
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* An array containing the elements composing the string
 
 ## array_find-indexes_()
 
