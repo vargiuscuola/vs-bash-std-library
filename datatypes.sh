@@ -91,6 +91,15 @@ string_split_() {
 }
 alias string.split_="string_split_"
 
+# @description Check if a string contains a word (needs to be separated by space or tab from other possible words).
+# @alias string.contains-word_
+# @arg $1 String The string to check
+# @arg $2 String The word to find
+# @return @exitcodes 0 if found, 1 otherwise
+string_contains-word() {
+  [[ "$2" =~ (^| |$'\t')$1( |$'\t'|$) ]]
+}
+alias string.contains-word="string_contains-word"
 
 
 ############

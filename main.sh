@@ -432,37 +432,6 @@ var_is-set() {
 }
 alias var.is-set="var_is-set"
 
-# @description Return the first not null value of the provided variables
-# @alias var.first-not-null_
-# @alias var.coalesce_
-# @arg $@ String Variable names whose values needs to be checked: the first not null value will be returned
-# @return The first not null value of the provided variables
-# @exitcodes 0 if a not null value is found, 1 otherwise
-var_first-not-null_() {
-  declare -g __=""
-  while [[ $# -gt 0 ]]; do
-    [ -n "$1" ] && { __="$1" ; return 0 ; }
-    shift
-  done
-  return 1
-}
-alias var.first-not-null_="var_first-not-null_"
-alias var.coalesce_="var_first-not-null_"
-
-# @description Return the value of the first defined variable (even if it's a null value)
-# @alias var.first-defined_
-# @arg $@ String Variable names whose values needs to be checked: the first not null value will be returned
-# @return The first not null value of the provided variables
-# @exitcodes 0 if a defined variable is found, 1 otherwise
-var_first-defined_() {
-  declare -g __=""
-  while [[ $# -gt 0 ]]; do
-    eval "[ \${$1+x} ]" && { __="$1" ; return 0 ; }
-    shift
-  done
-  return 1
-}
-alias var.first-defined_="var_first-defined_"
 
 ############
 #

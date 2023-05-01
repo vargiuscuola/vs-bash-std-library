@@ -174,31 +174,6 @@ log() {
 
 ####
 #
-# gestione variabili
-#
-
-# val_alt_if_null($val1, $val2, ...)
-# restituisce il primo valore non nullo
-val_alt_if_null() {
-  while [[ $# -gt 0 ]]; do
-    [ -n "$1" ] && { echo "$1" ; break ; }
-    shift
-  done
-}
-val_alt_if_null_() {
-  while [[ $# -gt 0 ]]; do
-    [ -n "$1" ] && { declare -g __="$1" ; break ; }
-    shift
-  done
-}
-
-# is_set($varname)
-# determina se una variabile e' definita o meno (una variabile contenente una stringa nulla risultera' definita)
-is_set() { eval "[ \${$1+x} ]" ; }
-
-
-####
-#
 # varie
 #
 
