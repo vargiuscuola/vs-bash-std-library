@@ -21,6 +21,7 @@ Contains functions to manipulate different data types such as strings, arrays, a
 * [string_append()](#string_append)
 * [string_split()](#string_split)
 * [string_split_()](#string_split_)
+* [string_contains-word()](#string_contains-word)
 * [array_find-indexes_()](#array_find-indexes_)
 * [array_find_()](#array_find_)
 * [array_find()](#array_find)
@@ -107,6 +108,23 @@ Split a string based on a separator and return the array containing its elements
 ### Return with global scalar $__, array $__a or hash $__h
 
 * An array containing the elements composing the string
+
+## string_contains-word()
+
+Check if a string contains a word (needs to be separated by space or tab from other possible words).
+
+### Aliases
+
+* **string.contains-word_**
+
+### Arguments
+
+* **$1** (String): The string to check
+* **$2** (String): The word to find
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* @exitcodes 0 if found, 1 otherwise
 
 ## array_find-indexes_()
 
