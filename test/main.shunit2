@@ -102,6 +102,36 @@ test_var_class() {
   var_assign var__gvar echo -e "linea1\nlinea2"    ; assertEquals var_assign.3  linea1  "$var__gvar"
   var_assign var true                              ; assertTrue   var_assign.4  "$?"
   var_assign var false                             ; assertFalse  var_assign.5  "$?"
+
+  var_is-set var2                                  ; assertFalse  var_is-set.1  "$?"
+  local var2=""
+  var_is-set var2                                  ; assertTrue   var_is-set.2  "$?"
+  var2="x"
+  var_is-set var2                                  ; assertTrue   var_is-set.3  "$?"
+  
+  var_first-defined_  var_a var_b var_c            ; assertFalse  var_defined_.1         "$?"
+  var_first-defined_  var_a var_b var_c            ; assertEquals var_defined_.2         "$__" ""
+  var_first-not-null_ var_a var_b var_c            ; assertFalse  var_first-not-null_.1  "$?"
+  var_first-not-null_ var_a var_b var_c            ; assertEquals var_first-not-null_.2  "$__" ""
+  local var_b
+  var_first-defined_ var_a var_b var_c             ; assertTrue   var_defined_.3         "$?"
+  var_first-defined_ var_a var_b var_c             ; assertEquals var_defined_.4         "$__" ""
+  var_first-not-null_ var_a var_b var_c            ; assertFalse  var_first-not-null_.3  "$?"
+  var_first-not-null_ var_a var_b var_c            ; assertEquals var_first-not-null_.4  "$__" ""
+  local var_c=valc
+  var_first-defined_ var_a var_b var_c             ; assertTrue   var_defined_.5         "$?"
+  var_first-defined_ var_a var_b var_c             ; assertEquals var_defined_.6         "$__" ""
+  var_first-not-null_ var_a var_b var_c            ; assertTrue   var_first-not-null_.5  "$?"
+  var_first-not-null_ var_a var_b var_c            ; assertEquals var_first-not-null_.6  "$__" "valc"
+  local var_a=vala
+  var_first-defined_ var_a var_b var_c             ; assertEquals var_defined_.7         "$__" "vala"
+  var_first-not-null_ var_a var_b var_c            ; assertEquals var_first-not-null_.7  "$__" "vala"
+  unset var_b
+  unset var_a
+  var_first-defined_ var_a var_b var_c             ; assertEquals var_defined_.8         "$__" "valc"
+  var_first-not-null_ var_a var_b var_c            ; assertEquals var_first-not-null_.8  "$__" "valc"
+
+
 }
 
 test_command_class() {
