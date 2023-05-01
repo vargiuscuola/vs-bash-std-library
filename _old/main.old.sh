@@ -180,7 +180,6 @@ log() {
 define(){ IFS='\n' read -r -d '' ${1} || true; }
 is_piped() { [ -t 1 ] && return 1 || return 0 ; }
 is_piped && enable_flag IS_PIPED || disable_flag IS_PIPED
-is_word_in_string() { [[ "$2" =~ (^| )$1( |$) ]] ; }
 
 # consente di eseguire lo script mentre lo si edita: utile in caso di aggiornamenti git o simili che possono disturbare l'esecuzione dello script
 # basta eseguire la funzione all'inizio dello script
