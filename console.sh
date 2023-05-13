@@ -181,7 +181,7 @@ console_msg() {
   [[ ${__opts[indent]+x} ]] && console.print-indent
   
   # add message type with color or not depending on the `COLORIZE_OUTPUT` setting and/or the current script/function is piped
-  if settings.is_enabled COLORIZE_OUTPUT || [ -t 1 ]; then
+  if settings.is-enabled COLORIZE_OUTPUT || [ -t 1 ]; then
     echo -n "$color"[$type]"$Color_Off "
   else
     echo -n "[$type] "
@@ -211,7 +211,7 @@ done
 console_printf() {
   
   # is COLORIZE_OUTPUT is enabled or the output is not piped
-  if settings.is_enabled COLORIZE_OUTPUT || [ -t 1 ]; then
+  if settings.is-enabled COLORIZE_OUTPUT || [ -t 1 ]; then
     printf "$@"
   # otherwise color codes are removed
   else
