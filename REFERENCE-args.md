@@ -28,6 +28,8 @@ Basic argument parsing functionalities.
 # Functions
 * [args_check-number()](#args_check-number)
 * [args_parse()](#args_parse)
+* [args_is-opt()](#args_is-opt)
+* [args_get-opt_()](#args_get-opt_)
 
 
 ## args_check-number()
@@ -77,7 +79,7 @@ Parse the command line options.
 
 ### Arguments
 
-* **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed to stdout
+* **$1** (Hashname): Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the variables `_opts` and `_args` are used for storing the options and arguments respectively
 * **$2** (Arrayname): (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments. If not provided, the arguments are printed to stdout
 * **$3** (Number): (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
 * **$4** (Number): (Optional) Maximum number of arguments
@@ -103,21 +105,45 @@ declare -A opts=([-v]="1" [-a]="2" [-n]="pippo" [--name]="pippo" )
 $ declare -p args
 declare -a args=([0]="arg1" [1]="arg2")
 # Example n. 2
-$ args.parse - -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
-### args_parse
-# Options:
--v 1
--a 2
--n somename
---name somename
-# Arguments:
-arg1
-arg2
-#- args_parse
-# Example n. 3
 $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 [ERROR] Wrong number of arguments: 1 instead of 2..3
 ```
+
+## args_is-opt()
+
+Check if the specified option has been provided to a previous call to function `args.parse`
+
+### Arguments
+
+* **$1** (String): The option whose value you want to check
+
+### Arguments
+
+* **$2** (String): (Optional) The variable name containing the options: if not provided, it will use the default variable name defined in the function `args.parse`
+
+### Aliases
+
+* **args.is-opt_**
+
+## args_get-opt_()
+
+Get the value of the option provided to a previous call to function `args.parse`
+
+### Arguments
+
+* **$1** (String): The option whose value you want to get
+
+### Arguments
+
+* **$2** (String): (Optional) The variable name containing the options: if not provided, it will use the default variable name defined in the function `args.parse`
+
+### Aliases
+
+* **args.get-opt_**
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* The value of the provided option
 
 
 
