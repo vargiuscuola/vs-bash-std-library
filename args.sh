@@ -345,11 +345,11 @@ args_zip() {
   [ -z "$3" ] && declare -n __hash_zip__args=_args || declare -n __hash_zip__args="$3"
   # iterate over the keys
   for item in "${__hash_zip__keys[@]}"; do
-    [ "${#__hash_zip__args[@]}" = 0 ] && return 1
-    __hash_zip__hash[$item]="${#__hash_zip__args[$idx]}"
-    (( Idx+=1 ))
+    [ "${#__hash_zip__args[@]}" -lt "$(( idx+1 ))" ] && return 1
+    __hash_zip__hash[$item]="${__hash_zip__args[$idx]}"
+    (( idx+=1 ))
   done
-  [ "${#__hash_zip__args[@]}" -gt 0 ] && return 2
+  [ "${#__hash_zip__args[@]}" -gt $idx ] && return 2
   return 0
 }
 alias args.zip="args_zip"
