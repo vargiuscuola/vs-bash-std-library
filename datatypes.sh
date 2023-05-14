@@ -452,6 +452,35 @@ hash_merge() {
 }
 alias hash.merge="hash_merge"
 
+# @description Create an hash from two arrays, one with the keys and the second with the respective values
+# @alias hash.zip
+# @arg $1 String Variable name of the resulting hash
+# @arg $2 String Variable name of the array containing the list of keys
+# @arg $@ String List of values
+# @return 1 if number of keys is greater than number of values; 2 if number of values is greater of number of keys; 0 otherwise
+# @example
+#   $ declare -a keys=([key1 key2 key3)
+#   $ declare -a values=(val1 "val2 x" val3)
+#   $ hash.zip hash keys "${values[@]}"
+#   $ declare -p hash
+#   declare -A hash=([kay1]="val1" [key2]="key2 x" [key3]="val3")
+hash_zip() {
+  local item
+  declare -gA $1
+  declare -n __hash_zip__hash="$1"
+  declare -n __hash_zip__keys="$2"
+  shift 2
+  # iterate over the keys
+  for item in "${__hash_zip__keys[@]}"; do
+    [ "$#" = 0 ] && return 1
+    __hash_zip__hash[$item]="$1"
+    shift
+  done
+  [ "$#" -gt 0 ] && return 2
+  return 0
+}
+alias hash.zip="hash_zip"
+
 # @description Copy an hash.
 # @alias hash.copy
 # @arg $1 String Variable name of the hash to copy from
