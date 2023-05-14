@@ -329,6 +329,21 @@ args_parse() {
 alias args.parse="args_parse"
 
 
+# @description Create an hash containing the arguments obtained zipping two arrays, one with the keys and the second with the arguments resulting from a previous call to the function `args.parse`
+# @alias args.zip
+# @arg $1 String Variable name of the resulting hash
+# @arg $2 String Variable name of the array containing the list of keys
+# @arg $3 (Optional) String Variable name of the array of args: if not provided, it will use the default variable name defined in the function `args.parse`
+# @return 1 if number of keys is greater than number of values; 2 if number of values is greater of number of keys; 0 otherwise
+args_zip() {
+  args_check-number 1 2 || return 1
+  
+  [ -n "$2" ] && local opts_varname="$2" || local opts_varname=_opts
+  declare -n __args_is_opt__opts="$opts_varname"
+  [[ ${__args_is_opt__opts["$1"]+x} ]]
+}
+alias args.zip="args_zip"
+
 # @description Check if the specified option has been provided to a previous call to function `args.parse`
 # @arg $1 String The option whose value you want to check
 # @arg $2 String (Optional) The variable name containing the options: if not provided, it will use the default variable name defined in the function `args.parse`
