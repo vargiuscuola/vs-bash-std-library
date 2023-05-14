@@ -82,8 +82,8 @@ alias raise='[ "${_SETTINGS__HASH[INTERACTIVE]}" = "$True" ] && return $_ARGS__E
 #   $ alias alias2="alias1"
 #   $ main.dereference-alias_ "github/vargiuscuola/std-lib.bash/main"
 #   # return __="func1"
-alias -- args_check-number >&- 2>&- && unalias args_check-number
-args_check-number() { :; }   # define function if alias is not already defined (see following line: why such a workaround?!)
+alias -- args_check-number >&- 2>&- && unalias args_check-number  # if alias `args_check-number` is defined, then unalias it
+args_check-number() { :; }  # define function if alias is not already defined (see following line: why such a workaround?!)
 alias args_check-number=':args_check-number $#'
 alias args.check-number=':args_check-number $#'
 
@@ -95,7 +95,7 @@ alias args.check-number=':args_check-number $#'
 #   * [reconquest/args](https://github.com/reconquest/args)
 #   * [reconquest/opts.bash](https://github.com/reconquest/opts.bash)
 # @alias args.parse
-# @arg $1 Hashname Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the parsed options and arguments are printed to stdout
+# @arg $1 Hashname Variable name of an associative array where to store the parsed options. If the character dash `-` is provided, the variables `_opts` and `_args` are used for storing the options and arguments respectively
 # @arg $2 Arrayname (Optional, only provided if first argument is not a dash `-`) Variable name of an array where to store the arguments. If not provided, the arguments are printed to stdout
 # @arg $3 Number (Optional) The minimum number of arguments (if $4 is provided), or the mandatory number or arguments (if $4 is not provided)
 # @arg $4 Number (Optional) Maximum number of arguments
@@ -112,18 +112,6 @@ alias args.check-number=':args_check-number $#'
 #   $ declare -p args
 #   declare -a args=([0]="arg1" [1]="arg2")
 #   # Example n. 2
-#   $ args.parse - -- -av -b: -n:,--name -- -aav --name=somename arg1 arg2
-#   ### args_parse
-#   # Options:
-#   -v 1
-#   -a 2
-#   -n somename
-#   --name somename
-#   # Arguments:
-#   arg1
-#   arg2
-#   #- args_parse
-#   # Example n. 3
 #   $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 #   [ERROR] Wrong number of arguments: 1 instead of 2..3
 args_parse() {
@@ -132,8 +120,8 @@ args_parse() {
   (( $# < 2 )) && { errmsg "Second argument should be name of the variable to store the positional arguments to" ; raise ; }
   local opts_varname="$1"
   if [[ "$opts_varname" = - ]]; then
-    declare -A _opts
-    declare -a _args
+    declare -gA _opts
+    declare -ga _args
     shift
   else
     declare -n _opts="$opts_varname"
@@ -322,16 +310,16 @@ args_parse() {
   _args=("$@")
   
   # print the options and arguments to stdout if variable names are not provided
-  if [ "$opts_varname" = - ]; then
-    echo -e "\e[0;33m# Options:${_ARGS__COLOR_OFF}"
-    paste -d' ' <(printf '%s\n' "${!_opts[@]}") <(printf '%q\n' "${_opts[@]}")
-    if (( "${#_args[@]}" )); then
-      echo -e "${_ARGS__YELLOW}# Arguments:${_ARGS__COLOR_OFF}"
-      printf '%q\n' "${_args[@]}"
-    else
-      echo -e "${_ARGS__YELLOW}# No Arguments${_ARGS__COLOR_OFF}"
-    fi
-  fi
+  #if [ "$opts_varname" = - ]; then
+  #  echo -e "\e[0;33m# Options:${_ARGS__COLOR_OFF}"
+  #  paste -d' ' <(printf '%s\n' "${!_opts[@]}") <(printf '%q\n' "${_opts[@]}")
+  #  if (( "${#_args[@]}" )); then
+  #    echo -e "${_ARGS__YELLOW}# Arguments:${_ARGS__COLOR_OFF}"
+  #    printf '%q\n' "${_args[@]}"
+  #  else
+  #    echo -e "${_ARGS__YELLOW}# No Arguments${_ARGS__COLOR_OFF}"
+  #  fi
+  #fi
   
   # validate the number of arguments
   if [ -n "$min_args" ]; then
@@ -339,3 +327,31 @@ args_parse() {
   fi
 }
 alias args.parse="args_parse"
+
+
+# @description Check if the specified option has been provided to a previous call to function `args.parse`
+# @arg $1 String The option whose value you want to check
+# @arg $2 String (Optional) The variable name containing the options: if not provided, it will use the default variable name defined in the function `args.parse`
+# @alias args.is-opt_
+args_is-opt() {
+  args_check-number 1 2 || return 1
+  
+  [ -n "$2" ] && local opts_varname="$2" || local opts_varname=_opts
+  declare -n __args_is_opt__opts="$opts_varname"
+  [[ ${__args_is_opt__opts["$1"]+x} ]]
+}
+alias args.is-opt="args_is-opt"
+
+# @description Get the value of the option provided to a previous call to function `args.parse`
+# @arg $1 String The option whose value you want to get
+# @arg $2 String (Optional) The variable name containing the options: if not provided, it will use the default variable name defined in the function `args.parse`
+# @alias args.get-opt_
+# @return The value of the provided option
+args_get-opt_() {
+  args_check-number 1 2 || return 1
+  
+  [ -n "$2" ] && local opts_varname="$2" || local opts_varname=_opts
+  declare -n __args_is_opt__opts="$opts_varname"
+  declare -g __="${__args_is_opt__opts["$1"]}"
+}
+alias args.get-opt_="args_get-opt_"
