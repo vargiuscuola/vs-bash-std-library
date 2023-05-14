@@ -336,11 +336,21 @@ alias args.parse="args_parse"
 # @arg $3 (Optional) String Variable name of the array of args: if not provided, it will use the default variable name defined in the function `args.parse`
 # @return 1 if number of keys is greater than number of values; 2 if number of values is greater of number of keys; 0 otherwise
 args_zip() {
-  args_check-number 1 2 || return 1
+  args_check-number 1 3 || return 1
   
-  [ -n "$2" ] && local opts_varname="$2" || local opts_varname=_opts
-  declare -n __args_is_opt__opts="$opts_varname"
-  [[ ${__args_is_opt__opts["$1"]+x} ]]
+  local item idx=0
+  declare -gA $1
+  declare -n __hash_zip__hash="$1"
+  declare -n __hash_zip__keys="$2"
+  [ -z "$3" ] && declare -n __hash_zip__args=_args || declare -n __hash_zip__args="$3"
+  # iterate over the keys
+  for item in "${__hash_zip__keys[@]}"; do
+    [ "${#__hash_zip__args[@]}" = 0 ] && return 1
+    __hash_zip__hash[$item]="${#__hash_zip__args[$idx]}"
+    (( Idx+=1 ))
+  done
+  [ "${#__hash_zip__args[@]}" -gt 0 ] && return 2
+  return 0
 }
 alias args.zip="args_zip"
 
