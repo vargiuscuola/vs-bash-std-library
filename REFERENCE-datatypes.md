@@ -42,6 +42,7 @@ Contains functions to manipulate different data types such as strings, arrays, a
 * [hash_init()](#hash_init)
 * [hash_has-key()](#hash_has-key)
 * [hash_merge()](#hash_merge)
+* [hash_zip()](#hash_zip)
 * [hash_copy()](#hash_copy)
 * [hash_find-value_()](#hash_find-value_)
 * [hash_eq()](#hash_eq)
@@ -548,6 +549,34 @@ $ declare -A h2=([a]=5 [c]=6)
 $ hash.merge h1 h2
 $ declare -p h1
 declare -A h1=([a]="5" [b]="2" [c]="6" [e]="3" )
+```
+
+## hash_zip()
+
+Create an hash from two arrays, one with the keys and the second with the respective values
+
+### Aliases
+
+* **hash.zip**
+
+### Arguments
+
+* **$1** (String): Variable name of the resulting hash
+* **$2** (String): Variable name of the array containing the list of keys
+* **...** (String): List of values
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* 1 if number of keys is greater than number of values; 2 if number of values is greater of number of keys; 0 otherwise
+
+### Example
+
+```bash
+$ declare -a keys=([key1 key2 key3)
+$ declare -a values=(val1 "val2 x" val3)
+$ hash.zip hash keys "${values[@]}"
+$ declare -p hash
+declare -A hash=([kay1]="val1" [key2]="key2 x" [key3]="val3")
 ```
 
 ## hash_copy()

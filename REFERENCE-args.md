@@ -28,6 +28,7 @@ Basic argument parsing functionalities.
 # Functions
 * [args_check-number()](#args_check-number)
 * [args_parse()](#args_parse)
+* [args_zip()](#args_zip)
 * [args_is-opt()](#args_is-opt)
 * [args_get-opt_()](#args_get-opt_)
 
@@ -108,6 +109,24 @@ declare -a args=([0]="arg1" [1]="arg2")
 $ args.parse opts args 2 3 -- -av -b: -n:,--name -- -aav --name=somename arg1
 [ERROR] Wrong number of arguments: 1 instead of 2..3
 ```
+
+## args_zip()
+
+Create an hash containing the arguments obtained zipping two arrays, one with the keys and the second with the arguments resulting from a previous call to the function `args.parse`
+
+### Aliases
+
+* **args.zip**
+
+### Arguments
+
+* **$1** (String): Variable name of the resulting hash
+* **$2** (String): Variable name of the array containing the list of keys
+* **$3** ((Optional)): String Variable name of the array of args: if not provided, it will use the default variable name defined in the function `args.parse`
+
+### Return with global scalar $__, array $__a or hash $__h
+
+* 1 if number of keys is greater than number of values; 2 if number of values is greater of number of keys; 0 otherwise
 
 ## args_is-opt()
 
