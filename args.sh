@@ -66,7 +66,7 @@ alias raise='[ "${_SETTINGS__HASH[INTERACTIVE]}" = "$True" ] && return $_ARGS__E
     [[ "${FUNCNAME[1]}" == args_parse ]] && local idx_stack=2 || local idx_stack=1
     # $2${3:+..}${3} => $2 (if $3 is not provided), or $2..$3 (if $3 is provided)
     errmsg "Wrong number of arguments in ${_ARGS__YELLOW}${FUNCNAME[$idx_stack]}()${_ARGS__COLOR_OFF}: $1 instead of $2${3:+..}${3}"
-    raise
+    return 1
   } || true
 }
 
@@ -242,8 +242,7 @@ args_parse() {
 
   _opts=()
   _args=()
-  (( $# == 0 )) && return 0
-  
+
   # parse options with getopt
   eval set -- $(
     getopt \
@@ -267,13 +266,11 @@ args_parse() {
         opt=$1
 
         # set the key for the option value to: 1) the tag if existing, otherwise to the option itself
-        if [[ ${tags[$opt]+x} ]]; then 
-          key="${tags[${opt}]}"
-        else
-          key="${opt}"
-          key="${opt#-}"
-          key="${key#-}"
-        fi
+        # remove dash character from start of option
+        key="${opt#-}"
+        key="${key#-}"
+        
+        [[ ${tags[$key]+x} ]] && key="${tags[${key}]}"
 
         # if the option expect an argument
         if [[ ${values[$key]+x} ]]; then
