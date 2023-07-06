@@ -118,14 +118,23 @@ args_parse() {
   # check the first two arguments (variable name for options and arguments)
   (( $# < 1 )) && { errmsg "First argument should be name of the variable to store the parsed options to" ; raise ; }
   (( $# < 2 )) && { errmsg "Second argument should be name of the variable to store the positional arguments to" ; raise ; }
-  local opts_varname="$1"
-  if [[ "$opts_varname" = - ]]; then
+  
+  # set the arg and opt variables
+  if [[ "$1" = - ]]; then
     declare -gA _opts
     declare -ga _args
     shift
   else
-    declare -n _opts="$opts_varname"
-    declare -n _args="$2"
+    # opt variable
+    declare -gA "$1"
+    [ "$1" != _opts ] && declare -n _opts="$1"
+    # arg variable
+    if [[ "$2" = - ]]; then
+      declare -ga _args
+    else
+      declare -ga "$2"
+      [ "$1" != _args ] && declare -n _args="$2"
+    fi
     shift 2
   fi
   
